@@ -1,0 +1,323 @@
+'use client';
+import React from 'react';
+import { AppHeaderNavbarItemType } from './types';
+import { Button } from '../components/ui/button';
+import ODXLogo from '../components/svg/odx-logo';
+import { useRouter } from 'nextjs-toploader/app';
+import { usePathname } from 'next/navigation';
+import Login from '../components/popups/login';
+import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useUserInfo } from '@/hooks/queries/use-user';
+import Cookies from 'js-cookie';
+import Authenticated from '@/components/common/authenticated';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { shortenAddress } from '../utils/crypto';
+import { Copy, LogOut, Menu, User, Star, Power } from 'lucide-react';
+import { useCopyToClipboard, useMediaQuery } from 'usehooks-ts';
+import { toast } from 'sonner';
+import { ModeToggle } from '@/components/theme-toggle';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import Link from 'next/link';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTheme } from 'next-themes';
+import Image from 'next/image';
+import millify from 'millify';
+import { ScorePopup } from '@/components/score-popup';
+import ConnectWallet from '@/components/common/connect-wallet';
+import { useWalletStore } from '@/stores/wallet-store';
+import { useDisconnect } from 'wagmi';
+
+export default function AppHeader() {
+  return (
+    <div className="flex h-16 items-center justify-between gap-2 px-4 lg:px-6">
+      <AppHeaderLeft />
+      <AppHeaderRight />
+    </div>
+  );
+}
+
+const AppHeaderLeft = () => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const router = useRouter();
+  const { theme, systemTheme } = useTheme();
+
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+
+  return (
+    <div className="flex items-center gap-2 lg:gap-4">
+      <Image
+        onClick={() => {
+          router.push('/trade');
+        }}
+        src={`/images/logos/odx-${currentTheme ? currentTheme : 'dark'}-text.svg`}
+        alt="ODX Logo"
+        width={169}
+        height={211}
+        className="h-6 w-auto"
+      />
+      {!isMobile && <AppHeaderNavbar />}
+    </div>
+  );
+};
+
+const AppHeaderRight = () => {
+  const { data: userInfo, isLoading: userInfoLoading } = useUserInfo();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [, copyToClipboard] = useCopyToClipboard();
+  const logout = async () => {
+    Cookies.remove('auth_token');
+    // localStorage.removeItem(StorageKeys.AuthBundle); // DEPRECATED
+    // localStorage.removeItem(StorageKeys.CurrentUser);
+    // localStorage.removeItem(StorageKeys.UserSession);
+    // localStorage.removeItem(StorageKeys.ReadWriteSession);
+    // localStorage.removeItem('sessionExpiry');
+    window.location.reload();
+  };
+  const router = useRouter();
+  const { disconnect: disconnectEVM } = useDisconnect();
+  const { connectedWallet, disconnectWallet } = useWalletStore();
+
+  const disconnectWalletHandler = async () => {
+    disconnectEVM();
+    disconnectWallet();
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      {!userInfo && !userInfoLoading && <ModeToggle />}
+      {userInfo && !userInfoLoading && (
+        <TooltipProvider>
+          <Tooltip delayDuration={100}>
+            <Popover>
+              <PopoverTrigger asChild>
+                <TooltipTrigger asChild>
+                  <Button variant="outline">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-accent" />
+                      <p className="text-xs text-accent">
+                        {millify(userInfo?.NewPoints ?? 0, {
+                          precision: 2,
+                        })}
+                      </p>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="px-0">
+                <ScorePopup />
+              </PopoverContent>
+            </Popover>
+            <TooltipContent>Score</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+      {userInfo && !userInfoLoading && <ConnectWallet />}
+      {/* {userInfo && !userInfoLoading && (
+        <TooltipProvider>
+          <Tooltip delayDuration={100}>
+            <Popover>
+              <PopoverTrigger asChild>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Wallet className="h-4 w-4 text-foreground" />
+                  </Button>
+                </TooltipTrigger>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="px-0">
+                <Portfolio />
+              </PopoverContent>
+            </Popover>
+            <TooltipContent>Portfolio</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )} */}
+      <Authenticated customUI={<Login />}>
+        <Dialog>
+          {userInfo && (
+            <DropdownMenu>
+              {/* <LocaleSwitcher />*/}
+              <DropdownMenuTrigger className="focus:outline-none focus:ring-0">
+                <Avatar>
+                  <AvatarImage src={userInfo?.ImgUrl} />
+                  <AvatarFallback>{userInfo?.Email?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-44">
+                {connectedWallet && (
+                  <>
+                    <DropdownMenuItem
+                      disabled
+                      className="data-[disabled]:pointer-events-auto data-[disabled]:opacity-100"
+                    >
+                      <div className="flex flex-col">
+                        <p className="text-foreground">Address:</p>
+                        <div
+                          className="group flex cursor-pointer items-center gap-2 hover:underline"
+                          onClick={() => {
+                            copyToClipboard(connectedWallet || '');
+                            toast.success(`Copied!`, {
+                              description: connectedWallet,
+                            });
+                          }}
+                        >
+                          <p className="text-sm text-muted-foreground">
+                            {shortenAddress(connectedWallet || '')}
+                          </p>
+                          <Copy className="group-hover:text-primary-f size-3" />
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem
+                  onClick={() => {
+                    router.push(`/profile/me`);
+                  }}
+                >
+                  <User className="size-[1.2rem]" />
+                  Profile
+                </DropdownMenuItem>
+
+                {/* <DialogTrigger asChild>
+                  <DropdownMenuItem>
+                    <FolderUp className="size-[1.2rem]" />
+                    Export wallet
+                  </DropdownMenuItem>
+                </DialogTrigger> */}
+
+                <ModeToggle type="dropdown" />
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    disconnectWalletHandler();
+                  }}
+                  className="focus:bg-destructive focus:text-destructive-foreground"
+                >
+                  <Power className="size-[1.2rem]" />
+                  Disconnect Wallet
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="focus:bg-destructive focus:text-destructive-foreground"
+                >
+                  <LogOut className="size-[1.2rem]" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Export wallet</DialogTitle>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </Authenticated>
+      {isMobile && (
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="size-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left">
+            <SheetHeader>
+              <SheetTitle>
+                <ODXLogo className="h-8 max-w-20 pl-4 text-foreground" />
+              </SheetTitle>
+            </SheetHeader>
+            <div className="flex flex-col gap-2 py-4">
+              <SheetClose asChild>
+                <Link href="/x-assets">
+                  <Button variant="ghost" className="w-full justify-start">
+                    X-Assets
+                  </Button>
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link href="/trade">
+                  <Button variant="ghost" className="w-full justify-start">
+                    Trade
+                  </Button>
+                </Link>
+              </SheetClose>
+              {!!userInfo && (
+                <SheetClose asChild>
+                  <Link href="/score?tab=scorecard">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Score
+                    </Button>
+                  </Link>
+                </SheetClose>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+    </div>
+  );
+};
+
+const navbarItems = [
+  // { label: "buyCrypto", route: "buy-crypto" },
+  // { label: "markets", route: "markets" },
+  { label: 'trade', route: 'trade' },
+  { label: 'xAssets', route: 'x-assets' },
+  { label: 'score', route: 'score', isProtected: true },
+  // { label: 'Leaderboard' },
+  // { label: "components", route: "components" },
+];
+
+const AppHeaderNavbar = () => {
+  return (
+    <nav>
+      {navbarItems.map(navbarItem => {
+        return <AppHeaderNavbarItem key={navbarItem.label} {...navbarItem} />;
+      })}
+    </nav>
+  );
+};
+
+const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({ label, route, isProtected }) => {
+  const pathname = usePathname();
+  const { push } = useRouter();
+  const t = useTranslations('Navbar');
+  const { data: userInfo } = useUserInfo();
+
+  const isActive = pathname === `/${route}`;
+
+  if (isProtected && !userInfo) {
+    return null;
+  }
+
+  return (
+    <Button
+      key={label}
+      variant="ghost"
+      className={cn(isActive && 'font-bold text-primary', 'hover:text-primary')}
+      onClick={() => push(`/${route}`)}
+    >
+      {t(label)}
+    </Button>
+  );
+};

@@ -1,0 +1,38 @@
+{
+  "AppLayout": {
+    "home": "Beranda",
+    "logout": "Keluar",
+    "profile": "Profil"
+  },
+  "HomePage": {
+    "title": "Beranda"
+  },
+  "LocaleSwitcher": {
+    "de": "Jerman",
+    "en": "Inggris",
+    "id": "Indonesia",
+    "label": "Bahasa"
+  },
+  "LoginPage": {
+    "credentials": "Kredensial: jane@doe.com / next-intl",
+    "description": "Silakan masukkan detail Anda.",
+    "email": "Email",
+    "invalidCredentials": "Silakan periksa kredensial Anda.",
+    "invalidEmail": "Silakan masukkan alamat email yang valid.",
+    "invalidPassword": "Silakan masukkan kata sandi.",
+    "login": "Masuk",
+    "password": "Kata Sandi",
+    "title": "Selamat Datang Kembali"
+  },
+  "ProfilePage": {
+    "title": "Profil"
+  },
+  "Navbar": {
+    "buyCrypto": "Beli Kripto",
+    "markets": "Pasar",
+    "trade": "Perdagangan",
+    "portfolio": "Portofolio",
+    "score": "Skor",
+    "components": "Komponen"
+  }
+}

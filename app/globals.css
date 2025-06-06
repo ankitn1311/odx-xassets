@@ -1,0 +1,324 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-size: 14px;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(215 20% 85%) transparent;
+  }
+
+  .dark * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(215 74% 18%) transparent;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 319 84% 67%;
+    --accent-foreground: 210 40% 98%;
+    --warning: 38 95% 64%;
+    --warning-foreground: 38 95% 29%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 53%;
+    --chart-1: 221 83% 53%;
+    --chart-2: 319 84% 67%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 319 84% 67%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 221 83% 53%;
+  }
+  /* :root {
+    --background: 0 0% 90%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 94%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 319 84% 67%;
+    --accent-foreground: 210 40% 98%;
+    --warning: 38 95% 64%;
+    --warning-foreground: 38 95% 29%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 53%;
+    --chart-1: 221 83% 53%;
+    --chart-2: 319 84% 67%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 319 84% 67%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 221 83% 53%;
+  } */
+  .dark-main {
+    --background: 215 69% 6%;
+    --foreground: 215 90% 88%;
+    --card: 215 74% 9%; /* #0c1420 */
+    --card-foreground: 60 9.1% 97.8%;
+    --popover: 215 69% 6%;
+    --popover-foreground: 215 90% 88%;
+    --primary: 209 72% 59%;
+    --primary-foreground: 210 74% 100%;
+    --secondary: 215 74% 18%;
+    --secondary-foreground: 215 90% 99%;
+    --muted: 215 74% 18%;
+    --muted-foreground: 215 40% 68%;
+    --accent: 301 38% 75%;
+    --accent-foreground: 215 69% 6%;
+    --destructive: 0 73% 61%;
+    --destructive-foreground: 7 9% 98.8%;
+    --warning: 29 86% 57%;
+    --warning-foreground: 29 9% 99%;
+    --success: 160 78% 40%;
+    --success-foreground: 154 9% 99%;
+    --border: 215 74% 16%;
+    --input: 215 74% 16%;
+    --ring: 215 84% 26%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --background: 220 15% 10%; /* Deep navy blue for the background */
+    --foreground: 220 20% 90%; /* Light grayish blue for text */
+    --card: 220 10% 12%; /* #161b24 */
+    --card-foreground: 220 30% 92%; /* Soft white-blue for text on cards */
+    --popover: 220 15% 10%; /* Muted navy for popovers */
+    --popover-foreground: 220 40% 95%; /* Bright white-blue for text */
+    --primary: 220 70% 50%; /* Vibrant blue for primary actions */
+    --primary-foreground: 220 100% 95%; /* Almost white for contrast */
+    --secondary: 220 20% 20%; /* Darker blue for secondary elements */
+    --secondary-foreground: 220 30% 85%; /* Soft white-blue for secondary text */
+    --muted: 220 10% 15%; /* Very dark muted blue */
+    --muted-foreground: 220 15% 60%; /* Grayish blue for muted text */
+    --accent: 301 38% 75%;
+    --accent-foreground: 215 69% 6%;
+    --destructive: 0 73% 61%;
+    --destructive-foreground: 7 9% 98.8%;
+    --warning: 29 86% 57%;
+    --warning-foreground: 29 9% 99%;
+    --success: 160 78% 40%;
+    --success-foreground: 154 9% 99%;
+    --secondary-accent: 248 14% 35%; /* Slightly brighter blue for accent elements */
+    --secondary-accent-foreground: 248 14% 98%; /* White for accent contrast */
+    --border: 220 10% 20%; /* Soft blue-gray for borders */
+    --input: 220 10% 20%; /* Matches border for seamless inputs */
+    --ring: 220 60% 55%; /* Bright blue for focus rings */
+    --chart-1: 220 70% 50%; /* Blue for primary chart lines */
+    --chart-2: 210 60% 45%; /* Teal for secondary charts */
+    --chart-3: 40 70% 50%; /* Yellow for highlights */
+    --chart-4: 280 60% 55%; /* Purple for contrast */
+    --chart-5: 340 70% 50%; /* Pink for additional highlights */
+  }
+}
+
+/* // V1 */
+/* --background: 215 69% 6%;
+--foreground: 215 90% 88%;
+--card: 215 74% 9%;
+--card-foreground: 60 9.1% 97.8%;
+--popover: 215 69% 2%;
+--popover-foreground: 60 9.1% 97.8%;
+--primary: 206 90% 88%;
+--primary-foreground: 210 74% 9%;
+--secondary: 215 74% 18%;
+--secondary-foreground: 215 90% 88%;
+--muted: 215 74% 18%;
+--muted-foreground: 215 40% 68%;
+--accent: 206 90% 88%;
+--accent-foreground: 210 74% 9%;
+--destructive: 7 84% 57%;
+--destructive-foreground: 7 9% 98.8%;
+--warning: 29 86% 57%;
+--warning-foreground: 29 9% 99%;
+--success: 154 94% 39%;
+--success-foreground: 154 9% 99%;
+--border: 215 74% 16%;
+--input: 215 74% 16%;
+--ring: 215 84% 26%;
+--chart-1: 220 70% 50%;
+--chart-2: 160 60% 45%;
+--chart-3: 30 80% 55%;
+--chart-4: 280 65% 60%;
+--chart-5: 340 75% 55%; */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-medium text-foreground;
+  }
+}
+
+.ODX-Main-Layout {
+  display: grid;
+  grid-template-columns: 1fr 20.75rem 18rem;
+  grid-template-rows: 2rem 3.5rem 1fr 7.25rem 9.5rem 2rem;
+  grid-auto-flow: row;
+  grid-template-areas:
+    'Quickbar Quickbar Quickbar'
+    'Token-Details Token-Details Swap'
+    'Chart Trades Swap'
+    'Table-Tabs Table-Tabs Swap'
+    'Table-Tabs Table-Tabs Swap'
+    'Sidebar-Footer Footer Footer';
+}
+
+.ODX-X-Assets-Layout {
+  display: grid;
+  grid-template-columns: 1fr 24rem;
+  grid-template-rows: 6rem auto 1fr;
+  grid-auto-flow: row;
+  grid-template-areas:
+    'Header Trade'
+    'Featured Trade'
+    'Available Trade';
+  min-height: calc(100vh - 4rem);
+  gap: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .ODX-X-Assets-Layout {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .ODX-X-Assets-Layout > .Header,
+  .ODX-X-Assets-Layout > .Trade,
+  .ODX-X-Assets-Layout > .Featured,
+  .ODX-X-Assets-Layout > .Available {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+.ODX-X-Assets-Layout > .Header {
+  grid-area: Header;
+  padding: 1rem;
+}
+
+.ODX-X-Assets-Layout > .Featured {
+  grid-area: Featured;
+  padding: 1rem;
+}
+
+.ODX-X-Assets-Layout > .Available {
+  grid-area: Available;
+}
+
+.ODX-X-Assets-Layout > .Trade {
+  grid-area: Trade;
+  height: 100%;
+}
+
+.ODX-Main-Layout > .Quickbar {
+  grid-area: Quickbar;
+}
+
+.ODX-Main-Layout > .Token-Details {
+  grid-area: Token-Details;
+}
+
+.ODX-Main-Layout > .Trades {
+  grid-area: Trades;
+}
+
+.ODX-Main-Layout > .Chart {
+  grid-area: Chart;
+}
+
+.ODX-Main-Layout > .Swap {
+  grid-area: Swap;
+}
+
+.ODX-Main-Layout > .Table-Tabs {
+  grid-area: Table-Tabs;
+}
+
+.ODX-Main-Layout > .Sidebar-Footer {
+  grid-area: Sidebar-Footer;
+}
+
+.ODX-Main-Layout > .Footer {
+  grid-area: Footer;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

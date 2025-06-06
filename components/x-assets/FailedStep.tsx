@@ -1,0 +1,89 @@
+import { useFormContext } from 'react-hook-form';
+import { SwapFormValues } from './TokenSwapForm';
+import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
+import Image from 'next/image';
+import { Button } from '../ui/button';
+import { XCircle } from 'lucide-react';
+import { convertXUSDT } from '@/lib/utils';
+export function FailedStep() {
+  const { inputToken, outputToken, setTradeState } = useTokenSwapStore();
+  const form = useFormContext<SwapFormValues>();
+  const amount = form.watch('amount');
+  const outputAmount = form.watch('outputAmount');
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="mb-6 mt-4 text-center">
+        <XCircle className="mx-auto mb-4 h-12 w-12 text-destructive" />
+        <h2 className="text-xl font-semibold">Transaction Failed</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Your transaction could not be completed. Please try again.
+        </p>
+      </div>
+
+      <div className="w-full space-y-6">
+        <div className="flex w-full justify-between border-b border-border pb-4">
+          <div className="flex flex-col items-start">
+            <p className="mb-2 text-sm text-muted-foreground">Attempted to Sell</p>
+            <div className="flex items-center gap-2">
+              <Image
+                src={`/images/tokens/${inputToken?.Name}.png`}
+                alt={inputToken?.Name ?? ''}
+                width={24}
+                height={24}
+                className="rounded-full"
+              />
+              <div className="flex flex-col">
+                <p className="font-medium">{amount}</p>
+                <p className="text-sm text-muted-foreground">
+                  {convertXUSDT(inputToken?.Name ?? '')}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end">
+            <p className="mb-2 text-sm text-muted-foreground">Would Have Received</p>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-end">
+                <p className="font-medium">{outputAmount}</p>
+                <p className="text-sm text-muted-foreground">
+                  {convertXUSDT(outputToken?.Name ?? '')}
+                </p>
+              </div>
+              <Image
+                src={`/images/tokens/${outputToken?.Name}.png`}
+                alt={outputToken?.Name ?? ''}
+                width={24}
+                height={24}
+                className="rounded-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Status</p>
+            <p className="text-sm text-destructive">Failed</p>
+          </div>
+
+          {/* <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Error</p>
+            <p className="text-sm text-destructive">Insufficient funds for gas</p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">TxHash</p>
+            <div className="flex items-center gap-1">
+              <p className="text-sm text-primary">0x520c1118d14d761801...</p>
+              <Button variant="ghost" size="icon" className="h-4 w-4 p-0">
+                <Image src="/images/copy.svg" alt="Copy" width={12} height={12} />
+              </Button>
+            </div>
+          </div> */}
+        </div>
+      </div>
+    </div>
+  );
+}
