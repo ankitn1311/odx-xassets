@@ -6,7 +6,7 @@ export function TokenSwapCard() {
   return (
     <Card className="flex h-full flex-col justify-between overflow-hidden">
       <div>
-        <h2 className="px-4 pt-4 text-lg font-semibold">Trade</h2>
+        <h2 className="px-4 pt-4 text-lg font-semibold">Trade X-Assets</h2>
         <div className="px-4 py-4">
           <TokenSwapForm />
         </div>

@@ -64,7 +64,7 @@ const AppHeaderLeft = () => {
     <div className="flex items-center gap-2 lg:gap-4">
       <Image
         onClick={() => {
-          router.push('/trade');
+          router.push('/x-assets');
         }}
         src={`/images/logos/odx-${currentTheme ? currentTheme : 'dark'}-text.svg`}
         alt="ODX Logo"

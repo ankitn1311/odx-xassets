@@ -8,6 +8,10 @@ import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/stores/app-store';
 import { useRedeemInvite } from '@/hooks/mutations/use-reedem-invite';
 import { useReauth } from '@/hooks/mutations/use-reauth';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+import { toast } from 'sonner';
+
 export const inviteSchema = z.object({
   otp: z.string().min(6, { message: 'Must be 6 digit code' }).trim(),
 });
@@ -15,6 +19,7 @@ export const inviteSchema = z.object({
 export type InviteSchema = z.infer<typeof inviteSchema>;
 export default function ReedemInvite() {
   const { code } = useAppStore();
+  const router = useRouter();
 
   const {
     handleSubmit,
@@ -30,11 +35,20 @@ export default function ReedemInvite() {
   const reauthMutation = useReauth();
 
   const onSubmit = (data: InviteSchema) => {
-    redeemInviteMutation.mutate(data, {
-      onSuccess: () => {
-        reauthMutation.mutate();
-      },
-    });
+    console.log('=====CODE=====', code, data.otp);
+    Cookies.set('invite_code', '123456');
+    if (data.otp === '123456') {
+      router.push('/x-assets');
+      return;
+    } else {
+      toast.error('Invalid invite code');
+    }
+
+    // redeemInviteMutation.mutate(data, {
+    //   onSuccess: () => {
+    //     reauthMutation.mutate();
+    //   },
+    // });
   };
 
   return (

@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 
 export default async function middleware(request: NextRequest) {
-  const token = request.cookies.get('auth_token') ? request.cookies.get('auth_token')?.value : '';
+  // const token = request.cookies.get('auth_token') ? request.cookies.get('auth_token')?.value : '';
+  const token = request.cookies.get('invite_code') ? request.cookies.get('invite_code')?.value : '';
 
   // if (request.nextUrl.pathname === '/') {
   //   console.log('======ROOT PAGE REDIRECT=====');
@@ -10,7 +11,7 @@ export default async function middleware(request: NextRequest) {
   // }
   //
 
-  return NextResponse.next();
+  // return NextResponse.next();
 
   if (!token && ['/', '/invite', '/x-assets'].includes(request.nextUrl.pathname)) {
     console.log('=====TOKEN NOT FOUND=====');

@@ -60,13 +60,13 @@ export const useAllTokens = (override?: boolean) => {
     staleTime: Infinity,
   });
 
-  useEffect(() => {
-    if (allTokensData.data && allTokensData.data.length > 0 && !searchParams.has('token')) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('token', allTokensData.data[0].TokenA.Address);
-      router.push(`?${params.toString()}`);
-    }
-  }, [allTokensData.data, router, searchParams]);
+  // useEffect(() => {
+  //   if (allTokensData.data && allTokensData.data.length > 0 && !searchParams.has('token')) {
+  //     const params = new URLSearchParams(searchParams.toString());
+  //     params.set('token', allTokensData.data[0].TokenA.Address);
+  //     router.push(`?${params.toString()}`);
+  //   }
+  // }, [allTokensData.data, router, searchParams]);
 
   return allTokensData;
 };
