@@ -109,9 +109,9 @@ export function TokenSwapForm() {
   };
 
   const onSubmit = async (values: SwapFormValues) => {
-    return toast.info(
-      'We are currently upgrading our xAssets platform to bring you an even better experience. Please check back soon!'
-    );
+    // return toast.info(
+    //   'We are currently upgrading our xAssets platform to bring you an even better experience. Please check back soon!'
+    // );
 
     if (!connectedWallet) return toast.error('Please connect your wallet');
     if (isInsufficientBalance) return toast.error('Insufficient balance');
