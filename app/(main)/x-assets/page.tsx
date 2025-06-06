@@ -10,6 +10,7 @@ import { AvailableAssets } from './available-assets';
 import { AssetCard } from '@/app/components/x-assets/AssetCard';
 import { PoolCard } from '@/app/components/x-assets/PoolCard';
 import { convertXUSDT } from '@/lib/utils';
+import { BackgroundGradientAnimation } from '@/components/ui/background-gradient-animation';
 
 export default function XAssets() {
   const { setNumericBalance } = useTokenSwapStore();
@@ -43,6 +44,16 @@ export default function XAssets() {
       tvl: 0,
       tokenPair: tokenPair,
     })) || [];
+
+  return (
+    <BackgroundGradientAnimation>
+      <div className="absolute inset-0 z-50 flex items-center justify-center px-4">
+        <div className="z-10 mx-auto flex w-full max-w-2xl flex-col gap-2 p-2">
+          <TokenSwapCard />
+        </div>
+      </div>
+    </BackgroundGradientAnimation>
+  );
 
   return (
     <main className="ODX-X-Assets-Layout h-[calc(100vh-4rem)] w-full gap-1 overflow-y-auto bg-background px-2 pb-2 font-sans">

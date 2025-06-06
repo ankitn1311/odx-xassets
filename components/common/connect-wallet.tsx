@@ -13,10 +13,8 @@ import { shortenAddress, shortenAddressWithLength } from '@/utils/crypto';
 import { Ban, Wallet } from 'lucide-react';
 // import { cn } from '../../../utils/twMerge.helper';
 import { ConnectButton, useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
-import { ConnectButton as SuiConnectButton, useWallet } from '@suiet/wallet-kit';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTonAddress, useTonConnectUI } from '@tonconnect/ui-react';
 import { useUserInfo } from '@/hooks/queries/use-user';
 import TonIcon, { EthereumSvg } from '../icons/ton';
 import { cn } from '@/lib/utils';
@@ -42,10 +40,8 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
       queryKey: ['ordinoxBalance', address],
     });
   };
-  const suiwallet = useWallet();
 
   const { openConnectModal } = useConnectModal();
-  const [tonConnect] = useTonConnectUI();
   const { data: userInfo, isLoading: userInfoLoading } = useUserInfo();
 
   const { address, chainId } = useAccount();
@@ -76,16 +72,6 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
     } else {
       openConnectModal?.();
     }
-  };
-
-  const connectTONWallet = async () => {
-    // if (tonWalletAddress) {
-    //   connectWallet('TON', tonWalletAddress);
-    //   setSelectedWalletType('TON');
-    // } else {
-    setWalletModalOpen(false);
-    tonConnect.openSingleWalletModal('tonkeeper');
-    // }
   };
 
   // useEffect(() => {
@@ -137,12 +123,6 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
     disconnectWallet();
   };
 
-  const disconnectSUIWallet = async () => {
-    suiwallet.disconnect();
-    disconnectWallet();
-  };
-
-  /** Connect wallet based on wallet type */
   const connectWalletHandler = () => {
     switch (selectedWalletType) {
       case 'BRC20': {
@@ -153,17 +133,7 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
         connectEVMWallet();
         break;
       }
-      case 'TON': {
-        connectTONWallet();
-        break;
-      }
-      case 'SUI': {
-        connectWallet('SUI', suiwallet?.address || '');
-        break;
-      }
       default: {
-        connectTONWallet();
-
         // customToast({
         //   message: 'Please select a wallet',
         //   type: 'info'
@@ -199,33 +169,16 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
           </SelectContent>
         </Select>
         <div className={cn('fle font-poppins items-center justify-center gap-2')}>
-          {selectedWalletType === 'SUI' && (
-            <SuiConnectButton
-              onConnectSuccess={data => {
-                console.log('CONNECTED SUCCESSFULLY', data);
-
-                connectWalletHandler();
-              }}
-              className="my-button"
-              label="Connect SUI Wallet"
-            />
-          )}
-          {selectedWalletType !== 'SUI' && (
-            <Button
-              variant="secondary"
-              className="flex w-full flex-nowrap items-center gap-2"
-              onClick={connectWalletHandler}
-            >
-              <div className="flex items-center gap-2">
-                {selectedWalletType === 'TON' ? (
-                  <TonIcon className="h-5 w-5" />
-                ) : (
-                  <EthereumSvg className="h-5 w-5" />
-                )}
-                <p>Connect Wallet</p>
-              </div>
-            </Button>
-          )}
+          <Button
+            variant="secondary"
+            className="flex w-full flex-nowrap items-center gap-2"
+            onClick={connectWalletHandler}
+          >
+            <div className="flex items-center gap-2">
+              <EthereumSvg className="h-5 w-5" />
+              <p>Connect Wallet</p>
+            </div>
+          </Button>
         </div>
       </div>
     );

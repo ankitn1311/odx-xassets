@@ -11,8 +11,6 @@ import {
 import { constants, ethers as ethersV6 } from 'ethers';
 import { ethers as ethersV5 } from 'ethers';
 import { useAccount, useWalletClient } from 'wagmi';
-import { useAccountModal } from '@rainbow-me/rainbowkit';
-import { useWallet } from '@suiet/wallet-kit';
 import { WalletClient, createWalletClient, custom } from 'viem';
 import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
 import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';

@@ -38,64 +38,62 @@ export default function ReedemInvite() {
   };
 
   return (
-    <Card className="max-w-lg px-2 py-4 md:p-10">
-      <div className={cn('flex flex-col gap-6')}>
-        <div className="flex flex-col items-center gap-2">
-          <h3 className="text-center text-lg text-foreground">Enter invite code</h3>
-          <p className="text-center text-base font-normal leading-tight text-muted-foreground">
-            In order to deposit funds into your ODX trading wallet and start earning points enter
-            your invite code
-          </p>
-        </div>
+    <div className={cn('flex flex-col gap-6')}>
+      <div className="flex flex-col items-center gap-2">
+        <h3 className="text-center text-base text-muted-foreground">Enter invite code</h3>
+        {/* <p className="text-center text-base font-normal leading-tight text-muted-foreground">
+          In order to deposit funds into your ODX trading wallet and start earning points enter your
+          invite code
+        </p> */}
+      </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col items-center gap-6">
-              <Controller
-                control={control}
-                name="otp"
-                render={({ field }) => (
-                  <InputOTP maxLength={6} {...field} type="text" inputMode="text">
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                )}
-              />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-6">
+            <Controller
+              control={control}
+              name="otp"
+              render={({ field }) => (
+                <InputOTP maxLength={6} {...field} type="text" inputMode="text">
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              )}
+            />
 
-              {errors?.otp?.message && <p className="text-red-500">{errors?.otp.message}</p>}
-              <div className="flex w-full flex-col items-center gap-1">
-                <Button
-                  type="submit"
-                  className="w-full"
-                  isLoading={
-                    isSubmitting || redeemInviteMutation.isPending || reauthMutation.isPending
-                  }
-                  disabled={
-                    isSubmitting || redeemInviteMutation.isPending || reauthMutation.isPending
-                  }
-                >
-                  Redeem invite code
-                </Button>
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={() => {
-                    window.open('https://discord.gg/9r7sU8H23H', '_blank');
-                  }}
-                >
-                  No invite code?
-                </Button>
-              </div>
+            {errors?.otp?.message && <p className="text-red-500">{errors?.otp.message}</p>}
+            <div className="flex w-full flex-col items-center gap-1">
+              <Button
+                type="submit"
+                className="w-full"
+                isLoading={
+                  isSubmitting || redeemInviteMutation.isPending || reauthMutation.isPending
+                }
+                disabled={
+                  isSubmitting || redeemInviteMutation.isPending || reauthMutation.isPending
+                }
+              >
+                Redeem invite code
+              </Button>
+              {/* <Button
+                variant="link"
+                type="button"
+                onClick={() => {
+                  window.open('https://discord.gg/9r7sU8H23H', '_blank');
+                }}
+              >
+                No invite code?
+              </Button> */}
             </div>
           </div>
-        </form>
-      </div>
-    </Card>
+        </div>
+      </form>
+    </div>
   );
 }

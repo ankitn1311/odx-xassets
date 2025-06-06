@@ -101,201 +101,24 @@ const AppHeaderRight = () => {
 
   return (
     <div className="flex items-center gap-2">
-      {!userInfo && !userInfoLoading && <ModeToggle />}
-      {userInfo && !userInfoLoading && (
-        <TooltipProvider>
-          <Tooltip delayDuration={100}>
-            <Popover>
-              <PopoverTrigger asChild>
-                <TooltipTrigger asChild>
-                  <Button variant="outline">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-accent" />
-                      <p className="text-xs text-accent">
-                        {millify(userInfo?.NewPoints ?? 0, {
-                          precision: 2,
-                        })}
-                      </p>
-                    </div>
-                  </Button>
-                </TooltipTrigger>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="px-0">
-                <ScorePopup />
-              </PopoverContent>
-            </Popover>
-            <TooltipContent>Score</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
-      {userInfo && !userInfoLoading && <ConnectWallet />}
-      {/* {userInfo && !userInfoLoading && (
-        <TooltipProvider>
-          <Tooltip delayDuration={100}>
-            <Popover>
-              <PopoverTrigger asChild>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Wallet className="h-4 w-4 text-foreground" />
-                  </Button>
-                </TooltipTrigger>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="px-0">
-                <Portfolio />
-              </PopoverContent>
-            </Popover>
-            <TooltipContent>Portfolio</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )} */}
-      <Authenticated customUI={<Login />}>
-        <Dialog>
-          {userInfo && (
-            <DropdownMenu>
-              {/* <LocaleSwitcher />*/}
-              <DropdownMenuTrigger className="focus:outline-none focus:ring-0">
-                <Avatar>
-                  <AvatarImage src={userInfo?.ImgUrl} />
-                  <AvatarFallback>{userInfo?.Email?.substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-44">
-                {connectedWallet && (
-                  <>
-                    <DropdownMenuItem
-                      disabled
-                      className="data-[disabled]:pointer-events-auto data-[disabled]:opacity-100"
-                    >
-                      <div className="flex flex-col">
-                        <p className="text-foreground">Address:</p>
-                        <div
-                          className="group flex cursor-pointer items-center gap-2 hover:underline"
-                          onClick={() => {
-                            copyToClipboard(connectedWallet || '');
-                            toast.success(`Copied!`, {
-                              description: connectedWallet,
-                            });
-                          }}
-                        >
-                          <p className="text-sm text-muted-foreground">
-                            {shortenAddress(connectedWallet || '')}
-                          </p>
-                          <Copy className="group-hover:text-primary-f size-3" />
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem
-                  onClick={() => {
-                    router.push(`/profile/me`);
-                  }}
-                >
-                  <User className="size-[1.2rem]" />
-                  Profile
-                </DropdownMenuItem>
-
-                {/* <DialogTrigger asChild>
-                  <DropdownMenuItem>
-                    <FolderUp className="size-[1.2rem]" />
-                    Export wallet
-                  </DropdownMenuItem>
-                </DialogTrigger> */}
-
-                <ModeToggle type="dropdown" />
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => {
-                    disconnectWalletHandler();
-                  }}
-                  className="focus:bg-destructive focus:text-destructive-foreground"
-                >
-                  <Power className="size-[1.2rem]" />
-                  Disconnect Wallet
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={logout}
-                  className="focus:bg-destructive focus:text-destructive-foreground"
-                >
-                  <LogOut className="size-[1.2rem]" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Export wallet</DialogTitle>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </Authenticated>
-      {isMobile && (
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="size-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <SheetHeader>
-              <SheetTitle>
-                <ODXLogo className="h-8 max-w-20 pl-4 text-foreground" />
-              </SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col gap-2 py-4">
-              <SheetClose asChild>
-                <Link href="/x-assets">
-                  <Button variant="ghost" className="w-full justify-start">
-                    X-Assets
-                  </Button>
-                </Link>
-              </SheetClose>
-              <SheetClose asChild>
-                <Link href="/trade">
-                  <Button variant="ghost" className="w-full justify-start">
-                    Trade
-                  </Button>
-                </Link>
-              </SheetClose>
-              {!!userInfo && (
-                <SheetClose asChild>
-                  <Link href="/score?tab=scorecard">
-                    <Button variant="ghost" className="w-full justify-start">
-                      Score
-                    </Button>
-                  </Link>
-                </SheetClose>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
+      <ModeToggle />
+      <ConnectWallet />
     </div>
   );
 };
 
-const navbarItems = [
-  // { label: "buyCrypto", route: "buy-crypto" },
-  // { label: "markets", route: "markets" },
-  { label: 'trade', route: 'trade' },
-  { label: 'xAssets', route: 'x-assets' },
-  { label: 'score', route: 'score', isProtected: true },
-  // { label: 'Leaderboard' },
-  // { label: "components", route: "components" },
-];
+// const navbarItems = [
+//   // { label: "buyCrypto", route: "buy-crypto" },
+//   // { label: "markets", route: "markets" },
+//   // { label: 'trade', route: 'trade' },
+//   // { label: 'xAssets', route: 'x-assets' },
+//   // { label: 'score', route: 'score', isProtected: true },
+//   // { label: 'Leaderboard' },
+//   // { label: "components", route: "components" },
+// ];
 
 const AppHeaderNavbar = () => {
-  return (
-    <nav>
-      {navbarItems.map(navbarItem => {
-        return <AppHeaderNavbarItem key={navbarItem.label} {...navbarItem} />;
-      })}
-    </nav>
-  );
+  return null;
 };
 
 const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({ label, route, isProtected }) => {

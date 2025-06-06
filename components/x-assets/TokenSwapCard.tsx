@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { TokenSwapForm } from './TokenSwapForm';
-import Faucet from '@/app/(main)/trade/faucet/faucet';
+// import Faucet from '@/app/(main)/trade/faucet/faucet';
 
 export function TokenSwapCard() {
   return (
@@ -11,9 +11,9 @@ export function TokenSwapCard() {
           <TokenSwapForm />
         </div>
       </div>
-      <div className="px-4 py-4">
+      {/* <div className="px-4 py-4">
         <Faucet />
-      </div>
+      </div> */}
     </Card>
   );
 }
