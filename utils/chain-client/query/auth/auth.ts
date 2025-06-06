@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from 'cosmjs-types/binary';
 import Long from 'long';
 import _m0 from 'protobufjs/minimal';
 import { Any } from '../../google/any';

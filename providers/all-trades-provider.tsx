@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { WS_ADDR } from '@/utils/chain-client/txs/registry';
 import { EventType, Trade } from '@/hooks/queries/use-trades';
 
 export interface WebSocketMessage {
@@ -90,7 +89,7 @@ export const AllTradesProvider: React.FC<AllTradesProviderProps> = ({ children }
   const mockIntervalRef = useRef<NodeJS.Timeout>();
 
   // WebSocket configuration
-  const { readyState, sendJsonMessage, lastJsonMessage, getWebSocket } = useWebSocket(WS_ADDR, {
+  const { readyState, sendJsonMessage, lastJsonMessage, getWebSocket } = useWebSocket('test', {
     reconnectAttempts: 5,
     reconnectInterval: 1000,
     shouldReconnect: () => true,
@@ -115,7 +114,7 @@ export const AllTradesProvider: React.FC<AllTradesProviderProps> = ({ children }
     },
     onError: error => {
       console.error('ws all trades error', error);
-      console.error('WebSocket URL:', WS_ADDR);
+      console.error('WebSocket URL:', 'test');
       console.error('Connection ID:', connectionIdRef.current);
 
       // Start sending mock data when WebSocket fails

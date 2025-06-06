@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { WS_ADDR } from '@/utils/chain-client/txs/registry';
 import { EventType, Trade } from '@/hooks/queries/use-trades';
 import { useSelectedToken } from '@/hooks/queries/use-selected-token';
 import { toast } from 'sonner';
@@ -71,7 +70,7 @@ export const TradeProvider: React.FC<TradeProviderProps> = ({ children }) => {
   const previousTokenRef = useRef<string | null>(null);
 
   // WebSocket configuration
-  const { readyState, sendJsonMessage, lastJsonMessage, getWebSocket } = useWebSocket(WS_ADDR, {
+  const { readyState, sendJsonMessage, lastJsonMessage, getWebSocket } = useWebSocket('test', {
     reconnectAttempts: 5,
     reconnectInterval: 1000,
     shouldReconnect: () => true,
@@ -110,7 +109,7 @@ export const TradeProvider: React.FC<TradeProviderProps> = ({ children }) => {
     },
     onError: error => {
       console.error('ws trade error', error);
-      console.error('WebSocket URL:', WS_ADDR);
+      console.error('WebSocket URL:', 'test');
       console.error('Connection ID:', connectionIdRef.current);
     },
     onClose: () => {
