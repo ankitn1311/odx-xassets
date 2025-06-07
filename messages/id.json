@@ -33,6 +33,8 @@
     "trade": "Perdagangan",
     "portfolio": "Portofolio",
     "score": "Skor",
-    "components": "Komponen"
+    "components": "Komponen",
+    "xAssets": "xAssets",
+    "reserves": "Reserven"
   }
 }

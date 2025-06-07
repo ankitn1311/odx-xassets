@@ -33,6 +33,8 @@
     "trade": "Handel",
     "portfolio": "Portfolio",
     "score": "Punktzahl",
-    "components": "Komponenten"
+    "components": "Komponenten",
+    "xAssets": "xAssets",
+    "reserves": "Reserven"
   }
 }

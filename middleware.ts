@@ -13,7 +13,7 @@ export default async function middleware(request: NextRequest) {
 
   // return NextResponse.next();
 
-  if (!token && ['/', '/invite', '/x-assets'].includes(request.nextUrl.pathname)) {
+  if (!token && ['/', '/invite', '/x-assets', '/reserves'].includes(request.nextUrl.pathname)) {
     console.log('=====TOKEN NOT FOUND=====');
     if (request.nextUrl.pathname === '/invite') {
       console.log('=====TRADE PAGE=====');
@@ -24,7 +24,7 @@ export default async function middleware(request: NextRequest) {
   }
 
   // if token is available and user tries to access protected routes
-  if (token && ['/', '/invite', '/x-assets'].includes(request.nextUrl.pathname)) {
+  if (token && ['/', '/invite', '/x-assets', '/reserves'].includes(request.nextUrl.pathname)) {
     try {
       if (request.nextUrl.pathname === '/invite' || request.nextUrl.pathname === '/') {
         return NextResponse.redirect(new URL('/x-assets', request.url));
@@ -44,6 +44,7 @@ export const config = {
     '/((?!api|_next/static|images|static|_next/image|favicon.ico|public/*).*)',
     '/',
     '/invite',
+    '/reserves',
     '/x-assets',
   ],
 };

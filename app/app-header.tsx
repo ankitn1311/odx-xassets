@@ -107,18 +107,25 @@ const AppHeaderRight = () => {
   );
 };
 
-// const navbarItems = [
-//   // { label: "buyCrypto", route: "buy-crypto" },
-//   // { label: "markets", route: "markets" },
-//   // { label: 'trade', route: 'trade' },
-//   // { label: 'xAssets', route: 'x-assets' },
-//   // { label: 'score', route: 'score', isProtected: true },
-//   // { label: 'Leaderboard' },
-//   // { label: "components", route: "components" },
-// ];
+const navbarItems = [
+  // { label: "buyCrypto", route: "buy-crypto" },
+  // { label: "markets", route: "markets" },
+  // { label: 'trade', route: 'trade' },
+  { label: 'xAssets', route: 'x-assets' },
+  { label: 'reserves', route: 'reserves' },
+  // { label: 'score', route: 'score', isProtected: true },
+  // { label: 'Leaderboard' },
+  // { label: "components", route: "components" },
+];
 
 const AppHeaderNavbar = () => {
-  return null;
+  return (
+    <nav>
+      {navbarItems.map(navbarItem => {
+        return <AppHeaderNavbarItem key={navbarItem.label} {...navbarItem} />;
+      })}
+    </nav>
+  );
 };
 
 const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({ label, route, isProtected }) => {

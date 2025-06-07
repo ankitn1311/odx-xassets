@@ -34,6 +34,7 @@
     "portfolio": "Portfolio",
     "score": "Score",
     "components": "Components",
-    "xAssets": "xAssets"
+    "xAssets": "xAssets",
+    "reserves": "Reserves"
   }
 }
