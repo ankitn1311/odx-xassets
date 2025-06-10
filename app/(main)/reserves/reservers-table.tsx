@@ -10,8 +10,8 @@ export function ReservesTable() {
   // Transform token pairs into table data format
   const tableData =
     allTokens?.map(tokenPair => ({
-      tokenName: tokenPair.TokenA.Name,
-      tokenSymbol: tokenPair.TokenA.Name,
+      tokenName: tokenPair.TokenB.Name,
+      tokenSymbol: tokenPair.TokenB.Name,
       totalSupply: '2,133',
       totalSupplyUSD: '$133,133',
       unitsInReserve: '2,233',
@@ -20,7 +20,7 @@ export function ReservesTable() {
       price: 0,
       priceChange: 0,
       marketCap: 0,
-      image: `/images/tokens/${tokenPair.TokenA.Name}.png`,
+      image: `/images/tokens/${tokenPair.TokenB.Name}.png`,
     })) || [];
 
   if (isLoading) {

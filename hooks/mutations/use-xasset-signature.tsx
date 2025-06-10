@@ -1,21 +1,13 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/utils/axiosConfig';
-import {
-  CosignerData,
-  DutchOrder,
-  DutchOrderBuilder,
-  NonceManager,
-  V2DutchOrderBuilder,
-} from '@uniswap/uniswapx-sdk';
-import { constants, ethers as ethersV6 } from 'ethers';
+import { CosignerData, NonceManager, V2DutchOrderBuilder } from '@uniswap/uniswapx-sdk';
 import { ethers as ethersV5 } from 'ethers';
 import { useAccount, useWalletClient } from 'wagmi';
 import { WalletClient, createWalletClient, custom } from 'viem';
 import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
 import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import axios, { AxiosError } from 'axios';
-import { remove0xFromAddress } from '@/utils/crypto';
 
 interface SigData {
   user_address: string;
@@ -37,7 +29,14 @@ interface CosignatureData {
   cosign_hash: string;
 }
 
-type OrderStatus = 'VALIDATED' | 'PROCESSED' | 'ERROR' | 'PROCESSING';
+type OrderStatus =
+  | 'VALIDATED'
+  | 'PROCESSED'
+  | 'ERROR'
+  | 'PROCESSING'
+  | 'CUSTODY_TRANSFER_START'
+  | 'CUSTODY_TRANSFER_COMPLETE'
+  | 'CUSTODY_TRANSFER_FAILED';
 
 interface OrderStatusResponse {
   executionName: string;
@@ -310,88 +309,6 @@ export const useXAssetSignature = () => {
     };
   };
 
-  const getSignatureAndSerializedOrder = async (data: SigData, wallet: WalletClient) => {
-    if (!wallet) {
-      throw new Error('Wallet not connected. Please connect your wallet first.');
-    }
-
-    if (!address) {
-      throw new Error('No account address found. Please connect your wallet first.');
-    }
-
-    const account = await wallet.getAddresses();
-    if (!account[0]) {
-      throw new Error('No account found');
-    }
-
-    console.log('ACCOUNT', account);
-
-    // Create a provider and signer using wallet client
-    const walletClient = createWalletClient({
-      transport: custom(wallet.transport),
-    });
-
-    // Create ethers provider from wallet client
-    const provider = new ethersV5.providers.Web3Provider(walletClient.transport);
-    console.log('PROVIDER', provider);
-    const signer = provider.getSigner(account[0]);
-    const signerAccount = await signer.getAddress();
-    console.log('SIGNER', signer);
-    console.log('SIGNER ACCOUNT', signerAccount);
-
-    const chainId = wallet.chain?.id;
-    console.log('CHAIN ID', chainId);
-    if (!chainId) {
-      toast.error('Chain ID not found');
-      throw new Error('Chain ID not found');
-    }
-
-    // Use the provider for NonceManager with permit2 configuration
-    const nonceMgr = new NonceManager(provider, chainId, BASE_PERMIT2);
-    console.log('NONCEMGR', nonceMgr);
-    const nonce = await nonceMgr.useNonce(signerAccount);
-    console.log('NONCE', nonce);
-
-    const builder = new DutchOrderBuilder(chainId, BASE_REACTOR, BASE_PERMIT2);
-    console.log('BUILDER', builder);
-    // Set deadline to 20 minutes from now (in seconds)
-    const deadline = Math.floor(Date.now() / 1000) + 20 * 60;
-    console.log('DEADLINE', deadline);
-    const order = builder
-      .deadline(deadline)
-      .decayEndTime(deadline)
-      .decayStartTime(deadline - 100)
-      .nonce(nonce)
-      .swapper(account[0])
-      .input({
-        token: data.token,
-        startAmount: ethersV5.utils.parseUnits(data.amount, data.input_decimals),
-        endAmount: ethersV5.utils.parseUnits(data.amount, data.input_decimals),
-      })
-      .output({
-        token: data.output_token,
-        startAmount: ethersV5.utils.parseUnits(data.output_amount, data.output_decimals),
-        endAmount: ethersV5.utils.parseUnits(data.output_amount, data.output_decimals),
-        recipient: data.user_address,
-      })
-      .build();
-
-    // Sign the built order
-    console.log('ORDER', order);
-    const { domain, types, values } = order.permitData();
-    console.log('DOMAIN', domain);
-    console.log('TYPES', types);
-    console.log('VALUES', values);
-    const signature = await signer._signTypedData(domain, types, values);
-    console.log('SIGNATURE', signature);
-
-    const serializedOrder = order.serialize();
-    return {
-      signature,
-      serializedOrder,
-    };
-  };
-
   const submitSignature = async (data: SigData) => {
     try {
       if (isError) {
@@ -424,7 +341,10 @@ export const useXAssetSignature = () => {
         console.log('orderStatus', orderStatus);
         attempts++;
       } while (
-        (orderStatus.status === 'VALIDATED' || orderStatus.status === 'PROCESSING') &&
+        (orderStatus.status === 'VALIDATED' ||
+          orderStatus.status === 'PROCESSING' ||
+          orderStatus.status === 'CUSTODY_TRANSFER_START' ||
+          orderStatus.status === 'CUSTODY_TRANSFER_COMPLETE') &&
         attempts < 10
       );
 
@@ -441,11 +361,19 @@ export const useXAssetSignature = () => {
         });
         setTradeState(TradeState.SUCCESS);
         setLatestTradeHash(txHash);
-      } else if (orderStatus.status === 'ERROR') {
+      } else if (
+        orderStatus.status === 'ERROR' ||
+        orderStatus.status === 'CUSTODY_TRANSFER_FAILED'
+      ) {
         toast.error('Transaction failed');
         setTradeState(TradeState.FAILED);
         throw new Error('Transaction failed');
-      } else if (orderStatus.status === 'VALIDATED' || orderStatus.status === 'PROCESSING') {
+      } else if (
+        orderStatus.status === 'VALIDATED' ||
+        orderStatus.status === 'PROCESSING' ||
+        orderStatus.status === 'CUSTODY_TRANSFER_START' ||
+        orderStatus.status === 'CUSTODY_TRANSFER_COMPLETE'
+      ) {
         toast.info('Transaction pending', {
           description: txHash ? (
             // <a href={`https://testnet.sonicscan.org/tx/${txHash}`} target="_blank">
