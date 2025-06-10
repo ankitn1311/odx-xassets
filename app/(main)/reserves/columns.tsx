@@ -1,8 +1,17 @@
 import Image from 'next/image';
 
+const changeToProperName = (name: string) => {
+  switch (name) {
+    case 'SOL':
+      return 'Solana';
+    default:
+      return name;
+  }
+};
+
 const TokenName = ({ name, symbol, image }: { name: string; symbol: string; image: string }) => {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2">
       <Image
         alt="Coin Image"
         src={image}
@@ -12,7 +21,7 @@ const TokenName = ({ name, symbol, image }: { name: string; symbol: string; imag
         className="h-10 w-10 rounded-full"
       />
       <div className="flex flex-col">
-        <div className="text-base">{name}</div>
+        <div className="text-base">{changeToProperName(name)}</div>
         <div className="text-xs font-semibold text-muted-foreground">{symbol}</div>
       </div>
     </div>
@@ -77,8 +86,10 @@ export const exploreColumn: ColumnDef<Available>[] = [
       console.log('totalSupply', { totalSupply, totalSupplyUSD });
       return (
         <div className="flex flex-col items-start">
-          <p className="text-base font-normal text-foreground">{totalSupply}</p>
-          <p className="text-md font-normal">{totalSupplyUSD}</p>
+          <p className="text-base font-normal text-foreground">
+            {Number(totalSupply).toFixed(3)} xSOL
+          </p>
+          <p className="text-md font-normal">${parseFloat(totalSupplyUSD).toLocaleString()}</p>
         </div>
       );
     },
@@ -99,8 +110,10 @@ export const exploreColumn: ColumnDef<Available>[] = [
       const unitsInReserveUSD = row.original.unitsInReserveUSD;
       return (
         <div className="flex flex-col items-start">
-          <p className="text-base font-normal text-foreground">{unitsInReserve}</p>
-          <p className="text-md font-normal">{unitsInReserveUSD}</p>
+          <p className="text-base font-normal text-foreground">
+            {Number(unitsInReserve).toFixed(3)} SOL
+          </p>
+          <p className="text-md font-normal">${parseFloat(unitsInReserveUSD).toLocaleString()}</p>
         </div>
       );
     },
@@ -112,8 +125,8 @@ export const exploreColumn: ColumnDef<Available>[] = [
         className="group flex items-center justify-end gap-2 hover:cursor-pointer"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
-        <p className="select-none text-sm font-semibold">Ratio</p>
         <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
+        <p className="select-none text-sm font-semibold">Ratio</p>
       </div>
     ),
     cell: ({ row }) => {

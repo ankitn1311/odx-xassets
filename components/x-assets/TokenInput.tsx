@@ -161,12 +161,12 @@ export function TokenInput({
                   <Input
                     type="text"
                     placeholder="0.0"
+                    disabled={isOutput}
                     className="border-0 bg-transparent p-0 text-2xl font-normal placeholder:text-muted-foreground/50 focus-visible:ring-0"
                     value={field.value}
-                    onChange={e =>
-                      isOutput
-                        ? onOutputAmountChange?.(e.target.value)
-                        : onAmountChange(e.target.value)
+                    onChange={
+                      e => !isOutput && onAmountChange(e.target.value)
+                      // ? onOutputAmountChange?.(e.target.value)
                     }
                   />
                 </FormControl>

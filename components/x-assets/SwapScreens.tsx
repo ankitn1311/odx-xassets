@@ -16,6 +16,7 @@ export function SwapScreens() {
     formState: { isSubmitting },
   } = useFormContext<SwapFormValues>();
   const amount = watch('amount');
+  const outputAmount = watch('outputAmount');
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
 
   const { getQuote, isLoading: isQuoteLoading } = useTradeQuote();
@@ -73,6 +74,7 @@ export function SwapScreens() {
 
   const isInsufficientBalance = Number(amount) > numericBalance;
   const isValidAmount = amount && Number(amount) > 0;
+  const isInsufficientOutputAmount = Number(outputAmount) === 0;
 
   return (
     <>
@@ -85,6 +87,7 @@ export function SwapScreens() {
           isQuoteLoading ||
           isSubmitting ||
           isInsufficientBalance ||
+          isInsufficientOutputAmount ||
           !isValidAmount ||
           tradeState === TradeState.CHECKING_APPROVAL
         }

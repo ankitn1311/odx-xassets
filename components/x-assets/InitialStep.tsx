@@ -2,23 +2,25 @@ import { TokenInput } from './TokenInput';
 import { Button } from '../ui/button';
 import Image from 'next/image';
 import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { SwapFormValues } from './TokenSwapForm';
 import { useFormContext } from 'react-hook-form';
 import { debounce } from 'lodash';
-import { useRef } from 'react';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 
 const MAX_DECIMALS = 2;
+const POLLING_INTERVAL = 5000; // 5 seconds
 
 export function InitialStep() {
   const { tradeState, inputToken, outputToken, numericBalance, swapTokens, resetTradeState } =
     useTokenSwapStore();
-  const { setValue } = useFormContext<SwapFormValues>();
+  const { setValue, watch } = useFormContext<SwapFormValues>();
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { getQuote } = useTradeQuote();
+  const inputAmount = watch('amount');
 
   useEffect(() => {
     // Initialize the debounced function
@@ -49,12 +51,38 @@ export function InitialStep() {
     };
   }, [getQuote, setValue]);
 
+  // Add polling effect
+  useEffect(() => {
+    if (inputAmount && inputToken && outputToken) {
+      // Clear any existing interval
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+
+      // Set up new polling interval
+      pollingIntervalRef.current = setInterval(() => {
+        if (debouncedGetQuoteRef.current) {
+          debouncedGetQuoteRef.current(inputToken.Address, outputToken.Address, inputAmount);
+        }
+      }, POLLING_INTERVAL);
+    }
+
+    // Cleanup function
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [inputAmount, inputToken, outputToken]);
+
   const handleAmountChange = useCallback(
     async (value: string) => {
       if (!value) {
+        console.log(' NO VALUE');
         setValue('amount', '');
         setValue('outputAmount', '');
         setValue('percentage', 0);
+        debouncedGetQuoteRef?.current?.(inputToken?.Address, outputToken?.Address, 0);
         return;
       }
 
@@ -65,8 +93,8 @@ export function InitialStep() {
 
       const numValue = Number(formattedValue);
       if (isNaN(numValue)) return;
-      if (numValue > 0.1) {
-        toast.error('Amount must be less than 10 cents!');
+      if (numValue > 10) {
+        toast.error('Amount must be less than 10 USDC!');
         return;
       }
 

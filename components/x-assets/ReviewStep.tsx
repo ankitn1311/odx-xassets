@@ -138,7 +138,7 @@ export function ReviewStep() {
             {/* <div className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500">
               <Image src="/images/xrp.svg" alt="SONIC" width={12} height={12} />
             </div> */}
-            <p className="text-sm">SONIC TESTNET</p>
+            <p className="text-sm">SONIC</p>
           </div>
         </div>
 

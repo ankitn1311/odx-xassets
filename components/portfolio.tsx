@@ -74,9 +74,7 @@ export const Portfolio = () => {
         {chainId !== CHAIN_ID && (
           <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-2 py-1 text-destructive">
             <Ban className="h-4 w-4 flex-shrink-0" />
-            <p className="text-xs">
-              Not connected to Sonic Blaze Testnet or Wallet is not connected properly
-            </p>
+            <p className="text-xs">Not connected to Sonic or Wallet is not connected properly</p>
           </div>
         )}
         <div className="flex items-center justify-between">

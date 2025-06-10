@@ -36,8 +36,8 @@ export default function ReedemInvite() {
 
   const onSubmit = (data: InviteSchema) => {
     console.log('=====CODE=====', code, data.otp);
-    Cookies.set('invite_code', '123456');
-    if (data.otp === '123456') {
+    Cookies.set('invite_code', '829239');
+    if (data.otp === '829239') {
       router.push('/x-assets');
       return;
     } else {
