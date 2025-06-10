@@ -87,7 +87,7 @@ export const exploreColumn: ColumnDef<Available>[] = [
       return (
         <div className="flex flex-col items-start">
           <p className="text-base font-normal text-foreground">
-            {Number(totalSupply).toFixed(3)} xSOL
+            {Number(totalSupply).toFixed(3)} x1SOL
           </p>
           <p className="text-md font-normal">${parseFloat(totalSupplyUSD).toLocaleString()}</p>
         </div>

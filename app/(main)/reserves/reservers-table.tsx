@@ -6,12 +6,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTokenSupply } from '@/hooks/queries/use-token-supply';
 
 const xTokenToToken = {
-  xSOL: 'SOL',
+  x1SOL: 'SOL',
 };
 
 export function ReservesTable() {
   const { data: allTokens, isLoading } = useAllTokens();
-  const solToken = allTokens?.find(token => token.TokenB.Name === 'xSOL');
+  const solToken = allTokens?.find(token => token.TokenB.Name === 'x1SOL');
   console.log('ALL TOKEN', allTokens, solToken);
 
   const { data: tokenSupplyData, isLoading: isSupplyLoading } = useTokenSupply(

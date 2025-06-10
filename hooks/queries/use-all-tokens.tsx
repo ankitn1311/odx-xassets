@@ -25,12 +25,12 @@ const getAllTokens = async (xAssetScreen: boolean) => {
       Decimals: 6,
     },
     TokenB: {
-      Name: 'xSOL',
-      FullName: 'xSOL',
+      Name: 'x1SOL',
+      FullName: 'x1SOL',
       Address: '0x344C683C891e3e0b5b393Fc10f6479B725353a36',
       Decimals: 18,
     },
-    Name: 'USDC/xSOL',
+    Name: 'USDC/x1SOL',
   };
 
   return [tokenPair];

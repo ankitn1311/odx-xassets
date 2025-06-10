@@ -16,7 +16,7 @@ const usdcToUsd = {
 };
 
 const xTokenToToken = {
-  xSOL: 'SOL',
+  x1SOL: 'SOL',
 };
 
 export const useTradeQuote = () => {
