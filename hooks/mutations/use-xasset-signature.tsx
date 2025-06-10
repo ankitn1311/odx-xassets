@@ -33,6 +33,7 @@ type OrderStatus =
   | 'VALIDATED'
   | 'PROCESSED'
   | 'ERROR'
+  | 'FAILED'
   | 'PROCESSING'
   | 'CUSTODY_TRANSFER_START'
   | 'CUSTODY_TRANSFER_COMPLETE'
@@ -242,6 +243,7 @@ export const useXAssetSignature = () => {
       Number(data.output_amount).toFixed(18),
       data.output_decimals
     );
+    console.log('amounts', inputAmount, outputAmount, data);
 
     const cosignerData: CosignerData = {
       decayStartTime: startTime,
@@ -363,6 +365,7 @@ export const useXAssetSignature = () => {
         setLatestTradeHash(txHash);
       } else if (
         orderStatus.status === 'ERROR' ||
+        orderStatus.status === 'FAILED' ||
         orderStatus.status === 'CUSTODY_TRANSFER_FAILED'
       ) {
         toast.error('Transaction failed');

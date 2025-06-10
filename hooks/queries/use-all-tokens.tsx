@@ -21,7 +21,7 @@ const getAllTokens = async (xAssetScreen: boolean) => {
     TokenA: {
       Name: 'USDC',
       FullName: 'USDC',
-      Address: '0x51270276680e72B1fEF6EA70227e56247C689e05',
+      Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
       Decimals: 6,
     },
     TokenB: {

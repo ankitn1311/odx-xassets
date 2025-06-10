@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { convertXUSDT } from '@/lib/utils';
 
 const symbolReplace = {
-  USDC: 'xUSDC',
+  USDC: 'USDC',
   x1SOL: 'x1SOL',
 };
 
