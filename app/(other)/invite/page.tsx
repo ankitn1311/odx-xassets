@@ -32,7 +32,7 @@ export default function Invite() {
                 />
               </CardTitle>
               <CardDescription className="text-center text-lg text-muted-foreground">
-                Mainnet Beta Access
+                Mainnet Alpha Access
                 {/* Enter your invite code to access the mainnet beta. */}
               </CardDescription>
             </CardHeader>
@@ -58,7 +58,7 @@ export default function Invite() {
             />
           </CardTitle>
           <CardDescription className="text-center text-lg text-muted-foreground">
-            Mainnet Beta Access
+            Mainnet Alpha Access
             {/* Enter your invite code to access the mainnet beta. */}
           </CardDescription>
         </CardHeader>
