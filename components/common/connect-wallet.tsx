@@ -23,6 +23,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Portfolio } from '../portfolio';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
+const CHAIN_ID = 146;
+
 const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
   const {
     connectedWallet,
@@ -45,6 +47,7 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
   const { data: userInfo, isLoading: userInfoLoading } = useUserInfo();
 
   const { address, chainId } = useAccount();
+  console.log('chainID', chainId);
   const { disconnect: disconnectEVM } = useDisconnect();
 
   const connectBTCWallet = async () => {
@@ -220,14 +223,14 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
               <Popover>
                 <PopoverTrigger asChild>
                   <TooltipTrigger asChild>
-                    <Button variant={chainId !== 57054 ? 'destructive' : 'outline'}>
+                    <Button variant={chainId !== CHAIN_ID ? 'destructive' : 'outline'}>
                       <div className="flex items-center gap-2">
                         <Wallet
-                          className={`h-4 w-4 ${chainId !== 57054 ? 'text-destructive-foreground' : 'text-foreground'}`}
+                          className={`h-4 w-4 ${chainId !== CHAIN_ID ? 'text-destructive-foreground' : 'text-foreground'}`}
                         />
                         <p className="text-xs">{shortenAddressWithLength(connectedWallet!, 3)}</p>
                         {/* Remove this for mainnet */}
-                        {chainId !== 57054 && (
+                        {chainId !== CHAIN_ID && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger>
@@ -235,8 +238,7 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>
-                                  Not connected to Sonic Blaze Testnet or Wallet is not connected
-                                  properly
+                                  Not connected to Sonic Mainnet or Wallet is not connected properly
                                 </p>
                               </TooltipContent>
                             </Tooltip>

@@ -50,7 +50,7 @@ export function TokenInput({
   // const token = isOutput ? outputToken : inputToken;
 
   const availableTokens = allTokens?.map(tokens => {
-    if (tokens.TokenA.Name === 'xUSDT') {
+    if (tokens.TokenA.Name === 'USDC') {
       return tokens.TokenB;
     }
     return tokens.TokenA;
@@ -59,7 +59,7 @@ export function TokenInput({
   const token = !isOutput ? inputToken : outputToken;
   const { data: balance } = useTokenBalance(token?.Address ?? '', token?.Decimals ?? 18);
 
-  const isUSDT = token?.Name === 'xUSDT';
+  const isUSDT = token?.Name === 'USDC';
 
   const handlePercentageClick = (percentage: number) => {
     setValue('percentage', percentage);
@@ -136,8 +136,8 @@ export function TokenInput({
 
   useEffect(() => {
     if (allTokens) {
-      const inpToken = allTokens?.[0].TokenB;
-      const outToken = allTokens?.[0].TokenA;
+      const inpToken = allTokens?.[0].TokenA;
+      const outToken = allTokens?.[0].TokenB;
       if (inpToken) {
         setInputToken(inpToken);
       }

@@ -135,7 +135,8 @@ export function SuccessStep() {
             <div className="flex items-center gap-1">
               <a
                 className="text-sm text-primary"
-                href={`https://testnet.sonicscan.org/tx/${latestTradeHash}`}
+                // href={`https://testnet.sonicscan.org/tx/${latestTradeHash}`}
+                href={`https://sonicscan.org/tx/${latestTradeHash}`}
                 target="_blank"
               >
                 {shortenAddress(latestTradeHash)}

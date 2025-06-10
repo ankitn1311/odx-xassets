@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { getQueryClient } from '@/app/get-query-client';
 import { RainbowKitProvider, darkTheme, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { sonicTestnet } from 'viem/chains';
+import { sonic, sonicTestnet } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
 import { Toaster } from 'sonner';
 import WalletSync from './wallet-sync';
@@ -13,7 +13,8 @@ import WalletSync from './wallet-sync';
 const config = getDefaultConfig({
   appName: 'Ordinox',
   projectId: '19012e6bbba81176ee306427e8b07d5e',
-  chains: [{ ...sonicTestnet, id: 57054 }],
+  // chains: [{ ...sonicTestnet, id: 57054 }],
+  chains: [sonic],
   ssr: true,
 });
 

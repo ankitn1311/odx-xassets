@@ -38,7 +38,8 @@ export const useFaucet = (config?: MutationConfig<any>) => {
       toast.success('Faucet request successful!', {
         description: (
           <a
-            href={`https://testnet.sonicscan.org/tx/${txHash}`}
+            // href={`https://testnet.sonicscan.org/tx/${txHash}`}
+            href={`https://sonicscan.org/tx/${txHash}`}
             target="_blank"
             rel="noreferrer"
             className="text-primary underline hover:text-primary/80"

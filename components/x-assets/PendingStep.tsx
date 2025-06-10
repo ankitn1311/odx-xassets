@@ -14,7 +14,7 @@ export function PendingStep() {
   return (
     <div className="flex flex-col items-center">
       <div className="mb-6 mt-4 text-center">
-        <Loader2 className="mx-auto mb-4 h-12 w-12 text-destructive" />
+        <Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-destructive" />
         <h2 className="text-xl font-semibold">Transaction Pending</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Your transaction is pending. Please wait for it to be confirmed.

@@ -65,6 +65,10 @@ export function InitialStep() {
 
       const numValue = Number(formattedValue);
       if (isNaN(numValue)) return;
+      if (numValue > 0.1) {
+        toast.error('Amount must be less than 10 cents!');
+        return;
+      }
 
       setValue('amount', formattedValue);
 

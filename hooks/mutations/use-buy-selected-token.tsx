@@ -40,7 +40,8 @@ export const useBuyTokens = (config?: MutationConfig<any>) => {
       toast.success('Trade successful', {
         description: (
           <a
-            href={`https://testnet.sonicscan.org/tx/${result.hash}`}
+            // href={`https://testnet.sonicscan.org/tx/${result.hash}`}
+            href={`https://sonicscan.org/tx/${result.hash}`}
             target="_blank"
             rel="noreferrer"
           >
@@ -83,7 +84,8 @@ export const useSellTokens = (config?: MutationConfig<any>) => {
       toast.success('Trade successful', {
         description: (
           <a
-            href={`https://testnet.sonicscan.org/tx/${result.hash}`}
+            // href={`https://testnet.sonicscan.org/tx/${result.hash}`}
+            href={`https://sonicscan.org/tx/${result.hash}`}
             target="_blank"
             rel="noreferrer"
           >

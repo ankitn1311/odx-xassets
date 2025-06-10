@@ -76,7 +76,7 @@ export const xChainToChainMapping = {
 
 export const ODXDEX_ADDRESS = '0x6DC4093B5FBEf8Ea951957A0ECEE97Afae17A66d';
 // TODO: change to the correct address for the chain on mainnet
-export const PERMIT_TESTNET_ADDRESS = '0x8Ff6333c8D29D5A323C018eA13c805cC9A860280';
+export const PERMIT_TESTNET_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
 
 // ODXDEX ABI - only including what we need for swapping
 export const ODXDEX_ABI = [

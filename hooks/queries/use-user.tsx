@@ -7,5 +7,6 @@ export const useUserInfo = (username?: string) => {
     queryFn: () => getUser(username || 'me'),
     retry: false,
     staleTime: Infinity,
+    enabled: false,
   });
 };

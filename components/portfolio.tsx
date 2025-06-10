@@ -16,6 +16,8 @@ import { useWalletStore } from '@/stores/wallet-store';
 import { useQuote } from '@/hooks/queries/use-quote';
 import { convertXUSDT } from '@/lib/utils';
 
+const CHAIN_ID = 146;
+
 export const Portfolio = () => {
   const allTokensData = useAllTokens();
   const { connectedWallet } = useWalletStore();
@@ -69,7 +71,7 @@ export const Portfolio = () => {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 px-4 pb-4">
         {/* Remove this for mainnet */}
-        {chainId !== 57054 && (
+        {chainId !== CHAIN_ID && (
           <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-2 py-1 text-destructive">
             <Ban className="h-4 w-4 flex-shrink-0" />
             <p className="text-xs">

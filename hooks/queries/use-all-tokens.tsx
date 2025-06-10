@@ -17,14 +17,32 @@ export type TokenPair = {
 };
 
 const getAllTokens = async (xAssetScreen: boolean) => {
-  const response = await api.AXIOS(
-    {
-      url: xAssetScreen ? `/order/v1/tokens` : `/trade/v1/tokens`,
-      method: 'get',
+  const tokenPair = {
+    TokenA: {
+      Name: 'USDC',
+      FullName: 'USDC',
+      Address: '0x51270276680e72B1fEF6EA70227e56247C689e05',
+      Decimals: 6,
     },
-    'pricefeed'
-  );
-  return response;
+    TokenB: {
+      Name: 'xSOL',
+      FullName: 'xSOL',
+      Address: '0x344C683C891e3e0b5b393Fc10f6479B725353a36',
+      Decimals: 18,
+    },
+    Name: 'USDC/xSOL',
+  };
+
+  return [tokenPair];
+  // const response = await api.AXIOS(
+  //
+  //   {
+  //     url: xAssetScreen ? `/order/v1/tokens` : `/trade/v1/tokens`,
+  //     method: 'get',
+  //   },
+  //   'pricefeed'
+  // );
+  // return response;
 };
 
 export const useAllTokens = (override?: boolean) => {

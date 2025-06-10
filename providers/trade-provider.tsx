@@ -182,7 +182,8 @@ export const TradeProvider: React.FC<TradeProviderProps> = ({ children }) => {
             <div className="flex flex-col gap-1">
               <span>Trade successful!</span>
               <a
-                href={`https://testnet.sonicscan.org/tx/${data.tx_hash}`}
+                // href={`https://testnet.sonicscan.org/tx/${data.tx_hash}`}
+                href={`https://sonicscan.org/tx/${data.tx_hash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline hover:text-primary/80"
