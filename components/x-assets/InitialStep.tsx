@@ -160,7 +160,8 @@ export function InitialStep() {
           size="icon"
           type="button"
           className="h-8 w-8 rounded-full bg-muted/50 p-0 hover:bg-muted"
-          onClick={handleSwap}
+          disabled
+          // onClick={handleSwap}
           // disabled={tradeState !== TradeState.INITIAL}
         >
           <svg

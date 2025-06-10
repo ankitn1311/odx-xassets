@@ -3,7 +3,7 @@ import { useWatchAsset } from 'wagmi';
 import { SwapFormValues } from './TokenSwapForm';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Network, Zap, DollarSign, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
@@ -69,11 +69,11 @@ export function ReviewStep() {
           </div>
           <Button
             type="button"
-            variant="link"
+            variant="outline"
             onClick={() => {
               addTokenToWallet(inputToken!);
             }}
-            className="mt-1 h-auto p-0 text-xs text-muted-foreground"
+            className="mt-2"
             disabled={isPending && tokenToAdd?.Address === inputToken?.Address}
           >
             {isPending && tokenToAdd?.Address === inputToken?.Address
@@ -86,7 +86,7 @@ export function ReviewStep() {
           <p className="mb-2 text-sm text-muted-foreground">Buy</p>
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
-              <p className="font-medium">{outputAmount}</p>
+              <p className="font-medium">{Number(outputAmount).toFixed(8)}</p>
               <p className="text-sm text-muted-foreground">
                 {convertXUSDT(outputToken?.Name ?? '')}
               </p>
@@ -101,11 +101,11 @@ export function ReviewStep() {
           </div>
           <Button
             type="button"
-            variant="link"
+            variant="outline"
             onClick={() => {
               addTokenToWallet(outputToken!);
             }}
-            className="mt-1 h-auto p-0 text-xs text-muted-foreground"
+            className="mt-2"
             disabled={isPending && tokenToAdd?.Address === outputToken?.Address}
           >
             {isPending && tokenToAdd?.Address === outputToken?.Address
@@ -115,43 +115,45 @@ export function ReviewStep() {
         </div>
       </div>
 
-      <div className="mt-6 space-y-4">
+      {/* Details Section */}
+      <div className="my-10 grid grid-cols-1 gap-4 rounded-xl bg-muted/60 p-6 shadow-sm">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Source</p>
-          <div className="flex items-center gap-2">
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <DollarSign className="h-4 w-4 text-primary" /> Source
+          </span>
+          <span className="flex items-center gap-2 text-sm font-medium">
             <Image src="/images/ODX.svg" alt="ODX" width={16} height={16} className="h-4 w-4" />
-            <p className="text-sm">ODX API</p>
-          </div>
+            ODX API
+          </span>
         </div>
-
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Rate</p>
-          <p className="text-sm">
-            {amount} {convertXUSDT(inputToken?.Name ?? '')} = {outputAmount}{' '}
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Zap className="h-4 w-4 text-primary" /> Rate
+          </span>
+          <span className="text-sm font-medium">
+            {amount} {convertXUSDT(inputToken?.Name ?? '')} = {Number(outputAmount).toFixed(8)}{' '}
             {convertXUSDT(outputToken?.Name ?? '')}
-          </p>
+          </span>
         </div>
-
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Network</p>
-          <div className="flex items-center gap-2">
-            {/* <div className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500">
-              <Image src="/images/xrp.svg" alt="SONIC" width={12} height={12} />
-            </div> */}
-            <p className="text-sm">SONIC</p>
-          </div>
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Network className="h-4 w-4 text-primary" /> Network
+          </span>
+          <span className="text-sm font-medium">SONIC</span>
         </div>
-
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Network cost</p>
-          <p className="text-sm">Free</p>
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <DollarSign className="h-4 w-4 text-primary" /> Network cost
+          </span>
+          <span className="text-sm font-medium">Free</span>
         </div>
-
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Receive at least</p>
-          <p className="text-sm">
-            {outputAmount} {convertXUSDT(outputToken?.Name ?? '')}
-          </p>
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            <ArrowRight className="h-4 w-4 text-primary" /> Receive at least
+          </span>
+          <span className="text-sm font-bold text-success">
+            {Number(outputAmount).toFixed(8)} {convertXUSDT(outputToken?.Name ?? '')}
+          </span>
         </div>
       </div>
 

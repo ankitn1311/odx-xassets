@@ -82,7 +82,7 @@ export function SwapScreens() {
       <Button
         type="submit"
         size="lg"
-        className="mt-4 w-full bg-muted/80 text-muted-foreground hover:bg-muted disabled:opacity-50"
+        className="mt-4 w-full"
         disabled={
           isQuoteLoading ||
           isSubmitting ||

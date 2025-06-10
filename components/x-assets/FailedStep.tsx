@@ -46,7 +46,7 @@ export function FailedStep() {
             <p className="mb-2 text-sm text-muted-foreground">Would Have Received</p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
-                <p className="font-medium">{outputAmount}</p>
+                <p className="font-medium">{Number(outputAmount).toFixed(8)}</p>
                 <p className="text-sm text-muted-foreground">
                   {convertXUSDT(outputToken?.Name ?? '')}
                 </p>
