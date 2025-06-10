@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { SwapFormValues } from './TokenSwapForm';
-import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 import Image from 'next/image';
 import { Button } from '../ui/button';
 import { CheckCircle2 } from 'lucide-react';
@@ -10,6 +10,11 @@ import { useWatchAsset } from 'wagmi';
 import { toast } from 'sonner';
 import { shortenAddress } from '@/utils/crypto';
 import { convertXUSDT } from '@/lib/utils';
+
+const symbolReplace = {
+  USDC: 'xUSDC',
+  xSOL: 'x1SOL',
+};
 
 export function SuccessStep() {
   const { watchAssetAsync, isPending } = useWatchAsset();
@@ -26,11 +31,12 @@ export function SuccessStep() {
         type: 'ERC20',
         options: {
           address: token.Address,
-          symbol: token.Name,
+          symbol: symbolReplace[token.Name as keyof typeof symbolReplace] || token.Name,
           decimals: token.Decimals,
           // image: token.Image,
         },
       });
+      toast.success('Token added to wallet');
     } catch (error) {
       console.error('Error adding token to wallet:', error);
       // You might want to show an error message to the user here

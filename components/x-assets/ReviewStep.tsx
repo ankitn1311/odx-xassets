@@ -9,6 +9,12 @@ import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { toast } from 'sonner';
 import { convertXUSDT } from '@/lib/utils';
+
+const symbolReplace = {
+  USDC: 'xUSDC',
+  xSOL: 'x1SOL',
+};
+
 export function ReviewStep() {
   const { watchAssetAsync, isPending } = useWatchAsset();
   const [tokenToAdd, setTokenToAdd] = useState<TokenInfo | null>(null);
@@ -25,11 +31,12 @@ export function ReviewStep() {
         type: 'ERC20',
         options: {
           address: token.Address,
-          symbol: token.Name,
+          symbol: symbolReplace[token.Name as keyof typeof symbolReplace] || token.Name,
           decimals: token.Decimals,
           // image: token.Image,
         },
       });
+      toast.success('Token added to wallet');
     } catch (error) {
       console.error('Error adding token to wallet:', error);
       toast.error('Error adding token to wallet');
