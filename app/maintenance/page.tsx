@@ -11,7 +11,7 @@ export default function MaintenancePage() {
           <div className="mb-4 flex justify-center">
             <RocketIcon className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-3xl font-bold">Mainnet Alpha Live Soon</CardTitle>
+          <CardTitle className="text-3xl font-bold">Under Maintenance</CardTitle>
           <CardDescription className="mt-2 text-lg">
             We&apos;re not just upgrading; we&apos;re redefining the game:
           </CardDescription>
