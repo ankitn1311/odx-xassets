@@ -146,15 +146,6 @@ export function InitialStep() {
 
   return (
     <>
-      <div className="mb-6 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-primary-foreground">
-        <div className="flex items-start gap-2">
-          <Info className="mt-0.5 h-5 w-5 flex-shrink-0" />
-          <p>
-            During our alpha test, each trade is limited to a maximum of 10 USDC. You will receive
-            x1SOL, which can be swapped back to USDC at a later time.
-          </p>
-        </div>
-      </div>
       <TokenInput
         label="Sell"
         onAmountChange={handleAmountChange}
@@ -211,6 +202,16 @@ export function InitialStep() {
             <p className="text-xs">ODX API</p>
           </div>
         </Button>
+      </div>
+
+      <div className="my-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-primary-foreground">
+        <div className="flex items-start gap-2">
+          <Info className="mt-0.5 h-5 w-5 flex-shrink-0" />
+          <p>
+            During our alpha test, each trade is limited to a maximum of 10 USDC. You will receive
+            x1SOL, which can be swapped back to USDC at a later time.
+          </p>
+        </div>
       </div>
     </>
   );
