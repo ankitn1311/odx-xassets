@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { convertXUSDT } from '@/lib/utils';
+import ODXLogoLight from '../svg/odx-logo-light';
+import ODXLogoDark from '../svg/odx-logo-dark';
 
 const MAX_DECIMALS = 2;
 
@@ -201,26 +203,28 @@ export function TokenInput({
                 <SelectValue placeholder="Select token" />
               </SelectTrigger>
               <SelectContent>
-                {availableTokens
-                  ?.filter(t => t.Name !== 'xUSDT') // Exclude xUSDT from dropdown
-                  .map(token => (
-                    <SelectItem
-                      key={token.Address}
-                      value={token.Name}
-                      className="flex items-center gap-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Image
-                          src={`/images/tokens/${token.Name}.png`}
-                          alt={token.Name}
-                          width={24}
-                          height={24}
-                          className="rounded-full"
-                        />
-                        <span>{convertXUSDT(token.Name)}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
+                <div className="flex flex-col gap-2">
+                  {availableTokens
+                    ?.filter(t => t.Name !== 'xUSDT') // Exclude xUSDT from dropdown
+                    .map(token => (
+                      <SelectItem
+                        key={token.Address}
+                        value={token.Name}
+                        className="flex items-center gap-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Image
+                            src={`/images/tokens/${token.Name}.png`}
+                            alt={token.Name}
+                            width={24}
+                            height={24}
+                            className="rounded-full"
+                          />
+                          <span>{convertXUSDT(token.Name)}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                </div>
               </SelectContent>
             </Select>
           )}

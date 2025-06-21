@@ -38,7 +38,7 @@ interface TokenSwapActions {
 export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
   // persist<TokenSwapState & TokenSwapActions>(
   set => ({
-    numericBalance: 1000,
+    numericBalance: 0,
     inputToken: null,
     outputToken: null,
     isSwapped: false,

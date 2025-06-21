@@ -3,6 +3,8 @@ import React from 'react';
 import { AppHeaderNavbarItemType } from './types';
 import { Button } from '../components/ui/button';
 import ODXLogo from '../components/svg/odx-logo';
+import ODXLogoDark from '../components/svg/odx-logo-dark';
+import ODXLogoLight from '../components/svg/odx-logo-light';
 import { useRouter } from 'nextjs-toploader/app';
 import { usePathname } from 'next/navigation';
 import Login from '../components/popups/login';
@@ -37,7 +39,6 @@ import {
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTheme } from 'next-themes';
-import Image from 'next/image';
 import millify from 'millify';
 import { ScorePopup } from '@/components/score-popup';
 import ConnectWallet from '@/components/common/connect-wallet';
@@ -46,7 +47,7 @@ import { useDisconnect } from 'wagmi';
 
 export default function AppHeader() {
   return (
-    <div className="flex h-16 items-center justify-between gap-2 px-4 lg:px-6">
+    <div className="z-20 flex h-16 items-center justify-between gap-2 px-4 lg:px-6">
       <AppHeaderLeft />
       <AppHeaderRight />
     </div>
@@ -62,16 +63,18 @@ const AppHeaderLeft = () => {
 
   return (
     <div className="flex items-center gap-2 lg:gap-4">
-      <Image
+      <div
         onClick={() => {
           router.push('/x-assets');
         }}
-        src={`/images/logos/odx-${currentTheme ? currentTheme : 'dark'}-text.svg`}
-        alt="ODX Logo"
-        width={169}
-        height={211}
-        className="h-6 w-auto"
-      />
+        className="flex cursor-pointer flex-row gap-2"
+      >
+        {currentTheme === 'dark' ? (
+          <ODXLogoDark className="h-6 w-auto" />
+        ) : (
+          <ODXLogoLight className="h-6 w-auto" />
+        )}
+      </div>
       {!isMobile && <AppHeaderNavbar />}
     </div>
   );

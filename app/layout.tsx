@@ -7,6 +7,7 @@ import { getLocale, getMessages } from 'next-intl/server';
 import Providers from './providers';
 import NextTopLoader from 'nextjs-toploader';
 import { GlobalDialog } from '@/components/common/global-dialog';
+import { GridBackground } from '@/components/ui/grid-background';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -56,7 +57,11 @@ export default async function RootLayout({
           >
             <NextIntlClientProvider messages={messages}>
               <GlobalDialog />
-              {children}
+              <GridBackground>
+                {/* <div className="absolute inset-0 z-50 flex flex-col items-center justify-center px-4"> */}
+                {children}
+                {/* </div> */}
+              </GridBackground>
             </NextIntlClientProvider>
           </ThemeProvider>
         </Providers>

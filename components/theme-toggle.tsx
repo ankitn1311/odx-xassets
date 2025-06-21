@@ -20,7 +20,7 @@ export function ModeToggle({ type = 'button' }: { type?: 'dropdown' | 'button' }
 
   if (type === 'button') {
     return (
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon" className="relative">
             {theme === 'light' && (

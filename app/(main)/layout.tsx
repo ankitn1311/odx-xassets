@@ -1,4 +1,3 @@
-// import AppBanner from '../app-banner';
 import AppHeader from '../app-header';
 
 export default async function MainLayout({
@@ -7,10 +6,9 @@ export default async function MainLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
-      {/* <AppBanner /> */}
+    <div className="flex h-screen w-screen flex-col">
       <AppHeader />
-      {children}
-    </>
+      <div className="flex-1">{children}</div>
+    </div>
   );
 }

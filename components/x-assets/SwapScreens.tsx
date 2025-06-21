@@ -7,9 +7,17 @@ import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { SwapBody } from './SwapBody';
+import { useTokenBalance } from '@/hooks/queries/use-token-balance';
+import Link from 'next/link';
 
 export function SwapScreens() {
-  const { tradeState, inputToken, numericBalance } = useTokenSwapStore();
+  const { tradeState, inputToken } = useTokenSwapStore();
+  console.log('inputToken', inputToken);
+  const { data: numericBalance } = useTokenBalance(
+    inputToken?.Address ?? '',
+    inputToken?.Decimals ?? 18
+  );
+
   const {
     watch,
     setValue,
@@ -51,6 +59,9 @@ export function SwapScreens() {
   }, [getQuote, setValue]);
 
   const getButtonText = () => {
+    if (numericBalance && Number(numericBalance) < Number(amount)) {
+      return 'Insufficient Balance';
+    }
     switch (tradeState) {
       case TradeState.PROCESSING:
       case TradeState.CHECKING_APPROVAL:
@@ -72,7 +83,9 @@ export function SwapScreens() {
     }
   };
 
-  const isInsufficientBalance = Number(amount) > numericBalance;
+  console.log('Numeric Balance', numericBalance);
+
+  const isInsufficientBalance = numericBalance && Number(numericBalance) < Number(amount);
   const isValidAmount = amount && Number(amount) > 0;
   const isInsufficientOutputAmount = Number(outputAmount) === 0;
 

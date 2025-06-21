@@ -1,19 +1,17 @@
-import { Card } from '@/components/ui/card';
+import { BackgroundGradient } from '../ui/background-gradient';
 import { TokenSwapForm } from './TokenSwapForm';
-// import Faucet from '@/app/(main)/trade/faucet/faucet';
 
-export function TokenSwapCard() {
+export const TokenSwapCard = () => {
   return (
-    <Card className="flex h-full flex-col justify-between overflow-hidden">
-      <div>
-        <h2 className="px-4 pt-4 text-lg font-semibold">Trade X-Assets</h2>
-        <div className="px-4 py-4">
-          <TokenSwapForm />
+    <div className="flex w-full flex-col">
+      <BackgroundGradient>
+        <div className="w-full rounded-xl bg-card">
+          <h2 className="px-8 pt-8 text-lg font-semibold">Trade X-Assets</h2>
+          <div className="px-8 py-8">
+            <TokenSwapForm />
+          </div>
         </div>
-      </div>
-      {/* <div className="px-4 py-4">
-        <Faucet />
-      </div> */}
-    </Card>
+      </BackgroundGradient>
+    </div>
   );
-}
+};

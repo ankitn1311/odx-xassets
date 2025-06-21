@@ -19,7 +19,7 @@ export default function XAssets() {
 
   useEffect(() => {
     // Replace with actual balance fetching logic
-    setNumericBalance(1000);
+    setNumericBalance(0);
   }, [setNumericBalance]);
 
   // Transform token pairs into featured assets format
@@ -46,23 +46,19 @@ export default function XAssets() {
     })) || [];
 
   return (
-    <BackgroundGradientAnimation>
-      <div className="absolute inset-0 z-50 flex items-center justify-center px-4">
-        <div className="z-10 mx-auto flex w-full max-w-4xl flex-col gap-2 p-2">
-          <Card className="p-4">
-            <section className="flex h-full flex-col justify-center gap-4">
-              <h2 className="text-lg font-semibold">Reserves</h2>
-              <p className="text-sm text-muted-foreground">
-                Each xAsset maintains a minimum one to one backing ratio with its underlying asset,
-                and reserves are securely custodied by Safeheron, ensuring full transparency and
-                verifiable proof of reserves.
-              </p>
-            </section>
-          </Card>
-          <ReservesTable />
-        </div>
-      </div>
-    </BackgroundGradientAnimation>
+    <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-2 p-2">
+      <Card className="p-4">
+        <section className="flex h-full flex-col justify-center gap-4">
+          <h2 className="text-lg font-semibold">Reserves</h2>
+          <p className="text-sm text-muted-foreground">
+            Each xAsset maintains a minimum one to one backing ratio with its underlying asset, and
+            reserves are securely custodied by Safeheron, ensuring full transparency and verifiable
+            proof of reserves.
+          </p>
+        </section>
+      </Card>
+      <ReservesTable />
+    </div>
   );
 
   return (

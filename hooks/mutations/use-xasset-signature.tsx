@@ -88,7 +88,7 @@ export const useXAssetSignature = () => {
   const signatureMutation = useMutation({
     mutationFn: async (data: SigDataWithSignature) => {
       const response = await axios.post(
-        'https://6a73rd20h7.execute-api.ap-south-1.amazonaws.com/prod',
+        'https://77xoyen2w2.execute-api.ap-southeast-1.amazonaws.com/prod/',
         {
           order: data.serialized_order,
           signature: data.signature,
@@ -110,7 +110,7 @@ export const useXAssetSignature = () => {
   const cosignatureMutation = useMutation({
     mutationFn: async (data: CosignatureData) => {
       const response = await axios.post(
-        'https://6a73rd20h7.execute-api.ap-south-1.amazonaws.com/prod/cosign',
+        'https://77xoyen2w2.execute-api.ap-southeast-1.amazonaws.com/prod//cosign',
         {
           cosignHash: data.cosign_hash,
         }
@@ -132,7 +132,7 @@ export const useXAssetSignature = () => {
   const checkOrderStatus = async (orderId: string): Promise<OrderStatusResponse> => {
     try {
       const response = await axios.get(
-        `https://6a73rd20h7.execute-api.ap-south-1.amazonaws.com/prod/status/${orderId}`
+        `https://77xoyen2w2.execute-api.ap-southeast-1.amazonaws.com/prod//status/${orderId}`
       );
       return response.data;
     } catch (error) {
