@@ -152,7 +152,7 @@ export function TokenInput({
   return (
     <div className="relative">
       <div className="rounded-lg border bg-card/50 p-3">
-        <div className="mb-2 text-sm text-muted-foreground">{label}</div>
+        <div className="mb-4 text-sm text-muted-foreground">{label}</div>
         <div className="flex items-center justify-between gap-2">
           <FormField
             control={form.control}
@@ -164,7 +164,7 @@ export function TokenInput({
                     type="text"
                     placeholder="0.0"
                     disabled={isOutput}
-                    className="border-0 bg-transparent p-0 text-2xl font-normal placeholder:text-muted-foreground/50 focus-visible:ring-0"
+                    className="border-0 px-0 py-0 font-normal placeholder:text-muted-foreground/50 focus-visible:ring-0 md:text-2xl"
                     value={field.value}
                     onChange={
                       e => !isOutput && onAmountChange(e.target.value)
@@ -229,7 +229,7 @@ export function TokenInput({
             </Select>
           )}
         </div>
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <svg
               width="14"
