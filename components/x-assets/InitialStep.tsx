@@ -8,6 +8,7 @@ import { useFormContext } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
+import { Info } from 'lucide-react';
 
 const MAX_DECIMALS = 2;
 const POLLING_INTERVAL = 5000; // 5 seconds
@@ -91,17 +92,18 @@ export function InitialStep() {
       const formattedValue =
         parts[0] + (parts.length > 1 ? '.' + parts[1].slice(0, MAX_DECIMALS) : '');
 
-      const numValue = Number(formattedValue);
+      let numValue = Number(formattedValue);
       if (isNaN(numValue)) return;
+
       if (numValue > 10) {
-        toast.error('Amount must be less than 10 USDC!');
-        return;
+        numValue = 10;
+        toast.info('During the alpha, the maximum trade size is 10 USDC.');
       }
 
-      setValue('amount', formattedValue);
+      setValue('amount', numValue.toString());
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
-        debouncedGetQuoteRef.current(inputToken.Address, outputToken.Address, formattedValue);
+        debouncedGetQuoteRef.current(inputToken.Address, outputToken.Address, numValue.toString());
       }
     },
     [inputToken, outputToken, setValue]
@@ -144,6 +146,15 @@ export function InitialStep() {
 
   return (
     <>
+      <div className="mb-6 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-primary-foreground">
+        <div className="flex items-start gap-2">
+          <Info className="mt-0.5 h-5 w-5 flex-shrink-0" />
+          <p>
+            During our alpha test, each trade is limited to a maximum of 10 USDC. You will receive
+            x1SOL, which can be swapped back to USDC at a later time.
+          </p>
+        </div>
+      </div>
       <TokenInput
         label="Sell"
         onAmountChange={handleAmountChange}
