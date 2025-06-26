@@ -65,6 +65,8 @@ const CHAIN_PERMIT2_CONFIG = {
   57054: BASE_PERMIT2, // Sonic testnet
 } as const;
 
+const BASE_URL = 'https://gm6urhv0gd.execute-api.ap-northeast-1.amazonaws.com/prod';
+
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
   const { address } = useAccount();
@@ -87,13 +89,10 @@ export const useXAssetSignature = () => {
 
   const signatureMutation = useMutation({
     mutationFn: async (data: SigDataWithSignature) => {
-      const response = await axios.post(
-        'https://77xoyen2w2.execute-api.ap-southeast-1.amazonaws.com/prod/',
-        {
-          order: data.serialized_order,
-          signature: data.signature,
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/`, {
+        order: data.serialized_order,
+        signature: data.signature,
+      });
       // const response = await api.AXIOS(
       //   {
       //     url: '/order/v1/signature',
@@ -109,12 +108,9 @@ export const useXAssetSignature = () => {
 
   const cosignatureMutation = useMutation({
     mutationFn: async (data: CosignatureData) => {
-      const response = await axios.post(
-        'https://77xoyen2w2.execute-api.ap-southeast-1.amazonaws.com/prod//cosign',
-        {
-          cosignHash: data.cosign_hash,
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/cosign`, {
+        cosignHash: data.cosign_hash,
+      });
 
       // const response = await api.AXIOS(
       //   {
@@ -131,9 +127,7 @@ export const useXAssetSignature = () => {
 
   const checkOrderStatus = async (orderId: string): Promise<OrderStatusResponse> => {
     try {
-      const response = await axios.get(
-        `https://77xoyen2w2.execute-api.ap-southeast-1.amazonaws.com/prod//status/${orderId}`
-      );
+      const response = await axios.get(`${BASE_URL}/status/${orderId}`);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -347,7 +341,7 @@ export const useXAssetSignature = () => {
           orderStatus.status === 'PROCESSING' ||
           orderStatus.status === 'CUSTODY_TRANSFER_START' ||
           orderStatus.status === 'CUSTODY_TRANSFER_COMPLETE') &&
-        attempts < 10
+        attempts < 20
       );
 
       const txHash = orderStatus.txHash;
