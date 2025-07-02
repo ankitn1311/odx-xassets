@@ -65,7 +65,24 @@ const CHAIN_PERMIT2_CONFIG = {
   57054: BASE_PERMIT2, // Sonic testnet
 } as const;
 
-const BASE_URL = 'https://gm6urhv0gd.execute-api.ap-northeast-1.amazonaws.com/prod';
+const BASE_URL = 'https://pkaoivrbui.execute-api.ap-northeast-1.amazonaws.com/prod';
+
+const ERROR_STATES = [
+  'VALIDATION_FAILED',
+  'CUSTODY_PURCHASE_FAILED',
+  'CUSTODY_VERIFIER_FAILED',
+  'FAILED',
+];
+const PENDING_STATES = [
+  'VALIDATED',
+  'CUSTODY_PURCHASE_START',
+  'CUSTODY_PURCHASE_COMPLETE',
+  'CUSTODY_VERIFIER_START',
+  'CUSTODY_VERIFIER_SUCCESS',
+  'PROCESSING',
+];
+
+const SUCCESS_STATES = ['PROCESSED'];
 
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
@@ -336,17 +353,11 @@ export const useXAssetSignature = () => {
         orderStatus = await checkOrderStatus(result?.executionName);
         console.log('orderStatus', orderStatus);
         attempts++;
-      } while (
-        (orderStatus.status === 'VALIDATED' ||
-          orderStatus.status === 'PROCESSING' ||
-          orderStatus.status === 'CUSTODY_TRANSFER_START' ||
-          orderStatus.status === 'CUSTODY_TRANSFER_COMPLETE') &&
-        attempts < 20
-      );
+      } while (PENDING_STATES.includes(orderStatus.status) && attempts < 20);
 
       const txHash = orderStatus.txHash;
 
-      if (orderStatus.status === 'PROCESSED') {
+      if (SUCCESS_STATES.includes(orderStatus.status)) {
         toast.success('Transaction successful', {
           description: (
             // <a href={`https://testnet.sonicscan.org/tx/${txHash}`} target="_blank">
@@ -357,20 +368,11 @@ export const useXAssetSignature = () => {
         });
         setTradeState(TradeState.SUCCESS);
         setLatestTradeHash(txHash);
-      } else if (
-        orderStatus.status === 'ERROR' ||
-        orderStatus.status === 'FAILED' ||
-        orderStatus.status === 'CUSTODY_TRANSFER_FAILED'
-      ) {
+      } else if (ERROR_STATES.includes(orderStatus.status)) {
         toast.error('Transaction failed');
         setTradeState(TradeState.FAILED);
         throw new Error('Transaction failed');
-      } else if (
-        orderStatus.status === 'VALIDATED' ||
-        orderStatus.status === 'PROCESSING' ||
-        orderStatus.status === 'CUSTODY_TRANSFER_START' ||
-        orderStatus.status === 'CUSTODY_TRANSFER_COMPLETE'
-      ) {
+      } else if (PENDING_STATES.includes(orderStatus.status)) {
         toast.info('Transaction pending', {
           description: txHash ? (
             // <a href={`https://testnet.sonicscan.org/tx/${txHash}`} target="_blank">

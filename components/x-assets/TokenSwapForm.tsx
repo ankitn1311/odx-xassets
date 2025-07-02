@@ -114,7 +114,7 @@ export function TokenSwapForm() {
     // );
 
     if (!connectedWallet) return toast.error('Please connect your wallet');
-    
+    // if (isInsufficientBalance) return toast.error('Insufficient balance');
     if (!isValidAmount) return toast.error('Amount must be greater than 0');
 
     try {
