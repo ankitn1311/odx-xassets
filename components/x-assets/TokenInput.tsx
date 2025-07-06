@@ -44,10 +44,12 @@ export function TokenInput({
   const form = useFormContext();
   const { setValue } = form;
   const fieldName = isOutput ? 'outputAmount' : 'amount';
-  const { getQuote, isLoading: isQuoteLoading } = useTradeQuote();
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
 
   const { inputToken, outputToken, setInputToken, setOutputToken } = useTokenSwapStore();
+  const token = !isOutput ? inputToken : outputToken;
+  const isUSDT = token?.Name === 'USDC';
+  const { getQuote, isLoading: isQuoteLoading } = useTradeQuote();
   const { data: allTokens } = useAllTokens();
   // const token = isOutput ? outputToken : inputToken;
 
@@ -58,10 +60,7 @@ export function TokenInput({
     return tokens.TokenA;
   });
 
-  const token = !isOutput ? inputToken : outputToken;
   const { data: balance } = useTokenBalance(token?.Address ?? '', token?.Decimals ?? 18);
-
-  const isUSDT = token?.Name === 'USDC';
 
   const handlePercentageClick = (percentage: number) => {
     setValue('percentage', percentage);

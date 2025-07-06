@@ -79,7 +79,6 @@ export function InitialStep() {
   const handleAmountChange = useCallback(
     async (value: string) => {
       if (!value) {
-        console.log(' NO VALUE');
         setValue('amount', '');
         setValue('outputAmount', '');
         setValue('percentage', 0);
@@ -91,7 +90,7 @@ export function InitialStep() {
       const parts = cleanValue.split('.');
       const formattedValue =
         parts[0] + (parts.length > 1 ? '.' + parts[1].slice(0, MAX_DECIMALS) : '');
-
+      setValue('amount', formattedValue);
       let numValue = Number(formattedValue);
       if (isNaN(numValue)) return;
 
@@ -99,8 +98,6 @@ export function InitialStep() {
         numValue = 10;
         toast.info('During the alpha, the maximum trade size is 10 USDC.');
       }
-
-      setValue('amount', numValue.toString());
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
         debouncedGetQuoteRef.current(inputToken.Address, outputToken.Address, numValue.toString());
@@ -162,9 +159,12 @@ export function InitialStep() {
           size="icon"
           type="button"
           className="h-8 w-8 rounded-full bg-muted/50 p-0 hover:bg-muted"
-          disabled
-          // onClick={handleSwap}
-          // disabled={tradeState !== TradeState.INITIAL}
+          onClick={handleSwap}
+          disabled={
+            ![TradeState.INITIAL, TradeState.APPROVED, TradeState.CHECKING_APPROVAL].includes(
+              tradeState
+            )
+          }
         >
           <svg
             width="16"

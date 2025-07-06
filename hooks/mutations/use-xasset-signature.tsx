@@ -247,11 +247,11 @@ export const useXAssetSignature = () => {
     //
     //
     const inputAmount = ethersV5.utils.parseUnits(
-      Number(data.amount).toFixed(6),
+      Number(data.amount).toFixed(data.input_decimals),
       data.input_decimals
     );
     const outputAmount = ethersV5.utils.parseUnits(
-      Number(data.output_amount).toFixed(18),
+      Number(data.output_amount).toFixed(data.output_decimals),
       data.output_decimals
     );
     console.log('amounts', inputAmount, outputAmount, data);
