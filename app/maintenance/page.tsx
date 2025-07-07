@@ -11,7 +11,7 @@ export default function MaintenancePage() {
           <div className="mb-4 flex justify-center">
             <AlertTriangleIcon className="h-12 w-12 text-orange-500" />
           </div>
-          <CardTitle className="text-3xl font-bold">Scheduled Maintenance</CardTitle>
+          <CardTitle className="text-3xl font-bold">Critical Maintenance</CardTitle>
           <CardDescription className="mt-2 text-lg">
             We&apos;re performing critical system maintenance to improve your experience.
           </CardDescription>
