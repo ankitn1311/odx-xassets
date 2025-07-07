@@ -4,8 +4,8 @@ import { NextRequest } from 'next/server';
 export default async function middleware(request: NextRequest) {
   // const token = request.cookies.get('auth_token') ? request.cookies.get('auth_token')?.value : '';
   //   // Under maintenance TODO: comment next two line to disable maintenance mode
-  if (request.nextUrl.pathname === '/maintenance') return NextResponse.next();
-  return NextResponse.redirect(new URL('/maintenance', request.url));
+  // if (request.nextUrl.pathname === '/maintenance') return NextResponse.next();
+  // return NextResponse.redirect(new URL('/maintenance', request.url));
   const token = request.cookies.get('invite_code') ? request.cookies.get('invite_code')?.value : '';
 
   // if (request.nextUrl.pathname === '/') {
@@ -40,6 +40,9 @@ export default async function middleware(request: NextRequest) {
       // return response;
     }
   }
+  if (request.nextUrl.pathname === '/maintenance') {
+    return NextResponse.redirect(new URL('/x-assets', request.url));
+  }
 }
 
 export const config = {
@@ -49,5 +52,6 @@ export const config = {
     '/invite',
     '/reserves',
     '/x-assets',
+    '/maintenance',
   ],
 };

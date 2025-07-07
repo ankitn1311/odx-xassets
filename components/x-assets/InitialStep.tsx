@@ -96,7 +96,7 @@ export function InitialStep() {
 
       if (numValue > 10) {
         numValue = 10;
-        toast.info('During the alpha, the maximum trade size is 10 USDC.');
+        toast.info('During the alpha, trade size should be between 5 and 10 USDC.');
       }
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
@@ -208,8 +208,8 @@ export function InitialStep() {
         <div className="flex items-start gap-2">
           <Info className="mt-0.5 h-5 w-5 flex-shrink-0" />
           <p>
-            During our alpha test, each trade is limited to a maximum of 10 USDC. You will receive
-            x1SOL, which can be swapped back to USDC at a later time.
+            During our alpha test, amount should be between 5 and 10 USDC. You will receive x1SOL,
+            which can be swapped back to USDC at a later time.
           </p>
         </div>
       </div>
