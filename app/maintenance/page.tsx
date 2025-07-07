@@ -1,7 +1,7 @@
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RocketIcon, ServerIcon, ZapIcon } from 'lucide-react';
+import { AlertTriangleIcon, ClockIcon, WrenchIcon } from 'lucide-react';
 
 export default function MaintenancePage() {
   return (
@@ -9,33 +9,31 @@ export default function MaintenancePage() {
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="mb-4 flex justify-center">
-            <RocketIcon className="h-12 w-12 text-primary" />
+            <AlertTriangleIcon className="h-12 w-12 text-orange-500" />
           </div>
-          <CardTitle className="text-3xl font-bold">Under Maintenance</CardTitle>
+          <CardTitle className="text-3xl font-bold">Scheduled Maintenance</CardTitle>
           <CardDescription className="mt-2 text-lg">
-            We&apos;re not just upgrading; we&apos;re redefining the game:
+            We&apos;re performing critical system maintenance to improve your experience.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 text-center">
           <div className="text-md space-y-4">
             <div className="flex items-center justify-center space-x-2">
-              <ServerIcon className="h-5 w-5 text-primary" />
+              <WrenchIcon className="h-5 w-5 text-primary" />
               <p className="text-muted-foreground">
-                Testnet vFinal: Rebuilt from the ground up for max throughput, scalability, and
-                rock-solid stability.
+                Our team is working hard to resolve critical issues and enhance system performance.
               </p>
             </div>
             <div className="flex items-center justify-center space-x-2">
-              <ZapIcon className="h-5 w-5 text-primary" />
-              <p className="text-muted-foreground">
-                Mainnet&apos;s around the corner. Time to ape in!
-              </p>
+              <ClockIcon className="h-5 w-5 text-primary" />
+              <p className="text-muted-foreground">Expected completion time: 3-4 hours</p>
             </div>
           </div>
 
           <div className="pt-4">
             <p className="text-sm text-muted-foreground">
-              The platform will be back shortly. Thank you for your patience!
+              We apologize for the inconvenience and appreciate your patience during this
+              maintenance period.
             </p>
           </div>
 
@@ -44,7 +42,7 @@ export default function MaintenancePage() {
               variant="outline"
               onClick={() => window.open('https://discord.gg/9r7sU8H23H', '_blank')}
             >
-              Stay plugged in—join the Discord for alpha updates.
+              Join our Discord for real-time updates and status notifications.
             </Button>
           </div>
         </CardContent>
