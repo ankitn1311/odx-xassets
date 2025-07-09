@@ -52,7 +52,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
-  isLoading?: string;
+  isLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -61,9 +61,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-md bg-inherit">
+          <div className="absolute inset-0 flex items-center justify-center rounded-md bg-inherit">
             <Loader className="size-4 animate-spin" />
-            <span className="text-sm">{isLoading}</span>
           </div>
         )}
         <span className={isLoading ? 'invisible' : 'relative z-10'}>{props.children}</span>
