@@ -48,6 +48,21 @@ const getAllTokens = async (xAssetScreen: boolean) => {
       },
       Name: 'USDC/x1XRP',
     },
+    {
+      TokenA: {
+        Name: 'USDC',
+        FullName: 'USDC',
+        Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+        Decimals: 6,
+      },
+      TokenB: {
+        Name: 'x1ADA',
+        FullName: 'x1ADA',
+        Address: '0xEbbEaEF27b155F46A5C13d9fa2760E376990510A',
+        Decimals: 18,
+      },
+      Name: 'USDC/x1ADA',
+    },
   ];
 
   return tokenPairs;
@@ -104,6 +119,21 @@ export const useAllTokens = (override?: boolean) => {
           Decimals: 18,
         },
         Name: 'USDC/x1XRP',
+      },
+      {
+        TokenA: {
+          Name: 'USDC',
+          FullName: 'USDC',
+          Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+          Decimals: 6,
+        },
+        TokenB: {
+          Name: 'x1ADA',
+          FullName: 'x1ADA',
+          Address: '0xEbbEaEF27b155F46A5C13d9fa2760E376990510A',
+          Decimals: 18,
+        },
+        Name: 'USDC/x1ADA',
       },
     ],
     retry: false,

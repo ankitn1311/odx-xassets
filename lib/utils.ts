@@ -27,4 +27,4 @@ export const convertXUSDT = (symbol: string) => {
   return symbol;
 };
 
-export const WHOLE_NUMBER_TOKENS = ['x1XRP'];
+export const WHOLE_NUMBER_TOKENS = ['x1XRP', 'x1ADA'];

@@ -96,21 +96,31 @@ export function SwapScreens() {
   return (
     <>
       <SwapBody />
-      <Button
-        type="submit"
-        size="lg"
-        className="mt-4 w-full"
-        disabled={
-          quoteLoading ||
-          isSubmitting ||
-          isInsufficientBalance ||
-          isInsufficientOutputAmount ||
-          !isValidAmount ||
-          tradeState === TradeState.CHECKING_APPROVAL
-        }
-      >
-        {getButtonText()}
-      </Button>
+      {tradeState === TradeState.SUCCESS ||
+      tradeState === TradeState.FAILED ||
+      tradeState === TradeState.PENDING ? (
+        <Button type="submit" size="lg" className="mt-4 w-full" disabled={isSubmitting}>
+          {tradeState === TradeState.SUCCESS || tradeState === TradeState.PENDING
+            ? 'Done'
+            : 'Try Again'}
+        </Button>
+      ) : (
+        <Button
+          type="submit"
+          size="lg"
+          className="mt-4 w-full"
+          disabled={
+            quoteLoading ||
+            isSubmitting ||
+            isInsufficientBalance ||
+            isInsufficientOutputAmount ||
+            !isValidAmount ||
+            tradeState === TradeState.CHECKING_APPROVAL
+          }
+        >
+          {getButtonText()}
+        </Button>
+      )}
     </>
   );
 }

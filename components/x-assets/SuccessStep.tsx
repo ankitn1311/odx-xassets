@@ -15,6 +15,7 @@ const symbolReplace = {
   USDC: 'USDC',
   x1SOL: 'x1SOL',
   x1XRP: 'x1XRP',
+  x1ADA: 'x1ADA',
 };
 
 export function SuccessStep() {
