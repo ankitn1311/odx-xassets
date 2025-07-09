@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { useAllTokens } from '@/hooks/queries/use-all-tokens';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 
 interface PriceUpdate {
   type: string;
@@ -51,7 +51,7 @@ interface TokenPriceFeedProviderProps {
 export const TokenPriceFeedProvider: React.FC<TokenPriceFeedProviderProps> = ({ children }) => {
   const queryClient = useQueryClient();
   const cleanupRef = useRef(false);
-  const { data: allTokens } = useAllTokens();
+  const { allTokens } = useTokenSwapStore();
 
   const { readyState, sendJsonMessage, lastJsonMessage } = useWebSocket('wss://pf.od.exchange/ws', {
     onOpen: () => {

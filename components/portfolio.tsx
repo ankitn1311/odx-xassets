@@ -1,4 +1,4 @@
-import { TokenPair, useAllTokens } from '@/hooks/queries/use-all-tokens';
+import { TokenPair } from '@/hooks/queries/use-all-tokens';
 import { Skeleton } from './ui/skeleton';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { Ban, Copy, Power, RefreshCw } from 'lucide-react';
@@ -15,11 +15,13 @@ import { useAccount, useDisconnect } from 'wagmi';
 import { useWalletStore } from '@/stores/wallet-store';
 import { useQuote } from '@/hooks/queries/use-quote';
 import { convertXUSDT } from '@/lib/utils';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 
 const CHAIN_ID = 146;
 
 export const Portfolio = () => {
-  const allTokensData = useAllTokens();
+  const { allTokens } = useTokenSwapStore();
+  const allTokensData = { data: allTokens, isLoading: false };
   const { connectedWallet } = useWalletStore();
   const { data: sonicBalance } = useSonicBalance();
   const [, copyToClipboard] = useCopyToClipboard();

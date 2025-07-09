@@ -3,19 +3,13 @@ import { TokenSwapCard } from '@/components/x-assets/TokenSwapCard';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { useAllTokens } from '@/hooks/queries/use-all-tokens';
-import { UpgradeOverlay } from '@/app/components/x-assets/UpgradeOverlay';
 
 import { ReservesTable } from './reservers-table';
-import { AssetCard } from '@/app/components/x-assets/AssetCard';
 import { PoolCard } from '@/app/components/x-assets/PoolCard';
 import { convertXUSDT } from '@/lib/utils';
-import { BackgroundGradientAnimation } from '@/components/ui/background-gradient-animation';
 
 export default function XAssets() {
-  const { setNumericBalance } = useTokenSwapStore();
-  const { data: allTokens } = useAllTokens();
-  const { data: allTokensOverride } = useAllTokens(true);
+  const { setNumericBalance, allTokens } = useTokenSwapStore();
 
   useEffect(() => {
     // Replace with actual balance fetching logic
@@ -23,15 +17,15 @@ export default function XAssets() {
   }, [setNumericBalance]);
 
   // Transform token pairs into featured assets format
-  const featuredAssets =
-    allTokensOverride?.map(tokenPair => ({
-      icon: `/images/tokens/${tokenPair.TokenA.Name}.png`,
-      name: tokenPair.TokenA.Name,
-      symbol: tokenPair.TokenA.Name,
-      price: 0, // These values would need to be fetched from price feed
-      priceChange: 0,
-      tokenPair: tokenPair,
-    })) || [];
+  // const featuredAssets =
+  //   allTokensOverride?.map(tokenPair => ({
+  //     icon: `/images/tokens/${tokenPair.TokenA.Name}.png`,
+  //     name: tokenPair.TokenA.Name,
+  //     symbol: tokenPair.TokenA.Name,
+  //     price: 0, // These values would need to be fetched from price feed
+  //     priceChange: 0,
+  //     tokenPair: tokenPair,
+  //   })) || [];
 
   // Transform token pairs into featured pools format
   const featuredPools =
@@ -75,7 +69,7 @@ export default function XAssets() {
       </Card>
 
       <Card className="Featured flex flex-col gap-4">
-        <section className="flex flex-col gap-2">
+        {/* <section className="flex flex-col gap-2">
           <div>
             <h2 className="text-lg font-semibold">Featured xAssets</h2>
           </div>
@@ -84,7 +78,7 @@ export default function XAssets() {
               <AssetCard key={asset.symbol} {...asset} />
             ))}
           </div>
-        </section>
+        </section> */}
 
         <section className="flex flex-col gap-2">
           <div>

@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import { erc20Abi } from 'viem';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
-import { useAllTokens } from './use-all-tokens';
 import { useWalletClient } from 'wagmi';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 
 const getTokenSupply = async (tokenAddress: string | undefined, decimals: number, wallet: any) => {
   if (!tokenAddress) return '0';
@@ -30,7 +30,7 @@ const getTokenSupply = async (tokenAddress: string | undefined, decimals: number
 
 export const useTokenSupply = (inputTokenAddress?: string, outputTokenAddress?: string) => {
   const { getQuote } = useTradeQuote();
-  const { data: allTokens } = useAllTokens();
+  const { allTokens } = useTokenSwapStore();
   const { data: wallet } = useWalletClient();
 
   return useQuery({
@@ -68,8 +68,8 @@ export const useTokenSupply = (inputTokenAddress?: string, outputTokenAddress?: 
       if (inputTokenAddress) {
         console.log('Getting quote for market cap calculation');
         const quote = await getQuote({
-          outputToken: outputTokenAddress,
-          inputToken: inputTokenAddress,
+          outputToken: outputToken.TokenA,
+          inputToken: outputToken.TokenB,
           inputAmount: '1',
         });
 

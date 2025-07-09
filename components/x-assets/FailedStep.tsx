@@ -1,14 +1,16 @@
 import { useFormContext } from 'react-hook-form';
-import { SwapFormValues } from './TokenSwapForm';
-import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import Image from 'next/image';
-import { Button } from '../ui/button';
 import { XCircle } from 'lucide-react';
 import { convertXUSDT } from '@/lib/utils';
+import { SwapFormValues } from './TokenSwapCard';
+import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
+
 export function FailedStep() {
-  const { inputToken, outputToken, setTradeState } = useTokenSwapStore();
   const form = useFormContext<SwapFormValues>();
+  const { activeTab } = useTokenSwapStore();
   const amount = form.watch('amount');
+  const inputToken = form.watch('inputToken');
+  const outputToken = form.watch('outputToken');
   const outputAmount = form.watch('outputAmount');
 
   return (
@@ -24,7 +26,9 @@ export function FailedStep() {
       <div className="w-full space-y-6">
         <div className="flex w-full justify-between border-b border-border pb-4">
           <div className="flex flex-col items-start">
-            <p className="mb-2 text-sm text-muted-foreground">Attempted to Sell</p>
+            <p className="mb-2 text-sm text-muted-foreground">
+              {activeTab === TabState.BUY ? 'Attempted to Buy' : 'Attempted to Sell'}
+            </p>
             <div className="flex items-center gap-2">
               <Image
                 src={`/images/tokens/${inputToken?.Name}.png`}
@@ -43,7 +47,9 @@ export function FailedStep() {
           </div>
 
           <div className="flex flex-col items-end">
-            <p className="mb-2 text-sm text-muted-foreground">Would Have Received</p>
+            <p className="mb-2 text-sm text-muted-foreground">
+              {activeTab === TabState.BUY ? 'Would Have Sold' : 'Would Have Received'}
+            </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
                 <p className="font-medium">{Number(outputAmount).toFixed(8)}</p>

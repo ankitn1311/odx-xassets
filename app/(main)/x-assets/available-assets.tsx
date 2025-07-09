@@ -1,8 +1,8 @@
 import { Card } from '@/components/ui/card';
 import { DataTable } from './data-table';
 import { exploreColumn } from './columns';
-import { TokenPair, useAllTokens } from '@/hooks/queries/use-all-tokens';
-import { Skeleton } from '@/components/ui/skeleton';
+import { TokenPair } from '@/hooks/queries/use-all-tokens';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 
 export function AvailableAssets() {
   return (
@@ -35,7 +35,7 @@ const getPrice = (tokenPair: TokenPair) => {
 };
 
 function AvailableAssetsTable() {
-  const { data: allTokens, isLoading } = useAllTokens();
+  const { allTokens } = useTokenSwapStore();
 
   // Transform token pairs into table data format
   const tableData =
@@ -48,15 +48,15 @@ function AvailableAssetsTable() {
       image: `/images/tokens/${tokenPair.TokenA.Name}.png`,
     })) || [];
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-2 p-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex flex-col gap-2 p-4">
+  //       <Skeleton className="h-10 w-full" />
+  //       <Skeleton className="h-10 w-full" />
+  //       <Skeleton className="h-10 w-full" />
+  //     </div>
+  //   );
+  // }
 
   return <DataTable columns={exploreColumn} data={tableData} />;
 }

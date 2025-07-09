@@ -1,59 +1,46 @@
 import { Form as FormProvider } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useFormContext } from 'react-hook-form';
+
 import { useXAssetSignature } from '@/hooks/mutations/use-xasset-signature';
 import { toast } from 'sonner';
 import { PERMIT_TESTNET_ADDRESS, XUSDT_DECIMALS } from '@/utils/chain-client/txs/constants';
-import { useTokenSwapStore, TradeState } from '@/stores/token-swap-store';
+import { useTokenSwapStore, TradeState, allTokens, TabState } from '@/stores/token-swap-store';
 import { useEffect } from 'react';
 import { ethers } from 'ethers';
 import { erc20Abi } from 'viem';
 import { useWalletStore } from '@/stores/wallet-store';
 import { useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
-
-const swapFormSchema = z.object({
-  amount: z.string().refine(val => !isNaN(Number(val)), { message: 'Invalid number' }),
-  outputAmount: z.string().refine(val => !isNaN(Number(val)), { message: 'Invalid number' }),
-  percentage: z.number().min(0).max(100),
-});
-
-export type SwapFormValues = z.infer<typeof swapFormSchema>;
+import { SwapFormValues } from './TokenSwapCard';
 
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
   const {
     numericBalance,
-    inputToken,
-    outputToken,
     tradeState,
     setTradeState,
     isApproved,
     setIsApproved,
     setLatestTradeHash,
+    activeTab,
   } = useTokenSwapStore();
   const { connectedWallet } = useWalletStore();
-
-  const form = useForm<SwapFormValues>({
-    resolver: zodResolver(swapFormSchema),
-    defaultValues: {
-      amount: '0',
-      outputAmount: '0',
-      percentage: 25,
-    },
-  });
+  const form = useFormContext<SwapFormValues>();
 
   const { watch } = form;
   const formValues = watch();
   const amount = formValues.amount;
   const { data: wallet } = useWalletClient();
+  const inputToken = formValues.inputToken;
+  const outputToken = formValues.outputToken;
 
   const resetForm = () => {
     form.reset({
       amount: '0',
       outputAmount: '0',
       percentage: 0,
+      inputToken: inputToken,
+      outputToken: outputToken,
     });
   };
 
@@ -180,28 +167,40 @@ export function TokenSwapForm() {
       }
 
       if (tradeState === TradeState.INITIAL) {
-        roundOutputAndAdjustInput(values);
+        // roundOutputAndAdjustInput(values);
         setTradeState(TradeState.REVIEW);
         return;
       }
 
       if (tradeState === TradeState.APPROVED) {
-        roundOutputAndAdjustInput(values);
+        // roundOutputAndAdjustInput(values);
         setTradeState(TradeState.REVIEW);
         return;
       }
 
       if (tradeState === TradeState.REVIEW) {
         setTradeState(TradeState.PROCESSING);
-        await submitSignature({
-          user_address: connectedWallet ?? '',
-          token: inputToken?.Address ?? '',
-          amount: values.amount,
-          output_amount: values.outputAmount,
-          input_decimals: inputToken?.Decimals ?? 0,
-          output_decimals: outputToken?.Decimals ?? 0,
-          output_token: outputToken?.Address ?? '',
-        });
+        if (activeTab === TabState.BUY) {
+          await submitSignature({
+            user_address: connectedWallet ?? '',
+            token: outputToken?.Address ?? '',
+            amount: values.outputAmount,
+            output_amount: values.amount,
+            input_decimals: outputToken?.Decimals ?? 0,
+            output_decimals: inputToken?.Decimals ?? 0,
+            output_token: inputToken?.Address ?? '',
+          });
+        } else if (activeTab === TabState.SELL) {
+          await submitSignature({
+            user_address: connectedWallet ?? '',
+            token: inputToken?.Address ?? '',
+            amount: values.amount,
+            output_amount: values.outputAmount,
+            input_decimals: inputToken?.Decimals ?? 0,
+            output_decimals: outputToken?.Decimals ?? 0,
+            output_token: outputToken?.Address ?? '',
+          });
+        }
       }
 
       // Reset everything after successful submission
@@ -219,10 +218,8 @@ export function TokenSwapForm() {
   };
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
-        <SwapScreens />
-      </form>
-    </FormProvider>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+      <SwapScreens />
+    </form>
   );
 }

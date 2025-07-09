@@ -1,6 +1,5 @@
-import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
+import { TradeState, useTokenSwapStore, TabState } from '@/stores/token-swap-store';
 import { useFormContext } from 'react-hook-form';
-import { SwapFormValues } from './TokenSwapForm';
 import { useEffect, useRef } from 'react';
 import { debounce } from 'lodash';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
@@ -8,15 +7,12 @@ import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { SwapBody } from './SwapBody';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import Link from 'next/link';
+import { TokenInfo } from '@/hooks/queries/use-all-tokens';
+import { SwapFormValues } from './TokenSwapCard';
 
 export function SwapScreens() {
-  const { tradeState, inputToken } = useTokenSwapStore();
-  console.log('inputToken', inputToken);
-  const { data: numericBalance } = useTokenBalance(
-    inputToken?.Address ?? '',
-    inputToken?.Decimals ?? 18
-  );
+  const { tradeState, quoteLoading, activeTab } = useTokenSwapStore();
+  const isBuy = activeTab === TabState.BUY;
 
   const {
     watch,
@@ -24,19 +20,26 @@ export function SwapScreens() {
     formState: { isSubmitting },
   } = useFormContext<SwapFormValues>();
   const amount = watch('amount');
+  const inputToken = watch('inputToken');
+  const outputToken = watch('outputToken');
   const outputAmount = watch('outputAmount');
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
+  const { data: numericBalance } = useTokenBalance(
+    isBuy ? (outputToken?.Address ?? '') : (inputToken?.Address ?? ''),
+    isBuy ? (outputToken?.Decimals ?? 18) : (inputToken?.Decimals ?? 18)
+  );
 
-  const { getQuote, isLoading: isQuoteLoading } = useTradeQuote();
+  const { getQuote } = useTradeQuote();
+  const amountToUse = isBuy ? outputAmount : amount;
 
   useEffect(() => {
     // Initialize the debounced function
     debouncedGetQuoteRef.current = debounce(
-      async (inputTokenAddress: string, outputTokenAddress: string, inputAmount: string) => {
+      async (inputToken: TokenInfo, outputToken: TokenInfo, inputAmount: string) => {
         try {
           const quote = await getQuote({
-            inputToken: inputTokenAddress,
-            outputToken: outputTokenAddress,
+            inputToken,
+            outputToken,
             inputAmount,
           });
           if (quote) {
@@ -59,7 +62,10 @@ export function SwapScreens() {
   }, [getQuote, setValue]);
 
   const getButtonText = () => {
-    if (numericBalance && Number(numericBalance) < Number(amount)) {
+    if (quoteLoading) {
+      return 'Fetching quote...';
+    }
+    if (numericBalance && Number(numericBalance) < Number(amountToUse)) {
       return 'Insufficient Balance';
     }
     switch (tradeState) {
@@ -79,14 +85,12 @@ export function SwapScreens() {
       case TradeState.PENDING:
         return 'Done';
       default:
-        return inputToken?.Name === 'xUSDT' ? 'Buy' : 'Sell';
+        return activeTab === TabState.BUY ? 'Buy' : 'Sell';
     }
   };
 
-  console.log('Numeric Balance', numericBalance);
-
-  const isInsufficientBalance = numericBalance && Number(numericBalance) < Number(amount);
-  const isValidAmount = amount && Number(amount) > 0;
+  const isInsufficientBalance = numericBalance && Number(numericBalance) < Number(amountToUse);
+  const isValidAmount = amountToUse && Number(amountToUse) > 0;
   const isInsufficientOutputAmount = Number(outputAmount) === 0;
 
   return (
@@ -97,7 +101,7 @@ export function SwapScreens() {
         size="lg"
         className="mt-4 w-full"
         disabled={
-          isQuoteLoading ||
+          quoteLoading ||
           isSubmitting ||
           isInsufficientBalance ||
           isInsufficientOutputAmount ||

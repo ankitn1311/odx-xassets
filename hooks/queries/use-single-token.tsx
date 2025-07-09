@@ -1,7 +1,8 @@
-import { useAllTokens } from './use-all-tokens';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 
 export const useSingleToken = (address: string | null) => {
-  const allTokensData = useAllTokens();
+  const { allTokens } = useTokenSwapStore();
+  const allTokensData = { data: allTokens, isLoading: false };
 
   if (allTokensData.isLoading) {
     return {

@@ -146,6 +146,7 @@ const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({ label, route, 
   return (
     <Button
       key={label}
+      size="lg"
       variant="ghost"
       className={cn(isActive && 'font-bold text-primary', 'hover:text-primary')}
       onClick={() => push(`/${route}`)}

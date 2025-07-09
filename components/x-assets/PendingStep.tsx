@@ -1,15 +1,16 @@
 import { useFormContext } from 'react-hook-form';
-import { SwapFormValues } from './TokenSwapForm';
-import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import Image from 'next/image';
-import { Button } from '../ui/button';
 import { Loader2 } from 'lucide-react';
+import { SwapFormValues } from './TokenSwapCard';
+import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
 
 export function PendingStep() {
-  const { inputToken, outputToken, setTradeState } = useTokenSwapStore();
   const form = useFormContext<SwapFormValues>();
   const amount = form.watch('amount');
   const outputAmount = form.watch('outputAmount');
+  const inputToken = form.watch('inputToken');
+  const outputToken = form.watch('outputToken');
+  const { activeTab } = useTokenSwapStore();
 
   return (
     <div className="flex flex-col items-center">
@@ -24,7 +25,9 @@ export function PendingStep() {
       <div className="w-full space-y-6">
         <div className="flex w-full justify-between border-b border-border pb-4">
           <div className="flex flex-col items-start">
-            <p className="mb-2 text-sm text-muted-foreground">Attempted to Sell</p>
+            <p className="mb-2 text-sm text-muted-foreground">
+              {activeTab === TabState.BUY ? 'Attempted to Sell' : 'Attempted to Buy'}
+            </p>
             <div className="flex items-center gap-2">
               <Image
                 src={`/images/tokens/${inputToken?.Name}.png`}
@@ -43,7 +46,9 @@ export function PendingStep() {
           </div>
 
           <div className="flex flex-col items-end">
-            <p className="mb-2 text-sm text-muted-foreground">Would Receive</p>
+            <p className="mb-2 text-sm text-muted-foreground">
+              {activeTab === TabState.BUY ? 'Would Receive' : 'Would Sell'}
+            </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
                 <p className="font-medium">{outputAmount}</p>

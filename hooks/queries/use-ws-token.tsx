@@ -1,9 +1,9 @@
-import { useAllTokens } from './use-all-tokens';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 
 export const useWsToken = () => {
-  const { data: tokens } = useAllTokens();
+  const { allTokens } = useTokenSwapStore();
 
-  const wsToken = tokens?.find(token => token.TokenB.Name === 'wS');
+  const wsToken = allTokens?.find(token => token.TokenB.Name === 'wS');
 
   return wsToken?.TokenB.Address;
 };

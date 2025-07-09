@@ -1,14 +1,14 @@
 import { useFormContext } from 'react-hook-form';
 import { useWatchAsset } from 'wagmi';
-import { SwapFormValues } from './TokenSwapForm';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Network, Zap, DollarSign, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
+import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { toast } from 'sonner';
 import { convertXUSDT } from '@/lib/utils';
+import { SwapFormValues } from './TokenSwapCard';
 
 const symbolReplace = {
   USDC: 'USDC',
@@ -19,11 +19,12 @@ const symbolReplace = {
 export function ReviewStep() {
   const { watchAssetAsync, isPending } = useWatchAsset();
   const [tokenToAdd, setTokenToAdd] = useState<TokenInfo | null>(null);
-  const { setTradeState } = useTokenSwapStore();
-  const { inputToken, outputToken } = useTokenSwapStore();
+  const { setTradeState, activeTab } = useTokenSwapStore();
   const form = useFormContext<SwapFormValues>();
   const amount = form.watch('amount');
   const outputAmount = form.watch('outputAmount');
+  const inputToken = form.watch('inputToken');
+  const outputToken = form.watch('outputToken');
 
   const addTokenToWallet = async (token: TokenInfo) => {
     setTokenToAdd(token);
@@ -46,7 +47,14 @@ export function ReviewStep() {
 
   const onBack = () => {
     setTradeState(TradeState.INITIAL);
-    form.reset();
+
+    form.reset({
+      amount: '',
+      outputAmount: '',
+      percentage: 0,
+      inputToken: inputToken,
+      outputToken: outputToken,
+    });
   };
 
   return (
@@ -60,7 +68,9 @@ export function ReviewStep() {
 
       <div className="flex justify-between">
         <div className="flex flex-col items-start">
-          <p className="mb-2 text-sm text-muted-foreground">Sell</p>
+          <p className="mb-2 text-sm text-muted-foreground">
+            {activeTab === TabState.BUY ? 'Buy' : 'Sell'}
+          </p>
           <div className="flex items-center gap-2">
             <Image
               src={`/images/tokens/${inputToken?.Name}.png`}
@@ -92,7 +102,9 @@ export function ReviewStep() {
         </div>
 
         <div className="flex flex-col items-end">
-          <p className="mb-2 text-sm text-muted-foreground">Buy</p>
+          <p className="mb-2 text-sm text-muted-foreground">
+            {activeTab === TabState.BUY ? 'Sell' : 'Buy'}
+          </p>
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
               <p className="font-medium">{Number(outputAmount).toFixed(8)}</p>
@@ -161,7 +173,10 @@ export function ReviewStep() {
             <ArrowRight className="h-4 w-4 text-primary" /> Receive at least
           </span>
           <span className="text-sm font-bold text-success">
-            {Number(outputAmount).toFixed(8)} {convertXUSDT(outputToken?.Name ?? '')}
+            {activeTab === TabState.BUY
+              ? Number(amount).toFixed(8)
+              : Number(outputAmount).toFixed(8)}{' '}
+            {convertXUSDT(activeTab === TabState.BUY ? inputToken?.Name : outputToken?.Name)}
           </span>
         </div>
       </div>

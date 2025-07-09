@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { useFormContext } from 'react-hook-form';
-import { useTokenSwapStore } from '@/stores/token-swap-store';
+import { useFormContext, useFormState } from 'react-hook-form';
+import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
 import { ChevronDown } from 'lucide-react';
 import {
   Select,
@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/select';
 import Image from 'next/image';
 import { useEffect, useCallback, useRef } from 'react';
-import { useAllTokens } from '@/hooks/queries/use-all-tokens';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
@@ -21,6 +20,7 @@ import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { convertXUSDT } from '@/lib/utils';
 import ODXLogoLight from '../svg/odx-logo-light';
 import ODXLogoDark from '../svg/odx-logo-dark';
+import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 
 const MAX_DECIMALS = 2;
 
@@ -42,15 +42,17 @@ export function TokenInput({
   showPercentageButtons = true,
 }: TokenInputProps) {
   const form = useFormContext();
-  const { setValue } = form;
+  const { watch, setValue, clearErrors } = form;
   const fieldName = isOutput ? 'outputAmount' : 'amount';
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
 
-  const { inputToken, outputToken, setInputToken, setOutputToken } = useTokenSwapStore();
+  const { allTokens, activeTab } = useTokenSwapStore();
+  const inputToken = watch('inputToken');
+  const outputToken = watch('outputToken');
+
   const token = !isOutput ? inputToken : outputToken;
   const isUSDT = token?.Name === 'USDC';
   const { getQuote, isLoading: isQuoteLoading } = useTradeQuote();
-  const { data: allTokens } = useAllTokens();
   // const token = isOutput ? outputToken : inputToken;
 
   const availableTokens = allTokens?.map(tokens => {
@@ -74,10 +76,13 @@ export function TokenInput({
     if (!selectedToken) return;
 
     if (isOutput) {
-      setOutputToken(selectedToken);
+      // setOutputToken(selectedToken);
+      setValue('outputToken', selectedToken);
     } else {
-      setInputToken(selectedToken);
+      // setInputToken(selectedToken);
+      setValue('inputToken', selectedToken);
     }
+    clearErrors();
     setValue('amount', '');
     setValue('outputAmount', '');
     setValue('percentage', 0);
@@ -86,11 +91,11 @@ export function TokenInput({
   useEffect(() => {
     // Initialize the debounced function
     debouncedGetQuoteRef.current = debounce(
-      async (inputTokenAddress: string, outputTokenAddress: string, inputAmount: string) => {
+      async (inputToken: TokenInfo, outputToken: TokenInfo, inputAmount: string) => {
         try {
           const quote = await getQuote({
-            inputToken: inputTokenAddress,
-            outputToken: outputTokenAddress,
+            inputToken: inputToken,
+            outputToken: outputToken,
             inputAmount,
           });
           if (quote) {
@@ -132,24 +137,11 @@ export function TokenInput({
       setValue('amount', formattedValue);
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
-        debouncedGetQuoteRef.current(inputToken.Address, outputToken.Address, formattedValue);
+        debouncedGetQuoteRef.current(inputToken, outputToken, formattedValue);
       }
     },
     [inputToken, outputToken, setValue]
   );
-
-  useEffect(() => {
-    if (allTokens) {
-      const inpToken = allTokens?.[0].TokenA;
-      const outToken = allTokens?.[0].TokenB;
-      if (inpToken) {
-        setInputToken(inpToken);
-      }
-      if (outToken) {
-        setOutputToken(outToken);
-      }
-    }
-  }, [allTokens, setInputToken, setOutputToken]);
 
   return (
     <div className="relative">
@@ -256,7 +248,7 @@ export function TokenInput({
             </svg>
             <p className="text-xs text-muted-foreground">Balance: {Number(balance).toFixed(2)}</p>
           </div>
-          {showPercentageButtons && (
+          {activeTab === TabState.SELL && showPercentageButtons && (
             <div className="flex items-center gap-1.5">
               {PERCENTAGE_OPTIONS.map(percentage => (
                 <Button

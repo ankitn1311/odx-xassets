@@ -1,9 +1,9 @@
 import { Card } from '@/components/ui/card';
 import { DataTable } from './data-table';
 import { exploreColumn } from './columns';
-import { useAllTokens } from '@/hooks/queries/use-all-tokens';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTokenSupply } from '@/hooks/queries/use-token-supply';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 
 const xTokenToToken = {
   x1SOL: 'SOL',
@@ -11,7 +11,7 @@ const xTokenToToken = {
 };
 
 export function ReservesTable() {
-  const { data: allTokens, isLoading } = useAllTokens();
+  const { allTokens } = useTokenSwapStore();
   const solToken = allTokens?.find(token => token.TokenB.Name === 'x1SOL');
   const xrpToken = allTokens?.find(token => token.TokenB.Name === 'x1XRP');
   console.log('ALL TOKEN', allTokens, solToken, xrpToken);
@@ -56,7 +56,7 @@ export function ReservesTable() {
       ]
     : [];
 
-  if (isLoading || isSupplyLoading || isXrpSupplyLoading) {
+  if (isSupplyLoading || isXrpSupplyLoading) {
     return (
       <Card>
         <div className="flex flex-col gap-2 p-4 pb-0">

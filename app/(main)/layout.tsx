@@ -1,4 +1,5 @@
 import AppHeader from '../app-header';
+import { Github, Twitter, MessageCircle } from 'lucide-react';
 
 export default async function MainLayout({
   children,

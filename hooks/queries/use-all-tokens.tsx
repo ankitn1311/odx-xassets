@@ -28,7 +28,7 @@ const getAllTokens = async (xAssetScreen: boolean) => {
       TokenB: {
         Name: 'x1SOL',
         FullName: 'x1SOL',
-        Address: '0x344C683C891e3e0b5b393Fc10f6479B725353a36',
+        Address: '0x40eF79F7f9B0e05e761440B2eC2A6210fc453B1e',
         Decimals: 18,
       },
       Name: 'USDC/x1SOL',
@@ -43,10 +43,10 @@ const getAllTokens = async (xAssetScreen: boolean) => {
       TokenB: {
         Name: 'x1XRP',
         FullName: 'x1XRP',
-        Address: '0xF353b3cC916C0D361cb675598BC4dEF37Edc78D9',
+        Address: '0x1B4FEAE9cc60940d1F8745d13527A56c7eb16bCc',
         Decimals: 18,
       },
-      Name: 'USDC/x1SOL',
+      Name: 'USDC/x1XRP',
     },
   ];
 
@@ -74,23 +74,38 @@ export const useAllTokens = (override?: boolean) => {
   const allTokensData = useQuery<TokenPair[]>({
     queryKey: ['all-tokens', isXAssetScreen ? 'x-asset' : 'trade'],
     queryFn: () => getAllTokens(isXAssetScreen),
-    // initialData: [
-    //   {
-    //     TokenA: {
-    //       Name: 'RIFT.x',
-    //       FullName: 'RIFT (ODX)',
-    //       Address: '0x1D90E2e571B2cF32Ac5910b81e300C88FD90A58c',
-    //       Decimals: 18,
-    //     },
-    //     TokenB: {
-    //       Name: 'xUSDT',
-    //       FullName: 'USDT (ODX)',
-    //       Address: '0x2d4b1eDa9514675a9F8CB13b3f3a7475ebb81024',
-    //       Decimals: 6,
-    //     },
-    //     Name: 'RIFT.x/xUSDT',
-    //   },
-    // ],
+    initialData: [
+      {
+        TokenA: {
+          Name: 'USDC',
+          FullName: 'USDC',
+          Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+          Decimals: 6,
+        },
+        TokenB: {
+          Name: 'x1SOL',
+          FullName: 'x1SOL',
+          Address: '0x40eF79F7f9B0e05e761440B2eC2A6210fc453B1e',
+          Decimals: 18,
+        },
+        Name: 'USDC/x1SOL',
+      },
+      {
+        TokenA: {
+          Name: 'USDC',
+          FullName: 'USDC',
+          Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+          Decimals: 6,
+        },
+        TokenB: {
+          Name: 'x1XRP',
+          FullName: 'x1XRP',
+          Address: '0x1B4FEAE9cc60940d1F8745d13527A56c7eb16bCc',
+          Decimals: 18,
+        },
+        Name: 'USDC/x1XRP',
+      },
+    ],
     retry: false,
     staleTime: Infinity,
   });
