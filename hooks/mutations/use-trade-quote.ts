@@ -11,22 +11,15 @@ interface QuoteParams {
 
 const CRYPTO_API_BASE = 'https://api.crypto.com/exchange/v1/public';
 
-const usdcToUsd = {
-  USDC: 'USD',
-  USDT: 'USD',
-};
-
-const xTokenToToken = {
-  x1SOL: 'SOL',
-  x1XRP: 'XRP',
-};
-
-const tokenConvert = {
+export const tokenConvert = {
   USDC: 'USD',
   USDT: 'USD',
   x1SOL: 'SOL',
   x1XRP: 'XRP',
   x1ADA: 'ADA',
+  x1DOGE: 'DOGE',
+  x1PEPE: 'PEPE',
+  x1SUI: 'SUI',
 };
 
 // Helper function to calculate quote

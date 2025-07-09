@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TokenInfo, TokenPair } from '@/hooks/queries/use-all-tokens';
+import { ALL_TOKEN_PAIRS, TokenInfo, TokenPair } from '@/hooks/queries/use-all-tokens';
 import { persist } from 'zustand/middleware';
 
 export enum TradeState {
@@ -45,58 +45,10 @@ interface TokenSwapActions {
   setActiveTab: (tab: TabState) => void;
 }
 
-export const allTokens = [
-  {
-    TokenA: {
-      Name: 'USDC',
-      FullName: 'USDC',
-      Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
-      Decimals: 6,
-    },
-    TokenB: {
-      Name: 'x1SOL',
-      FullName: 'x1SOL',
-      Address: '0x40eF79F7f9B0e05e761440B2eC2A6210fc453B1e',
-      Decimals: 18,
-    },
-    Name: 'USDC/x1SOL',
-  },
-  {
-    TokenA: {
-      Name: 'USDC',
-      FullName: 'USDC',
-      Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
-      Decimals: 6,
-    },
-    TokenB: {
-      Name: 'x1XRP',
-      FullName: 'x1XRP',
-      Address: '0x1B4FEAE9cc60940d1F8745d13527A56c7eb16bCc',
-      Decimals: 18,
-    },
-    Name: 'USDC/x1XRP',
-  },
-  {
-    TokenA: {
-      Name: 'USDC',
-      FullName: 'USDC',
-      Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
-      Decimals: 6,
-    },
-    TokenB: {
-      Name: 'x1ADA',
-      FullName: 'x1ADA',
-      Address: '0xEbbEaEF27b155F46A5C13d9fa2760E376990510A',
-      Decimals: 18,
-    },
-    Name: 'USDC/x1ADA',
-  },
-];
-
 export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
   // persist<TokenSwapState & TokenSwapActions>(
   set => ({
-    allTokens,
+    allTokens: ALL_TOKEN_PAIRS,
     numericBalance: 0,
     inputToken: null,
     outputToken: null,

@@ -10,13 +10,6 @@ import { toast } from 'sonner';
 import { convertXUSDT } from '@/lib/utils';
 import { SwapFormValues } from './TokenSwapCard';
 
-const symbolReplace = {
-  USDC: 'USDC',
-  x1SOL: 'x1SOL',
-  x1XRP: 'x1XRP',
-  x1ADA: 'x1ADA',
-};
-
 export function ReviewStep() {
   const { watchAssetAsync, isPending } = useWatchAsset();
   const [tokenToAdd, setTokenToAdd] = useState<TokenInfo | null>(null);
@@ -34,7 +27,7 @@ export function ReviewStep() {
         type: 'ERC20',
         options: {
           address: token.Address,
-          symbol: symbolReplace[token.Name as keyof typeof symbolReplace] || token.Name,
+          symbol: token.Name,
           decimals: token.Decimals,
           // image: token.Image,
         },
