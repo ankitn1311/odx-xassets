@@ -9,6 +9,7 @@ import { SwapBody } from './SwapBody';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
+import { Loader } from 'lucide-react';
 
 export function SwapScreens() {
   const { tradeState, quoteLoading, activeTab } = useTokenSwapStore();
@@ -118,7 +119,12 @@ export function SwapScreens() {
             tradeState === TradeState.CHECKING_APPROVAL
           }
         >
-          {getButtonText()}
+          <div className="flex items-center gap-2">
+            {tradeState === TradeState.PROCESSING && (
+              <Loader className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            {getButtonText()}
+          </div>
         </Button>
       )}
     </>
