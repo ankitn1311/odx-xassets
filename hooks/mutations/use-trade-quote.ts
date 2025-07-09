@@ -17,6 +17,7 @@ const usdcToUsd = {
 
 const xTokenToToken = {
   x1SOL: 'SOL',
+  x1XRP: 'XRP',
 };
 
 // Helper function to calculate quote

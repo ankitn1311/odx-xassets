@@ -54,6 +54,13 @@ export function InitialStep() {
 
   // Add polling effect
   useEffect(() => {
+    if (inputAmount === '0' || inputAmount === '' || !inputAmount) {
+      setValue('outputAmount', '');
+      setValue('amount', '');
+      setValue('percentage', 0);
+      return;
+    }
+
     if (inputAmount && inputToken && outputToken) {
       // Clear any existing interval
       if (pollingIntervalRef.current) {
@@ -74,7 +81,7 @@ export function InitialStep() {
         clearInterval(pollingIntervalRef.current);
       }
     };
-  }, [inputAmount, inputToken, outputToken]);
+  }, [inputAmount, inputToken, outputToken, setValue]);
 
   const handleAmountChange = useCallback(
     async (value: string) => {

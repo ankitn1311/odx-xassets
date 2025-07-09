@@ -17,23 +17,40 @@ export type TokenPair = {
 };
 
 const getAllTokens = async (xAssetScreen: boolean) => {
-  const tokenPair = {
-    TokenA: {
-      Name: 'USDC',
-      FullName: 'USDC',
-      Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
-      Decimals: 6,
+  const tokenPairs = [
+    {
+      TokenA: {
+        Name: 'USDC',
+        FullName: 'USDC',
+        Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+        Decimals: 6,
+      },
+      TokenB: {
+        Name: 'x1SOL',
+        FullName: 'x1SOL',
+        Address: '0x344C683C891e3e0b5b393Fc10f6479B725353a36',
+        Decimals: 18,
+      },
+      Name: 'USDC/x1SOL',
     },
-    TokenB: {
-      Name: 'x1SOL',
-      FullName: 'x1SOL',
-      Address: '0x344C683C891e3e0b5b393Fc10f6479B725353a36',
-      Decimals: 18,
+    {
+      TokenA: {
+        Name: 'USDC',
+        FullName: 'USDC',
+        Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+        Decimals: 6,
+      },
+      TokenB: {
+        Name: 'x1XRP',
+        FullName: 'x1XRP',
+        Address: '0xF353b3cC916C0D361cb675598BC4dEF37Edc78D9',
+        Decimals: 18,
+      },
+      Name: 'USDC/x1SOL',
     },
-    Name: 'USDC/x1SOL',
-  };
+  ];
 
-  return [tokenPair];
+  return tokenPairs;
   // const response = await api.AXIOS(
   //
   //   {

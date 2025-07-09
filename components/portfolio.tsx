@@ -150,8 +150,8 @@ export const Portfolio = () => {
 
 export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }) => {
   const [, copyToClipboard] = useCopyToClipboard();
-  const tokenBalanceData = useTokenBalance(data?.TokenA.Address || '', data?.TokenA.Decimals);
-  const usdxBalance = useTokenBalance(data?.TokenB.Address || '', data?.TokenB.Decimals);
+  const tokenBalanceData = useTokenBalance(data?.TokenB.Address || '', data?.TokenB.Decimals);
+  const usdxBalance = useTokenBalance(data?.TokenA.Address || '', data?.TokenA.Decimals);
   const { data: quote, isLoading: isQuoteLoading } = useQuote({
     assetIn: data?.TokenA.Address || '',
     assetOut: data?.TokenB.Address || '',
@@ -168,22 +168,22 @@ export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }
       <div className="flex items-center gap-3">
         <div className="relative">
           <Image
-            src={isUsdx ? `/images/tokens/XUSDC.png` : `/images/tokens/${data.TokenA.Name}.png`}
-            alt={data.TokenA.Name}
+            src={isUsdx ? `/images/tokens/USDC.png` : `/images/tokens/${data.TokenB.Name}.png`}
+            alt={data.TokenB.Name}
             width={40}
             height={40}
           />
         </div>
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
-            <div className="">{isUsdx ? convertXUSDT(data.TokenB.Name) : data.TokenA.Name}</div>
+            <div className="">{isUsdx ? convertXUSDT(data.TokenA.Name) : data.TokenB.Name}</div>
             <Copy
               className="h-3 w-3 cursor-pointer text-muted-foreground hover:text-primary-foreground"
               strokeWidth={1}
               onClick={() => {
-                copyToClipboard(isUsdx ? data.TokenB.Address : data.TokenA.Address);
+                copyToClipboard(isUsdx ? data.TokenA.Address : data.TokenB.Address);
                 toast.success(`Copied!`, {
-                  description: isUsdx ? data.TokenB.Address : data.TokenA.Address,
+                  description: isUsdx ? data.TokenA.Address : data.TokenB.Address,
                 });
               }}
             />
@@ -194,12 +194,12 @@ export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }
         <p className="text-base text-foreground">
           {isUsdx ? usdxBalance.data : tokenBalanceData.data}
         </p>
-        {!isUsdx && (
+        {/* {!isUsdx && (
           <div className="text-xs text-muted-foreground">
             {quote ? Number(quote * Number(tokenBalanceData.data)).toFixed(4) : '0'}{' '}
-            {convertXUSDT(data.TokenB.Name)}
+            {convertXUSDT(data.TokenA.Name)}
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import { convertXUSDT } from '@/lib/utils';
 const symbolReplace = {
   USDC: 'USDC',
   x1SOL: 'x1SOL',
+  x1XRP: 'x1XRP',
 };
 
 export function SuccessStep() {

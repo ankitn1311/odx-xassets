@@ -108,6 +108,35 @@ export function TokenSwapForm() {
     }
   };
 
+  const roundOutputAndAdjustInput = (values: SwapFormValues) => {
+    console.log('ROUNDING', values);
+    const inputAmount = Number(values.amount);
+    const outputAmount = Number(values.outputAmount);
+
+    if (inputAmount <= 0 || outputAmount <= 0) return values;
+
+    // Round output amount to whole number
+    const roundedOutputAmount = Math.floor(outputAmount);
+
+    if (roundedOutputAmount === 0) return values;
+
+    // Calculate the ratio of original amounts
+    const originalRatio = outputAmount / inputAmount;
+
+    // Calculate new input amount based on rounded output
+    const adjustedInputAmount = roundedOutputAmount / originalRatio;
+
+    // Update form values
+    form.setValue('outputAmount', roundedOutputAmount.toString());
+    form.setValue('amount', adjustedInputAmount.toFixed(6)); // Keep 6 decimal places for precision
+
+    return {
+      ...values,
+      amount: adjustedInputAmount.toFixed(6),
+      outputAmount: roundedOutputAmount.toString(),
+    };
+  };
+
   const onSubmit = async (values: SwapFormValues) => {
     // return toast.info(
     //   'We are currently upgrading our xAssets platform to bring you an even better experience. Please check back soon!'
@@ -151,11 +180,13 @@ export function TokenSwapForm() {
       }
 
       if (tradeState === TradeState.INITIAL) {
+        roundOutputAndAdjustInput(values);
         setTradeState(TradeState.REVIEW);
         return;
       }
 
       if (tradeState === TradeState.APPROVED) {
+        roundOutputAndAdjustInput(values);
         setTradeState(TradeState.REVIEW);
         return;
       }

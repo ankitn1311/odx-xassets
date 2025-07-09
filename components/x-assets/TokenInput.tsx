@@ -78,6 +78,9 @@ export function TokenInput({
     } else {
       setInputToken(selectedToken);
     }
+    setValue('amount', '');
+    setValue('outputAmount', '');
+    setValue('percentage', 0);
   };
 
   useEffect(() => {

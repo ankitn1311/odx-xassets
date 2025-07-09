@@ -13,6 +13,7 @@ import { convertXUSDT } from '@/lib/utils';
 const symbolReplace = {
   USDC: 'USDC',
   x1SOL: 'x1SOL',
+  x1XRP: 'x1XRP',
 };
 
 export function ReviewStep() {
@@ -45,6 +46,7 @@ export function ReviewStep() {
 
   const onBack = () => {
     setTradeState(TradeState.INITIAL);
+    form.reset();
   };
 
   return (
