@@ -103,7 +103,7 @@ export function InitialStep() {
       const formattedValue =
         parts[0] + (parts.length > 1 ? '.' + parts[1].slice(0, MAX_DECIMALS) : '');
       setValue('amount', formattedValue);
-      let numValue = Number(formattedValue);
+      const numValue = Number(formattedValue);
       if (isNaN(numValue)) return;
 
       // if (numValue > 10) {

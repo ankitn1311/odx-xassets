@@ -70,7 +70,7 @@ export const TokenSwapCard = () => {
     mode: 'onBlur',
   });
 
-  const { activeTab, setActiveTab } = useTokenSwapStore();
+  const { activeTab, setActiveTab, resetTradeState } = useTokenSwapStore();
 
   const isBuyDisabled = ![
     TradeState.INITIAL,
@@ -93,10 +93,36 @@ export const TokenSwapCard = () => {
             <div className="px-8 pb-8 pt-4">
               <Tabs value={activeTab} onValueChange={value => setActiveTab(value as TabState)}>
                 <TabsList className="grid w-full grid-cols-2" variant="underline">
-                  <TabsTrigger variant="underline" disabled={isBuyDisabled} value={TabState.BUY}>
+                  <TabsTrigger
+                    variant="underline"
+                    disabled={isBuyDisabled}
+                    value={TabState.BUY}
+                    onClick={() => {
+                      if (
+                        [TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(
+                          tradeState
+                        )
+                      ) {
+                        resetTradeState();
+                      }
+                    }}
+                  >
                     Buy
                   </TabsTrigger>
-                  <TabsTrigger variant="underline" disabled={isSellDisabled} value={TabState.SELL}>
+                  <TabsTrigger
+                    variant="underline"
+                    disabled={isSellDisabled}
+                    value={TabState.SELL}
+                    onClick={() => {
+                      if (
+                        [TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(
+                          tradeState
+                        )
+                      ) {
+                        resetTradeState();
+                      }
+                    }}
+                  >
                     Sell
                   </TabsTrigger>
                 </TabsList>
