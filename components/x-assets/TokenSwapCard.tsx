@@ -90,7 +90,7 @@ export const TokenSwapCard = () => {
       <div className="flex w-full flex-col">
         <BackgroundGradient>
           <div className="w-full rounded-xl bg-card">
-            <div className="px-8 pb-8 pt-4">
+            <div className="px-8 pb-8 pt-6">
               <Tabs value={activeTab} onValueChange={value => setActiveTab(value as TabState)}>
                 <TabsList className="grid w-full grid-cols-2" variant="underline">
                   <TabsTrigger

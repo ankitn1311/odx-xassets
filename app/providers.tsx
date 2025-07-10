@@ -27,7 +27,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <RainbowKitProvider theme={darkTheme()} key="ODX">
           <WalletSync>
             {children}
-            <ReactQueryDevtools />
+            {/* <ReactQueryDevtools /> */}
             <Toaster richColors />
           </WalletSync>
         </RainbowKitProvider>

@@ -35,6 +35,7 @@
     "score": "Score",
     "components": "Components",
     "xAssets": "xAssets",
-    "reserves": "Reserves"
+    "reserves": "Reserves",
+    "leaderboard": "Leaderboard"
   }
 }

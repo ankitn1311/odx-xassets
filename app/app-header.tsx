@@ -47,22 +47,22 @@ import { useDisconnect } from 'wagmi';
 
 export default function AppHeader() {
   return (
-    <div className="z-20 flex h-16 items-center justify-between gap-2 px-4 lg:px-6">
+    <div className="z-20 flex h-16 items-center justify-between gap-2 border-b border-muted/60 px-4 lg:px-6">
       <AppHeaderLeft />
+      <AppHeaderCenter />
       <AppHeaderRight />
     </div>
   );
 }
 
 const AppHeaderLeft = () => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
   const router = useRouter();
   const { theme, systemTheme } = useTheme();
 
   const currentTheme = theme === 'system' ? systemTheme : theme;
 
   return (
-    <div className="flex items-center gap-2 lg:gap-4">
+    <div className="flex basis-1/2 items-center gap-2 lg:gap-4">
       <div
         onClick={() => {
           router.push('/x-assets');
@@ -75,9 +75,14 @@ const AppHeaderLeft = () => {
           <ODXLogoLight className="h-6 w-auto" />
         )}
       </div>
-      {!isMobile && <AppHeaderNavbar />}
     </div>
   );
+};
+
+const AppHeaderCenter = () => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  return !isMobile && <AppHeaderNavbar />;
 };
 
 const AppHeaderRight = () => {
@@ -103,7 +108,7 @@ const AppHeaderRight = () => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex basis-1/2 items-center justify-end gap-2">
       <ModeToggle />
       <ConnectWallet />
     </div>
@@ -117,13 +122,14 @@ const navbarItems = [
   { label: 'xAssets', route: 'x-assets' },
   { label: 'reserves', route: 'reserves' },
   // { label: 'score', route: 'score', isProtected: true },
-  // { label: 'Leaderboard' },
+  { label: 'score', route: 'score', comingSoon: true },
+  { label: 'leaderboard', route: 'leaderboard', comingSoon: true },
   // { label: "components", route: "components" },
 ];
 
 const AppHeaderNavbar = () => {
   return (
-    <nav>
+    <nav className="flex flex-1 items-center justify-center gap-2 pl-2">
       {navbarItems.map(navbarItem => {
         return <AppHeaderNavbarItem key={navbarItem.label} {...navbarItem} />;
       })}
@@ -131,9 +137,13 @@ const AppHeaderNavbar = () => {
   );
 };
 
-const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({ label, route, isProtected }) => {
+const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({
+  label,
+  route,
+  isProtected,
+  comingSoon,
+}) => {
   const pathname = usePathname();
-  const { push } = useRouter();
   const t = useTranslations('Navbar');
   const { data: userInfo } = useUserInfo();
 
@@ -144,14 +154,22 @@ const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({ label, route, 
   }
 
   return (
-    <Button
+    <Link
       key={label}
-      size="lg"
-      variant="ghost"
-      className={cn(isActive && 'font-bold text-primary', 'hover:text-primary')}
-      onClick={() => push(`/${route}`)}
+      href={`/${route}`}
+      className={cn(
+        'flex items-center px-3 py-2 text-base transition-colors',
+        isActive ? 'font-bold text-foreground' : 'text-muted-foreground hover:text-foreground'
+      )}
+      style={{ textDecoration: 'none' }}
     >
+      <span
+        className={cn(
+          'mr-2 inline-block h-2 w-2 rounded-full bg-transparent',
+          isActive && 'bg-primary'
+        )}
+      />
       {t(label)}
-    </Button>
+    </Link>
   );
 };

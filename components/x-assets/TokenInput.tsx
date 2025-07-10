@@ -171,7 +171,7 @@ export function TokenInput({
             )}
           />
           {isUSDT ? (
-            <div className="flex h-10 shrink-0 items-center gap-2 px-3 py-2">
+            <div className="flex h-10 shrink-0 items-center gap-2 rounded-md bg-background/50 px-3 py-2">
               <Image
                 src={`/images/tokens/${token?.Name}.png`}
                 alt={token?.Name}
@@ -183,8 +183,9 @@ export function TokenInput({
             </div>
           ) : (
             <Select value={token?.Name} onValueChange={handleTokenSelect}>
-              <SelectTrigger className="h-10 w-auto gap-2 border-0 bg-transparent px-3 py-2">
+              <SelectTrigger className="h-10 w-auto gap-2 border-0 bg-background/50 px-3 py-2 hover:bg-background">
                 {/* <div className="flex items-center gap-2">
+                     
                   <Image
                     src={`/images/tokens/${token?.Name}.png`}
                     alt={token?.Name}
@@ -264,6 +265,7 @@ export function TokenInput({
               ))}
             </div>
           )}
+          {activeTab === TabState.BUY && showPercentageButtons && <div className="invisible h-6" />}
         </div>
       </div>
     </div>

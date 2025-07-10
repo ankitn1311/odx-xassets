@@ -1,5 +1,6 @@
 import { TokenInput } from './TokenInput';
 import { Button } from '../ui/button';
+import { Button as MovingButton } from '../ui/moving-border';
 import Image from 'next/image';
 import { TradeState, useTokenSwapStore, TabState } from '@/stores/token-swap-store';
 import { useCallback, useEffect, useRef } from 'react';
@@ -220,12 +221,22 @@ export function InitialStep() {
 
       <div className="mt-2 flex items-center justify-between py-4">
         <p className="text-sm text-muted-foreground">Source</p>
-        <Button variant="outline" type="button">
+        {/* <Button variant="outline" type="button">
           <div className="flex items-center gap-2">
             <Image src="/images/ODX.svg" alt="ODX" width={16} height={16} className="h-4 w-4" />
             <p className="text-xs">ODX API</p>
           </div>
-        </Button>
+        </Button> */}
+        <MovingButton
+          // borderRadius="1.75rem"
+          // className="border-neutral-200 bg-white text-black dark:border-border dark:bg-slate-900 dark:text-white"
+          className="border-border bg-card text-card-foreground"
+        >
+          <div className="flex items-center gap-2">
+            <Image src="/images/ODX.svg" alt="ODX" width={16} height={16} className="h-4 w-4" />
+            <p className="text-xs">ODX API</p>
+          </div>
+        </MovingButton>
       </div>
 
       <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-primary-foreground">
