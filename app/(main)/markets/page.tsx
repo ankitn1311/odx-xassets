@@ -23,7 +23,7 @@ export default function MarketsPage() {
   );
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-2 p-2">
+    <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-2 p-2 md:pt-12">
       <Card className="p-4">
         <section className="flex h-full flex-col justify-center gap-4">
           <h2 className="text-lg font-semibold">Markets</h2>
