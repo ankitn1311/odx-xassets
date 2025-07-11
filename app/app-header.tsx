@@ -119,10 +119,9 @@ const navbarItems = [
   // { label: "buyCrypto", route: "buy-crypto" },
   // { label: "markets", route: "markets" },
   // { label: 'trade', route: 'trade' },
-  { label: 'xAssets', route: 'x-assets' },
+  { label: 'xAssets', route: 'markets' },
   { label: 'reserves', route: 'reserves' },
   // { label: 'score', route: 'score', isProtected: true },
-  { label: 'score', route: 'score', comingSoon: true },
   { label: 'leaderboard', route: 'leaderboard', comingSoon: true },
   // { label: "components", route: "components" },
 ];
@@ -156,10 +155,19 @@ const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({
   return (
     <Link
       key={label}
-      href={`/${route}`}
+      href={comingSoon ? '#' : `/${route}`}
+      onClick={
+        comingSoon
+          ? e => {
+              e.preventDefault();
+              toast.info('Coming soon');
+            }
+          : undefined
+      }
       className={cn(
         'flex items-center px-3 py-2 text-base transition-colors',
-        isActive ? 'font-bold text-foreground' : 'text-muted-foreground hover:text-foreground'
+        isActive ? 'font-bold text-foreground' : 'text-muted-foreground hover:text-foreground',
+        comingSoon && 'opacity-50 hover:text-muted-foreground'
       )}
       style={{ textDecoration: 'none' }}
     >

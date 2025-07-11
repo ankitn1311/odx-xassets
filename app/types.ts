@@ -1,6 +1,6 @@
 export type AppHeaderNavbarItemType = {
   label: string;
-  route?: string;
+  route?: string | string[];
   isProtected?: boolean;
   comingSoon?: boolean;
 };

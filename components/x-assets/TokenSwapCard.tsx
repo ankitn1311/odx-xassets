@@ -7,6 +7,9 @@ import { useForm, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { WHOLE_NUMBER_TOKENS } from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { Card } from '../ui/card';
 
 const swapFormSchema = z
   .object({
@@ -58,6 +61,8 @@ export const TokenSwapCard = () => {
   const { allTokens, tradeState } = useTokenSwapStore();
   const [firstToken] = allTokens;
   const { TokenA, TokenB } = firstToken;
+  const searchParams = useSearchParams();
+  const selectedTokenAddress = searchParams.get('selected-token');
   const form = useForm<SwapFormValues>({
     resolver: zodResolver(swapFormSchema),
     defaultValues: {
@@ -69,6 +74,19 @@ export const TokenSwapCard = () => {
     },
     mode: 'onBlur',
   });
+
+  // Set the inputToken to the selected token if present in the query param
+  useEffect(() => {
+    if (selectedTokenAddress && allTokens.length > 0) {
+      const found = allTokens.find(t => t.TokenB.Address === selectedTokenAddress);
+      if (found) {
+        form.setValue('inputToken', found.TokenB);
+        form.setValue('outputToken', found.TokenA);
+      }
+    }
+    // Only run on mount or when allTokens changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTokenAddress, allTokens]);
 
   const { activeTab, setActiveTab, resetTradeState } = useTokenSwapStore();
 
@@ -87,9 +105,9 @@ export const TokenSwapCard = () => {
 
   return (
     <FormProvider {...form}>
-      <div className="flex w-full flex-col">
-        <BackgroundGradient>
-          <div className="w-full rounded-xl bg-card">
+      <BackgroundGradient>
+        <div className="flex w-full flex-col">
+          <Card className="bg-card">
             <div className="px-8 pb-8 pt-6">
               <Tabs value={activeTab} onValueChange={value => setActiveTab(value as TabState)}>
                 <TabsList className="grid w-full grid-cols-2" variant="underline">
@@ -136,9 +154,9 @@ export const TokenSwapCard = () => {
                 </TabsContent>
               </Tabs>
             </div>
-          </div>
-        </BackgroundGradient>
-      </div>
+          </Card>
+        </div>
+      </BackgroundGradient>
     </FormProvider>
   );
 };

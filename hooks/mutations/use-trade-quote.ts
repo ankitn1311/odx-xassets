@@ -1,7 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { TokenInfo } from '../queries/use-all-tokens';
+import { useState, useEffect } from 'react';
 
 interface QuoteParams {
   inputToken: TokenInfo;
@@ -40,6 +41,18 @@ const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
 
   // Calculate how much USDC you'll get for the input SOL amount
   return inputAmount * currentPrice;
+};
+
+const getTokenPrice = async (tokenSymbol: string) => {
+  const response = await axios.get(`${CRYPTO_API_BASE}/get-valuations`, {
+    params: {
+      instrument_name: `${tokenConvert[tokenSymbol as keyof typeof tokenConvert]}_USD`,
+      valuation_type: 'mark_price',
+      count: 1,
+    },
+  });
+
+  return parseFloat(response.data.result.data[0].v);
 };
 
 export const useTradeQuote = () => {
@@ -84,5 +97,51 @@ export const useTokenQuote = () => {
     getQuote: quoteMutation.mutateAsync,
     isLoading: quoteMutation.isPending,
     error: quoteMutation.error,
+  };
+};
+
+export const useTokenPrice = (tokenSymbol: string) => {
+  return useQuery({
+    queryKey: ['token-price', tokenSymbol],
+    queryFn: () => {
+      return getTokenPrice(tokenSymbol);
+    },
+    refetchInterval: 1000 * 5,
+  });
+};
+
+export const useTokenPriceWithFlash = (tokenSymbol: string) => {
+  const { data: currentPrice, isLoading, error } = useTokenPrice(tokenSymbol);
+  const [previousPrice, setPreviousPrice] = useState<number | null>(null);
+  const [flashState, setFlashState] = useState<'none' | 'up' | 'down' | 'same'>('none');
+
+  useEffect(() => {
+    if (currentPrice !== undefined && previousPrice !== null) {
+      if (currentPrice > previousPrice) {
+        setFlashState('up');
+      } else if (currentPrice < previousPrice) {
+        setFlashState('down');
+      } else {
+        setFlashState('same');
+      }
+
+      // Reset flash state after animation duration
+      const timer = setTimeout(() => {
+        setFlashState('none');
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+
+    if (currentPrice !== undefined) {
+      setPreviousPrice(currentPrice);
+    }
+  }, [currentPrice, previousPrice]);
+
+  return {
+    data: currentPrice,
+    isLoading,
+    error,
+    flashState,
   };
 };

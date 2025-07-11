@@ -38,7 +38,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
   });
 
   return (
-    <Table>
+    <Table className="w-full table-fixed">
       <TableHeader className="">
         {table.getHeaderGroups().map(headerGroup => (
           <TableRow key={headerGroup.id} className="hover:cursor-pointer hover:bg-background">
@@ -48,7 +48,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
               // console.log(`columnID::: ${columnId}`);
               // columnId == "price" ? (margin = "bg-red-500 text-right ") : "";
               return (
-                <TableHead key={header.id} className={'border-b-0 py-2 first:pl-8 last:pr-8'}>
+                <TableHead
+                  key={header.id}
+                  className={'w-1/4 border-b-0 py-2 first:pl-4 last:pr-4 last:text-right'}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -77,7 +80,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 //   clsNm = "bg-teal-500 mb-100 w-full"
                 // }
                 return (
-                  <TableCell key={cell.id} className="py-2 first:pl-8 last:pr-8">
+                  <TableCell
+                    key={cell.id}
+                    className="w-1/4 py-2 first:pl-4 last:pr-4 last:text-right"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 );

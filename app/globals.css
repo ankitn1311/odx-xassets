@@ -55,11 +55,11 @@ body {
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221 83% 53%;
-    --chart-1: 221 83% 53%;
-    --chart-2: 319 84% 67%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 221 83% 53%; /* Primary blue */
+    --chart-2: 319 84% 67%; /* Accent pink/magenta */
+    --chart-3: 142 76% 36%; /* Success green */
+    --chart-4: 38 95% 64%; /* Warning orange/yellow */
+    --chart-5: 0 72% 51%; /* Destructive red */
     --radius: 0.5rem;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
@@ -173,11 +173,11 @@ body {
     --border: 220 10% 20%; /* Soft blue-gray for borders */
     --input: 220 10% 20%; /* Matches border for seamless inputs */
     --ring: 220 60% 55%; /* Bright blue for focus rings */
-    --chart-1: 220 70% 50%; /* Blue for primary chart lines */
-    --chart-2: 210 60% 45%; /* Teal for secondary charts */
-    --chart-3: 40 70% 50%; /* Yellow for highlights */
-    --chart-4: 280 60% 55%; /* Purple for contrast */
-    --chart-5: 340 70% 50%; /* Pink for additional highlights */
+    --chart-1: 220 70% 50%; /* Primary blue */
+    --chart-2: 301 38% 75%; /* Accent pink/magenta */
+    --chart-3: 160 78% 40%; /* Success green */
+    --chart-4: 29 86% 57%; /* Warning orange */
+    --chart-5: 0 73% 61%; /* Destructive red */
   }
 }
 
@@ -321,4 +321,53 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Price flash animations */
+@keyframes flash-up {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: hsl(var(--success) / 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes flash-down {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: hsl(var(--destructive) / 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes flash-same {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: hsl(var(--muted-foreground) / 0.1);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.price-flash-up {
+  animation: flash-up 1s ease-in-out;
+}
+
+.price-flash-down {
+  animation: flash-down 1s ease-in-out;
+}
+
+.price-flash-same {
+  animation: flash-same 1s ease-in-out;
 }
