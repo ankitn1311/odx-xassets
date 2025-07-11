@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useTokenPriceWithFlash } from '@/hooks/mutations/use-trade-quote';
+import { PriceDisplay } from '@/app/(main)/markets/price-display';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 
@@ -30,26 +29,7 @@ export function useMarketsColumns(): ColumnDef<any>[] {
     {
       accessorKey: 'price',
       header: 'Price',
-      cell: ({ row }: { row: Row<any> }) => {
-        const { data, isLoading, error, flashState } = useTokenPriceWithFlash(
-          row.original.tokenSymbol
-        );
-
-        if (error) return <span>-</span>;
-
-        if (isLoading) return <Skeleton className="h-4 w-20" />;
-
-        const flashClass =
-          flashState === 'up'
-            ? 'price-flash-up'
-            : flashState === 'down'
-              ? 'price-flash-down'
-              : flashState === 'same'
-                ? 'price-flash-same'
-                : '';
-
-        return <span className={`rounded px-2 py-1 transition-colors ${flashClass}`}>${data}</span>;
-      },
+      cell: ({ row }: { row: Row<any> }) => <PriceDisplay tokenSymbol={row.original.tokenSymbol} />,
     },
     {
       id: 'trade',
