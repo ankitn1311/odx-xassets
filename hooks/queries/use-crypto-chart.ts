@@ -12,9 +12,9 @@ const TOKEN_SYMBOL_MAP: Record<string, string> = {
 };
 
 const DURATION_MAP: Record<string, { interval: string; limit: number }> = {
-  '1D': { interval: '5m', limit: 50 }, // 24h * 12 (5m intervals)
-  '1W': { interval: '1h', limit: 50 }, // 7d * 24 (1h intervals)
-  '1M': { interval: '4h', limit: 50 }, // 30d * 6 (4h intervals)
+  '1D': { interval: '1D', limit: 24 }, // 24 hours of 1D intervals
+  '7D': { interval: '7D', limit: 7 }, // 7 days of 7D intervals
+  '1M': { interval: '1M', limit: 30 }, // 30 days of 1M intervals
 };
 
 export interface ChartPoint {
@@ -34,12 +34,11 @@ function getMockChartData(limit: number, price: number = 1): ChartPoint[] {
 async function fetchCryptoChartData(token: string, duration: string): Promise<ChartPoint[]> {
   const symbol = TOKEN_SYMBOL_MAP[token] || 'XRP_USD';
   const { interval, limit } = DURATION_MAP[duration] || DURATION_MAP['1D'];
-  const url = `https://api.crypto.com/v2/public/get-candlestick?instrument_name=${symbol}&timeframe=${interval}`;
-  return getMockChartData(limit);
+  const url = `https://api.crypto.com/exchange/v1/public/get-candlestick?instrument_name=${symbol}&timeframe=${interval}`;
   try {
     const res = await axios.get(url);
     const json = res.data;
-    console.log('json', json);
+    console.log('candlestick json', json);
     if (
       !json.result ||
       !json.result.data ||

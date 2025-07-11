@@ -1,7 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { PriceDisplay } from '@/app/(main)/markets/price-display';
+import { SmallPriceChart } from '@/components/markets/small-price-chart';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
+import { PriceChangeDisplay } from './price-change-display';
 
 export function useMarketsColumns(): ColumnDef<any>[] {
   const router = useRouter();
@@ -22,14 +24,21 @@ export function useMarketsColumns(): ColumnDef<any>[] {
       ),
     },
     {
-      accessorKey: 'tokenSymbol',
-      header: 'Symbol',
-      cell: ({ row }: { row: Row<any> }) => <span>{row.original.tokenSymbol}</span>,
+      accessorKey: 'priceChart',
+      header: 'Chart',
+      cell: ({ row }: { row: Row<any> }) => <SmallPriceChart tokenName={row.original.tokenName} />,
     },
     {
       accessorKey: 'price',
-      header: 'Price',
+      header: 'Price Change',
       cell: ({ row }: { row: Row<any> }) => <PriceDisplay tokenSymbol={row.original.tokenSymbol} />,
+    },
+    {
+      accessorKey: 'priceChange',
+      header: 'Daily Change',
+      cell: ({ row }: { row: Row<any> }) => (
+        <PriceChangeDisplay tokenSymbol={row.original.tokenSymbol} />
+      ),
     },
     {
       id: 'trade',

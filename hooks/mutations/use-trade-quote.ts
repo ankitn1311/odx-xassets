@@ -145,3 +145,22 @@ export const useTokenPriceWithFlash = (tokenSymbol: string) => {
     flashState,
   };
 };
+
+export const useTokenPriceChange = (tokenSymbol: string) => {
+  return useQuery({
+    queryKey: ['token-tickers', tokenSymbol],
+    queryFn: () => {
+      return getTokenPriceChange(tokenSymbol);
+    },
+    refetchInterval: 1000 * 8,
+  });
+};
+
+const getTokenPriceChange = async (tokenSymbol: string) => {
+  const response = await axios.get(`${CRYPTO_API_BASE}/get-tickers`, {
+    params: {
+      instrument_name: `${tokenConvert[tokenSymbol as keyof typeof tokenConvert]}_USD`,
+    },
+  });
+  return parseFloat(response.data.result.data[0].c);
+};

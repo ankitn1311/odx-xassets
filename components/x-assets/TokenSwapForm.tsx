@@ -218,7 +218,7 @@ export function TokenSwapForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full flex-col">
       <SwapScreens />
     </form>
   );

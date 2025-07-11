@@ -106,8 +106,8 @@ export const TokenSwapCard = () => {
   return (
     <FormProvider {...form}>
       <BackgroundGradient>
-        <div className="flex w-full flex-col">
-          <Card className="bg-card">
+        <div className="flex h-full w-full flex-col">
+          <Card className="h-full bg-card">
             <div className="px-8 pb-8 pt-6">
               <Tabs value={activeTab} onValueChange={value => setActiveTab(value as TabState)}>
                 <TabsList className="grid w-full grid-cols-2" variant="underline">

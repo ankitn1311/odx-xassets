@@ -146,7 +146,9 @@ const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({
   const t = useTranslations('Navbar');
   const { data: userInfo } = useUserInfo();
 
-  const isActive = pathname === `/${route}`;
+  const isXAssetRoute = pathname.includes('x-assets');
+
+  const isActive = isXAssetRoute ? route === 'markets' : pathname === `/${route}`;
 
   if (isProtected && !userInfo) {
     return null;
