@@ -16,7 +16,10 @@ export default async function middleware(request: NextRequest) {
 
   // return NextResponse.next();
 
-  if (!token && ['/', '/invite', '/x-assets', '/reserves'].includes(request.nextUrl.pathname)) {
+  if (
+    !token &&
+    ['/', '/invite', '/x-assets', '/reserves', '/markets'].includes(request.nextUrl.pathname)
+  ) {
     console.log('=====TOKEN NOT FOUND=====');
     if (request.nextUrl.pathname === '/invite') {
       console.log('=====TRADE PAGE=====');
@@ -27,10 +30,13 @@ export default async function middleware(request: NextRequest) {
   }
 
   // if token is available and user tries to access protected routes
-  if (token && ['/', '/invite', '/x-assets', '/reserves'].includes(request.nextUrl.pathname)) {
+  if (
+    token &&
+    ['/', '/invite', '/x-assets', '/reserves', '/markets'].includes(request.nextUrl.pathname)
+  ) {
     try {
       if (request.nextUrl.pathname === '/invite' || request.nextUrl.pathname === '/') {
-        return NextResponse.redirect(new URL('/x-assets', request.url));
+        return NextResponse.redirect(new URL('/markets', request.url));
       }
       return NextResponse.next();
     } catch (error: any) {
@@ -41,7 +47,7 @@ export default async function middleware(request: NextRequest) {
     }
   }
   if (request.nextUrl.pathname === '/maintenance') {
-    return NextResponse.redirect(new URL('/x-assets', request.url));
+    return NextResponse.redirect(new URL('/markets', request.url));
   }
 }
 
@@ -51,6 +57,7 @@ export const config = {
     '/',
     '/invite',
     '/reserves',
+    '/markets',
     '/x-assets',
     '/maintenance',
   ],
