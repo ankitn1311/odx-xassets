@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { useFormContext, useFormState } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
-import { ChevronDown } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -18,10 +17,8 @@ import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { convertXUSDT } from '@/lib/utils';
-import ODXLogoLight from '../svg/odx-logo-light';
-import ODXLogoDark from '../svg/odx-logo-dark';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
-
+import { useRouter } from 'next/navigation';
 const MAX_DECIMALS = 2;
 
 interface TokenInputProps {
@@ -44,6 +41,7 @@ export function TokenInput({
   const form = useFormContext();
   const { watch, setValue, clearErrors } = form;
   const fieldName = isOutput ? 'outputAmount' : 'amount';
+  const router = useRouter();
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
 
   const { allTokens, activeTab } = useTokenSwapStore();
@@ -81,6 +79,7 @@ export function TokenInput({
     } else {
       // setInputToken(selectedToken);
       setValue('inputToken', selectedToken);
+      router.push(`/x-assets?selected-token=${selectedToken.Address}`);
     }
     clearErrors();
     setValue('amount', '');

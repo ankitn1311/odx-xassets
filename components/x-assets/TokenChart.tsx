@@ -86,7 +86,7 @@ export const TokenChart = () => {
               className="h-full w-full"
             >
               <RechartsPrimitive.AreaChart
-                data={data || placeholderData}
+                data={data}
                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
               >
                 <defs>

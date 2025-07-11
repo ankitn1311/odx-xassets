@@ -38,7 +38,7 @@ export default function ReedemInvite() {
     console.log('=====CODE=====', code, data.otp);
     Cookies.set('invite_code', '829239');
     if (data.otp === '829239') {
-      router.push('/x-assets');
+      router.push('/markets');
       return;
     } else {
       toast.error('Invalid invite code');
