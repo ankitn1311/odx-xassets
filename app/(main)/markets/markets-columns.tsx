@@ -30,7 +30,7 @@ export function useMarketsColumns(): ColumnDef<any>[] {
     },
     {
       accessorKey: 'price',
-      header: 'Price Change',
+      header: 'Price',
       cell: ({ row }: { row: Row<any> }) => <PriceDisplay tokenSymbol={row.original.tokenSymbol} />,
     },
     {
