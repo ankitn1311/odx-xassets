@@ -137,24 +137,32 @@ export function ReservesTable() {
     isSuiSupplyLoading
   ) {
     if (isMobile) {
-      // Mobile skeleton: show 3 compact card skeletons
+      // Mobile skeleton: match new card layout
       return (
         <div className="flex flex-col gap-2 md:hidden">
           {[...Array(3)].map((_, idx) => (
             <Card key={idx} className="flex flex-col gap-2 p-4">
-              <div className="flex items-center gap-3">
+              <div className="mb-2 flex items-center gap-3">
                 <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="flex flex-1 flex-col gap-1">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-3 w-16" />
+                <div className="flex flex-1 flex-col">
+                  <Skeleton className="mb-1 h-4 w-24" />
+                  <div className="flex items-start gap-2">
+                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-3 w-8" />
+                  </div>
                 </div>
               </div>
-              <div className="mt-2 flex flex-col gap-1">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-20" />
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-20" />
-                <Skeleton className="h-4 w-16" />
+              <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0">
+                <div className="flex flex-col">
+                  <Skeleton className="mb-1 h-3 w-20" />
+                  <Skeleton className="mb-1 h-5 w-20" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+                <div className="flex flex-col">
+                  <Skeleton className="mb-1 h-3 w-20" />
+                  <Skeleton className="mb-1 h-5 w-20" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
               </div>
             </Card>
           ))}
