@@ -5,11 +5,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTokenSupply } from '@/hooks/queries/use-token-supply';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
+import { useIsMobile } from '@/hooks/use-mobile';
+import Image from 'next/image';
 
 const xTokenToToken = tokenConvert;
 
 export function ReservesTable() {
   const { allTokens } = useTokenSwapStore();
+  const isMobile = useIsMobile();
   const solToken = allTokens?.find(token => token.TokenB.Name === 'x1SOL');
   const xrpToken = allTokens?.find(token => token.TokenB.Name === 'x1XRP');
   const adaToken = allTokens?.find(token => token.TokenB.Name === 'x1ADA');
@@ -133,6 +136,32 @@ export function ReservesTable() {
     isPepeSupplyLoading ||
     isSuiSupplyLoading
   ) {
+    if (isMobile) {
+      // Mobile skeleton: show 3 compact card skeletons
+      return (
+        <div className="flex flex-col gap-2 md:hidden">
+          {[...Array(3)].map((_, idx) => (
+            <Card key={idx} className="flex flex-col gap-2 p-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex flex-1 flex-col gap-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </div>
+              <div className="mt-2 flex flex-col gap-1">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      );
+    }
+    // Desktop skeleton (unchanged)
     return (
       <Card>
         <div className="flex flex-col gap-2 p-4 pb-0">
@@ -149,8 +178,61 @@ export function ReservesTable() {
     );
   }
 
+  if (isMobile) {
+    // Mobile: Render compact cards with headings and grid details, ratio next to symbol
+    return (
+      <div className="flex flex-col gap-2 md:hidden">
+        {tableData.length ? (
+          tableData.map((row, idx) => (
+            <Card key={row.tokenSymbol || idx} className="flex flex-col gap-2 p-4">
+              <div className="mb-2 flex items-center gap-3">
+                <Image
+                  src={row.image}
+                  alt={row.tokenSymbol}
+                  className="h-10 w-10 rounded-full"
+                  width={40}
+                  height={40}
+                />
+                <div className="flex flex-col">
+                  <span className="text-base font-semibold">{row.tokenName}</span>
+                  <div className="flex items-start gap-2">
+                    <span className="text-xs text-muted-foreground">{row.tokenSymbol}</span>
+                    <span className="text-xs font-bold text-primary">{row.ratio}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0">
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">Total Supply of xAsset</span>
+                  <span className="mt-1 text-lg font-bold">
+                    {Number(row.totalSupply).toFixed(3)} {row.tokenSymbol}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    ${parseFloat(row.totalSupplyUSD).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">Units in Reserve</span>
+                  <span className="mt-1 text-lg font-bold">
+                    {Number(row.unitsInReserve).toFixed(3)} {row.tokenSymbol.replace('x1', '')}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    ${parseFloat(row.unitsInReserveUSD).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          ))
+        ) : (
+          <div className="text-center text-muted-foreground">No results.</div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop: Render DataTable as before
   return (
-    <Card className="py-4">
+    <Card className="hidden py-4 md:block">
       <DataTable columns={exploreColumn} data={tableData} />
     </Card>
   );

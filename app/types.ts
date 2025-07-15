@@ -3,4 +3,5 @@ export type AppHeaderNavbarItemType = {
   route?: string | string[];
   isProtected?: boolean;
   comingSoon?: boolean;
+  closeSheet?: () => void;
 };

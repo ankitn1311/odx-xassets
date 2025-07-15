@@ -6,10 +6,18 @@ import { useMemo } from 'react';
 import { useMarketsColumns } from './markets-columns';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { SmallPriceChart } from '@/components/markets/small-price-chart';
+import { PriceDisplay } from './price-display';
+import { PriceChangeDisplay } from './price-change-display';
+import Image from 'next/image';
 
 export default function MarketsPage() {
   const { allTokens = [] } = useTokenSwapStore();
   const columns = useMarketsColumns();
+  const isMobile = useIsMobile();
+  const router = useRouter();
 
   const tableData = useMemo(
     () =>
@@ -32,9 +40,54 @@ export default function MarketsPage() {
           </p>
         </section>
       </Card>
-      <Card className="py-4">
-        <DataTable columns={columns} data={tableData} />
-      </Card>
+      {isMobile ? (
+        <div className="flex flex-col gap-2 md:hidden">
+          {tableData.length ? (
+            tableData.map((row, idx) => (
+              <Card key={row.address || idx} className="flex flex-col gap-2 p-4">
+                <div className="flex flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={row.image}
+                      alt={row.tokenSymbol}
+                      className="h-10 w-10 rounded-full"
+                      width={40}
+                      height={40}
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-base font-semibold">{row.tokenName}</span>
+                      <span className="text-xs text-muted-foreground">{row.tokenSymbol}</span>
+                    </div>
+                  </div>
+                  {/* <div className="mt-2 flex items-center gap-2">
+                    <SmallPriceChart tokenName={row.tokenName} />
+                  </div> */}
+                  <div className="flex flex-col items-end gap-1">
+                    <PriceDisplay
+                      tokenSymbol={row.tokenSymbol}
+                      className="text-base font-semibold"
+                    />
+                    <PriceChangeDisplay tokenSymbol={row.tokenSymbol} className="text-xs" />
+                  </div>
+                </div>
+
+                <Button
+                  className="mt-4 w-full"
+                  onClick={() => router.push(`/x-assets?selected-token=${row.address}`)}
+                >
+                  Trade
+                </Button>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center text-muted-foreground">No results.</div>
+          )}
+        </div>
+      ) : (
+        <Card className="hidden py-4 md:block">
+          <DataTable columns={columns} data={tableData} />
+        </Card>
+      )}
     </div>
   );
 }

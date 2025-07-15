@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { AppHeaderNavbarItemType } from './types';
 import { Button } from '../components/ui/button';
 import ODXLogo from '../components/svg/odx-logo';
@@ -47,7 +47,7 @@ import { useDisconnect } from 'wagmi';
 
 export default function AppHeader() {
   return (
-    <div className="z-20 flex h-16 items-center justify-between gap-2 border-b border-muted/60 px-4 lg:px-6">
+    <div className="z-20 flex h-16 items-center justify-between gap-2 border-b border-muted/60 px-4 py-2 lg:px-6">
       <AppHeaderLeft />
       <AppHeaderCenter />
       <AppHeaderRight />
@@ -111,10 +111,43 @@ const AppHeaderRight = () => {
     <div className="flex basis-1/2 items-center justify-end gap-2">
       <ModeToggle />
       <ConnectWallet />
+      <MobileNavbar />
     </div>
   );
 };
 
+const MobileNavbar = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <nav className="flex flex-1 items-center justify-center gap-2 pl-2 md:hidden">
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="outline">
+            <Menu />
+          </Button>
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Menu</SheetTitle>
+          </SheetHeader>
+          <SheetContent>
+            <nav className="flex h-full flex-1 flex-col items-center justify-center gap-2 pl-2">
+              {navbarItems.map(navbarItem => {
+                return (
+                  <AppHeaderNavbarItem
+                    closeSheet={() => setOpen(false)}
+                    key={navbarItem.label}
+                    {...navbarItem}
+                  />
+                );
+              })}
+            </nav>
+          </SheetContent>
+        </SheetContent>
+      </Sheet>
+    </nav>
+  );
+};
 const navbarItems = [
   // { label: "buyCrypto", route: "buy-crypto" },
   // { label: "markets", route: "markets" },
@@ -128,7 +161,7 @@ const navbarItems = [
 
 const AppHeaderNavbar = () => {
   return (
-    <nav className="flex flex-1 items-center justify-center gap-2 pl-2">
+    <nav className="hidden flex-1 items-center justify-center gap-2 pl-2 md:flex">
       {navbarItems.map(navbarItem => {
         return <AppHeaderNavbarItem key={navbarItem.label} {...navbarItem} />;
       })}
@@ -141,6 +174,7 @@ const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({
   route,
   isProtected,
   comingSoon,
+  closeSheet,
 }) => {
   const pathname = usePathname();
   const t = useTranslations('Navbar');
@@ -163,8 +197,11 @@ const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({
           ? e => {
               e.preventDefault();
               toast.info('Coming soon');
+              closeSheet?.();
             }
-          : undefined
+          : () => {
+              closeSheet?.();
+            }
       }
       className={cn(
         'flex items-center px-3 py-2 text-base transition-colors',
