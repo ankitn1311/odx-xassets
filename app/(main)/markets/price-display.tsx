@@ -24,7 +24,7 @@ export function PriceDisplay({ tokenSymbol, className = '' }: PriceDisplayProps)
 
   return (
     <div className="items-center= flex gap-2">
-      <span className={`rounded px-2 py-1 transition-colors ${flashClass} ${className}`}>
+      <span className={`rounded px-2 py-1 font-mono transition-colors ${flashClass} ${className}`}>
         ${data}
       </span>
     </div>

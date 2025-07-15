@@ -86,10 +86,12 @@ export const exploreColumn: ColumnDef<Available>[] = [
       console.log('totalSupply', { totalSupply, totalSupplyUSD });
       return (
         <div className="flex flex-col items-start">
-          <p className="text-base font-normal text-foreground">
+          <p className="font-mono text-base font-normal text-foreground">
             {Number(totalSupply).toFixed(3)} x1SOL
           </p>
-          <p className="text-md font-normal">${parseFloat(totalSupplyUSD).toLocaleString()}</p>
+          <p className="text-md font-mono font-normal">
+            ${parseFloat(totalSupplyUSD).toLocaleString()}
+          </p>
         </div>
       );
     },
@@ -110,10 +112,12 @@ export const exploreColumn: ColumnDef<Available>[] = [
       const unitsInReserveUSD = row.original.unitsInReserveUSD;
       return (
         <div className="flex flex-col items-start">
-          <p className="text-base font-normal text-foreground">
+          <p className="font-mono text-base font-normal text-foreground">
             {Number(unitsInReserve).toFixed(3)} SOL
           </p>
-          <p className="text-md font-normal">${parseFloat(unitsInReserveUSD).toLocaleString()}</p>
+          <p className="text-md font-mono font-normal">
+            ${parseFloat(unitsInReserveUSD).toLocaleString()}
+          </p>
         </div>
       );
     },
@@ -131,7 +135,7 @@ export const exploreColumn: ColumnDef<Available>[] = [
     ),
     cell: ({ row }) => {
       const ratio = row.getValue('ratio') as string;
-      return <p className="text-right text-base font-normal">{ratio}</p>;
+      return <p className="text-right font-mono text-base font-normal">{ratio}</p>;
     },
   },
 ];

@@ -205,26 +205,28 @@ export function ReservesTable() {
                   <span className="text-base font-semibold">{row.tokenName}</span>
                   <div className="flex items-start gap-2">
                     <span className="text-xs text-muted-foreground">{row.tokenSymbol}</span>
-                    <span className="text-xs font-bold text-primary">{row.ratio}</span>
+                    <span className="font-mono text-xs font-semibold text-primary">
+                      {row.ratio}
+                    </span>
                   </div>
                 </div>
               </div>
               <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0">
                 <div className="flex flex-col">
                   <span className="text-xs text-muted-foreground">Total Supply of xAsset</span>
-                  <span className="mt-1 text-lg font-bold">
+                  <span className="mt-1 font-mono text-lg font-semibold">
                     {Number(row.totalSupply).toFixed(3)} {row.tokenSymbol}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="font-mono text-sm text-muted-foreground">
                     ${parseFloat(row.totalSupplyUSD).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-muted-foreground">Units in Reserve</span>
-                  <span className="mt-1 text-lg font-bold">
+                  <span className="mt-1 font-mono text-lg font-semibold">
                     {Number(row.unitsInReserve).toFixed(3)} {row.tokenSymbol.replace('x1', '')}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="font-mono text-sm text-muted-foreground">
                     ${parseFloat(row.unitsInReserveUSD).toLocaleString()}
                   </span>
                 </div>

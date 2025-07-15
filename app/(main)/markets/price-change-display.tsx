@@ -15,7 +15,7 @@ export function PriceChangeDisplay({ tokenSymbol, className = '' }: PriceChangeD
     <div className="items-center= flex gap-2">
       {priceChange && (
         <span
-          className={`rounded px-2 py-1 transition-colors ${priceChange > 0 ? 'text-success' : 'text-destructive'} ${className}`}
+          className={`rounded px-2 py-1 font-mono transition-colors ${priceChange > 0 ? 'text-success' : 'text-destructive'} ${className}`}
         >
           {(priceChange * 100).toFixed(2)}%
         </span>
