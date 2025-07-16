@@ -1,4 +1,3 @@
-import { Form as FormProvider } from '@/components/ui/form';
 import { useFormContext } from 'react-hook-form';
 
 import { useXAssetSignature } from '@/hooks/mutations/use-xasset-signature';
@@ -76,7 +75,6 @@ export function TokenSwapForm() {
     checkApproval();
   }, [inputToken, wallet, connectedWallet, setIsApproved, setTradeState, tradeState, amount]);
 
-  const isInsufficientBalance = Number(amount) > numericBalance;
   const isValidAmount = amount && Number(amount) > 0;
 
   const maxApprovalForInputToken = async () => {

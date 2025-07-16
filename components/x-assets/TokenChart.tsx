@@ -2,11 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useCryptoChart } from '@/hooks/queries/use-crypto-chart';
-import {
-  ChartContainer,
-  ChartTooltipContent,
-  ChartTooltip as Tooltip,
-} from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useRouter } from 'nextjs-toploader/app';

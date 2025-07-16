@@ -4,7 +4,6 @@ import { MutationConfig } from './types';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import { InviteSchema } from '@/app/(other)/invite/redeem-invite';
-import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 
 export async function reauth() {
@@ -15,8 +14,6 @@ export async function reauth() {
 }
 
 export const useReauth = (config?: MutationConfig<InviteSchema>) => {
-  const { push } = useRouter();
-
   return useMutation({
     mutationFn: () => reauth(),
     onSuccess: data => {
