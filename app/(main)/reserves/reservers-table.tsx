@@ -13,36 +13,36 @@ const xTokenToToken = tokenConvert;
 export function ReservesTable() {
   const { allTokens } = useTokenSwapStore();
   const isMobile = useIsMobile();
-  const solToken = allTokens?.find(token => token.TokenB.Name === 'x1SOL');
-  const xrpToken = allTokens?.find(token => token.TokenB.Name === 'x1XRP');
-  const adaToken = allTokens?.find(token => token.TokenB.Name === 'x1ADA');
-  const dogeToken = allTokens?.find(token => token.TokenB.Name === 'x1DOGE');
-  const pepeToken = allTokens?.find(token => token.TokenB.Name === 'x1PEPE');
-  const suiToken = allTokens?.find(token => token.TokenB.Name === 'x1SUI');
+  const solToken = allTokens.find(token => token.TokenB.Name === 'x1SOL');
+  const xrpToken = allTokens.find(token => token.TokenB.Name === 'x1XRP');
+  const adaToken = allTokens.find(token => token.TokenB.Name === 'x1ADA');
+  const dogeToken = allTokens.find(token => token.TokenB.Name === 'x1DOGE');
+  const pepeToken = allTokens.find(token => token.TokenB.Name === 'x1PEPE');
+  const suiToken = allTokens.find(token => token.TokenB.Name === 'x1SUI');
 
   const { data: tokenSupplyData, isLoading: isSupplyLoading } = useTokenSupply(
-    solToken?.TokenA!,
-    solToken?.TokenB!
+    solToken?.TokenA,
+    solToken?.TokenB
   );
   const { data: xrpTokenSupplyData, isLoading: isXrpSupplyLoading } = useTokenSupply(
-    xrpToken?.TokenA!,
-    xrpToken?.TokenB!
+    xrpToken?.TokenA,
+    xrpToken?.TokenB
   );
   const { data: adaTokenSupplyData, isLoading: isAdaSupplyLoading } = useTokenSupply(
-    adaToken?.TokenA!,
-    adaToken?.TokenB!
+    adaToken?.TokenA,
+    adaToken?.TokenB
   );
   const { data: dogeTokenSupplyData, isLoading: isDogeSupplyLoading } = useTokenSupply(
-    dogeToken?.TokenA!,
-    dogeToken?.TokenB!
+    dogeToken?.TokenA,
+    dogeToken?.TokenB
   );
   const { data: pepeTokenSupplyData, isLoading: isPepeSupplyLoading } = useTokenSupply(
-    pepeToken?.TokenA!,
-    pepeToken?.TokenB!
+    pepeToken?.TokenA,
+    pepeToken?.TokenB
   );
   const { data: suiTokenSupplyData, isLoading: isSuiSupplyLoading } = useTokenSupply(
-    suiToken?.TokenA!,
-    suiToken?.TokenB!
+    suiToken?.TokenA,
+    suiToken?.TokenB
   );
 
   const tableData = solToken

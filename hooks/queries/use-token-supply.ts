@@ -31,7 +31,7 @@ const getTokenSupply = async (tokenAddress: string | undefined, decimals: number
 
 // Input Token - USDC
 // Output Token - x1SOL | x1PEPE | x1SUI | x1DOGE | x1ADA | x1XRP | x1BTC etc
-export const useTokenSupply = (inputToken: TokenInfo, outputToken: TokenInfo) => {
+export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) => {
   const { getQuote } = useTradeQuote();
   const { data: wallet } = useWalletClient();
   console.log('inputToken', inputToken);
@@ -101,7 +101,7 @@ export const useTokenSupply = (inputToken: TokenInfo, outputToken: TokenInfo) =>
         totalSupplyUSD: '0',
       };
     },
-    enabled: !!outputToken.Address && !!inputToken.Address,
+    enabled: !!outputToken?.Address && !!inputToken?.Address,
     staleTime: 1000 * 60 * 10,
   });
 };
