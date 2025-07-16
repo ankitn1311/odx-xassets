@@ -35,7 +35,6 @@ export function TokenInput({
   label,
   isOutput = false,
   onAmountChange,
-  onOutputAmountChange,
   showPercentageButtons = true,
 }: TokenInputProps) {
   const form = useFormContext();
@@ -50,7 +49,7 @@ export function TokenInput({
 
   const token = !isOutput ? inputToken : outputToken;
   const isUSDT = token?.Name === 'USDC';
-  const { getQuote, isLoading: isQuoteLoading } = useTradeQuote();
+  const { getQuote } = useTradeQuote();
   // const token = isOutput ? outputToken : inputToken;
 
   const availableTokens = allTokens?.map(tokens => {

@@ -3,7 +3,7 @@ import { TokenSwapForm } from './TokenSwapForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { useTokenSwapStore, TabState, TradeState } from '@/stores/token-swap-store';
 import { Form as FormProvider } from '@/components/ui/form';
-import { useForm, useFormContext } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { WHOLE_NUMBER_TOKENS } from '@/lib/utils';

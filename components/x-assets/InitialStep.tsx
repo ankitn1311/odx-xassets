@@ -123,40 +123,6 @@ export function InitialStep() {
     return num.toFixed(MAX_DECIMALS).replace(/\.?0+$/, '');
   };
 
-  const handleOutputAmountChange = (value: string) => {
-    if (!value) {
-      setValue('outputAmount', '');
-      setValue('amount', '');
-      setValue('percentage', 0);
-      return;
-    }
-
-    const cleanValue = value.replace(/[^0-9.]/g, '');
-    const parts = cleanValue.split('.');
-    const formattedValue =
-      parts[0] + (parts.length > 1 ? '.' + parts[1].slice(0, MAX_DECIMALS) : '');
-
-    const numValue = Number(formattedValue);
-    if (isNaN(numValue)) return;
-
-    setValue('outputAmount', formattedValue);
-    setValue('amount', formatNumber(numValue / 0.95));
-    setValue('percentage', Math.min(100, (numValue / 0.95 / numericBalance) * 100));
-  };
-
-  const handleSwap = () => {
-    const tempInputToken = inputToken;
-    const tempOutputToken = outputToken;
-    // Reset form values
-    setValue('amount', '0');
-    setValue('outputAmount', '0');
-    setValue('percentage', 25);
-    setValue('inputToken', tempOutputToken);
-    setValue('outputToken', tempInputToken);
-    // Reset trade state
-    resetTradeState();
-  };
-
   return (
     <>
       <TokenInput
@@ -214,7 +180,7 @@ export function InitialStep() {
           label={activeTab === TabState.BUY ? 'You Pay' : 'You Get'}
           isOutput
           onAmountChange={handleAmountChange}
-          onOutputAmountChange={handleOutputAmountChange}
+          // onOutputAmountChange={handleOutputAmountChange}
           showPercentageButtons={false}
         />
       </div>
