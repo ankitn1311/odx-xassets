@@ -65,7 +65,7 @@ const CHAIN_PERMIT2_CONFIG = {
   57054: BASE_PERMIT2, // Sonic testnet
 } as const;
 
-const BASE_URL = 'https://pkaoivrbui.execute-api.ap-northeast-1.amazonaws.com/prod';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const ERROR_STATES = [
   'VALIDATION_FAILED',
