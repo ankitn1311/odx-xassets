@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import { erc20Abi } from 'viem';
-import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
+import { useTokenPrice, useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { useWalletClient } from 'wagmi';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
+import { TokenInfo } from './use-all-tokens';
 
 const getTokenSupply = async (tokenAddress: string | undefined, decimals: number, wallet: any) => {
   if (!tokenAddress) return '0';
@@ -28,56 +29,61 @@ const getTokenSupply = async (tokenAddress: string | undefined, decimals: number
   }
 };
 
-export const useTokenSupply = (inputTokenAddress?: string, outputTokenAddress?: string) => {
+// Input Token - USDC
+// Output Token - x1SOL | x1PEPE | x1SUI | x1DOGE | x1ADA | x1XRP | x1BTC etc
+export const useTokenSupply = (inputToken: TokenInfo, outputToken: TokenInfo) => {
   const { getQuote } = useTradeQuote();
-  const { allTokens } = useTokenSwapStore();
   const { data: wallet } = useWalletClient();
+  console.log('inputToken', inputToken);
+  console.log('outputToken', outputToken);
 
   return useQuery({
-    queryKey: ['token-supply', inputTokenAddress, outputTokenAddress, allTokens, wallet],
+    queryKey: ['token-supply', inputToken?.Address, outputToken?.Address, wallet?.account.address],
     queryFn: async () => {
-      console.log('Starting token supply query with:', { inputTokenAddress, outputTokenAddress });
-
-      if (!outputTokenAddress || !allTokens) {
-        console.log('Missing required data:', { outputTokenAddress, hasAllTokens: !!allTokens });
-        return null;
+      console.log('Starting token supply query with:', { inputToken, outputToken });
+      if (!inputToken || !outputToken) {
+        console.log('Missing required data:', { inputToken, outputToken });
+        return {
+          totalSupply: '0',
+          totalSupplyUSD: '0',
+        };
       }
 
-      const outputToken = allTokens.find(
-        token =>
-          token.TokenA.Address === outputTokenAddress || token.TokenB.Address === outputTokenAddress
-      );
+      // const outputToken = allTokens.find(
+      //   token =>
+      //     token.TokenA.Address === outputTokenAddress || token.TokenB.Address === outputTokenAddress
+      // );
 
-      if (!outputToken) {
-        console.log('Output token not found in allTokens for address:', outputTokenAddress);
-        return null;
-      }
+      // if (!outputToken) {
+      //   console.log('Output token not found in allTokens for address:', outputTokenAddress);
+      //   return null;
+      // }
 
       console.log('Found output token:', outputToken);
 
-      const decimals =
-        outputToken.TokenA.Address === outputTokenAddress
-          ? outputToken.TokenA.Decimals
-          : outputToken.TokenB.Decimals;
+      // const decimals =
+      //   outputToken.TokenA.Address === outputTokenAddress
+      //     ? outputToken.TokenA.Decimals
+      //     : outputToken.TokenB.Decimals;
 
-      console.log('Using decimals:', decimals);
+      // console.log('Using decimals:', decimals);
 
-      const supply = await getTokenSupply(outputTokenAddress, decimals, wallet);
+      const supply = await getTokenSupply(outputToken.Address, outputToken.Decimals, wallet);
       console.log('Retrieved token supply:', supply);
 
-      if (inputTokenAddress) {
+      if (outputToken.Address) {
         console.log('Getting quote for market cap calculation');
         const quote = await getQuote({
-          outputToken: outputToken.TokenA,
-          inputToken: outputToken.TokenB,
+          outputToken: inputToken,
+          inputToken: outputToken,
           inputAmount: '1',
         });
 
-        console.log('Quote received:', quote);
+        // console.log('Quote received:', quote);
 
         // For 1 usd how many output tokens
-        const reverseQuote = 1 / quote;
-        console.log('Reverse quote:', reverseQuote);
+        const reverseQuote = quote;
+        console.log('Reverse quote: ', outputToken.Name, reverseQuote);
 
         const marketCap = reverseQuote * parseFloat(supply);
         const totalSupplyInUSD = marketCap.toFixed(2);
@@ -95,6 +101,7 @@ export const useTokenSupply = (inputTokenAddress?: string, outputTokenAddress?: 
         totalSupplyUSD: '0',
       };
     },
-    enabled: !!outputTokenAddress && !!allTokens,
+    enabled: !!outputToken.Address && !!inputToken.Address,
+    staleTime: 1000 * 60 * 10,
   });
 };

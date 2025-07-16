@@ -239,7 +239,7 @@ export function InitialStep() {
         </MovingButton>
       </div>
 
-      <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-primary-foreground">
+      <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">
         <div className="flex items-start gap-2">
           <Info className="h-5 w-5 flex-shrink-0" />
           <p>

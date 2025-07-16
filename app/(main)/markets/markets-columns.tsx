@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { PriceDisplay } from '@/app/(main)/markets/price-display';
 import { SmallPriceChart } from '@/components/markets/small-price-chart';
 import { ColumnDef, Row } from '@tanstack/react-table';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { PriceChangeDisplay } from './price-change-display';
 
 export function useMarketsColumns(): ColumnDef<any>[] {

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/stores/app-store';
 import { useRedeemInvite } from '@/hooks/mutations/use-reedem-invite';
 import { useReauth } from '@/hooks/mutations/use-reauth';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 

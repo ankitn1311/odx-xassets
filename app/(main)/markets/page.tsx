@@ -4,7 +4,7 @@ import { DataTable } from '../x-assets/data-table';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useMemo } from 'react';
 import { useMarketsColumns } from './markets-columns';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
