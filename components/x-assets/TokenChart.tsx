@@ -54,7 +54,9 @@ export const TokenChart = () => {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => {
+                  router.replace('/markets');
+                }}
                 className="mr-2 rounded p-1 hover:bg-muted"
                 aria-label="Back"
               >
