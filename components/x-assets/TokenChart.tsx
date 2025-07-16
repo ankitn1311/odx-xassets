@@ -9,8 +9,7 @@ import {
 } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Line, LineChart, XAxis, YAxis } from 'recharts';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import { ArrowLeft } from 'lucide-react';
 import * as RechartsPrimitive from 'recharts';
 

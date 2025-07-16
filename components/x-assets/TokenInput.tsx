@@ -18,7 +18,7 @@ import { debounce } from 'lodash';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { convertXUSDT } from '@/lib/utils';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 const MAX_DECIMALS = 2;
 
 interface TokenInputProps {
