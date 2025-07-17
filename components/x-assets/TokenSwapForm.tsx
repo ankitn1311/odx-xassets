@@ -52,12 +52,20 @@ export function TokenSwapForm() {
         if (tradeState !== TradeState.INITIAL) return;
         setTradeState(TradeState.CHECKING_APPROVAL);
         const provider = new ethers.providers.Web3Provider(wallet as any);
-        const xUSDTContract = new ethers.Contract(inputToken?.Address ?? '', erc20Abi, provider);
+        const isBuy = activeTab === TabState.BUY;
+        const xUSDTContract = new ethers.Contract(
+          isBuy ? outputToken?.Address : (inputToken?.Address ?? ''),
+          erc20Abi,
+          provider
+        );
         const currentAllowance = await xUSDTContract.allowance(
           connectedWallet,
           PERMIT_TESTNET_ADDRESS
         );
-        const requiredAmount = ethers.utils.parseUnits(amount, XUSDT_DECIMALS);
+        const requiredAmount = ethers.utils.parseUnits(
+          amount,
+          isBuy ? outputToken?.Decimals : inputToken?.Decimals
+        );
         const approved = Number(currentAllowance.toString()) >= Number(requiredAmount.toString());
         setIsApproved(approved);
         if (approved) {
