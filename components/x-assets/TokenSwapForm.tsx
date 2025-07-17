@@ -82,8 +82,13 @@ export function TokenSwapForm() {
       setTradeState(TradeState.CHECKING_APPROVAL);
       const provider = new ethers.providers.Web3Provider(wallet as any);
       const signer = provider.getSigner();
-      const xUSDTContract = new ethers.Contract(inputToken?.Address ?? '', erc20Abi, signer);
-      await xUSDTContract.approve(PERMIT_TESTNET_ADDRESS, ethers.constants.MaxUint256);
+      if (activeTab === TabState.BUY) {
+        const xUSDTContract = new ethers.Contract(outputToken?.Address ?? '', erc20Abi, signer);
+        await xUSDTContract.approve(PERMIT_TESTNET_ADDRESS, ethers.constants.MaxUint256);
+      } else if (activeTab === TabState.SELL) {
+        const xUSDTContract = new ethers.Contract(inputToken?.Address ?? '', erc20Abi, signer);
+        await xUSDTContract.approve(PERMIT_TESTNET_ADDRESS, ethers.constants.MaxUint256);
+      }
       setTradeState(TradeState.REVIEW);
       setIsApproved(true);
     } catch (error) {
