@@ -48,19 +48,20 @@ export const useTokenBalance = (address: string, decimals: number = 18) => {
   //     address as keyof typeof nativeAddressToXAssetAddressMapping
   //   ];
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['token-balance', address],
-    queryFn: () => getBalance(wallet as unknown as Wallet, address),
+  const { data, isLoading, isRefetching } = useQuery({
+    queryKey: ['token-balance', address, decimals],
+    queryFn: () => getBalance(wallet as unknown as Wallet, address, decimals),
     enabled: !!address && !!wallet,
   });
 
   if (!address) return { data: 0, isLoading: false };
 
-  const balance = data ? parseFloat(formatUnits(data, decimals)).toFixed(2) : '0';
+  // const balance = data ? parseFloat(formatUnits(data, decimals)).toFixed(2) : '0';
 
   return {
-    data: balance,
+    data: data,
     fullBalance: data,
     isLoading,
+    isRefetching,
   };
 };

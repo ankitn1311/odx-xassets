@@ -8,17 +8,15 @@ import { useFormContext } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
-import { AlertCircleIcon, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
-import { WHOLE_NUMBER_TOKENS } from '@/lib/utils';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { SwapFormValues } from './TokenSwapCard';
 
-const MAX_DECIMALS = 2;
+const MAX_DECIMALS = 6;
 const POLLING_INTERVAL = 5000; // 5 seconds
 
 export function InitialStep() {
-  const { tradeState, numericBalance, resetTradeState, activeTab } = useTokenSwapStore();
+  const { tradeState, activeTab } = useTokenSwapStore();
   const { setValue, watch } = useFormContext<SwapFormValues>();
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
@@ -34,6 +32,12 @@ export function InitialStep() {
     debouncedGetQuoteRef.current = debounce(
       async (inputToken: TokenInfo, outputToken: TokenInfo, inputAmount: string) => {
         try {
+          if (inputAmount === '0') {
+            setValue('outputAmount', '0');
+            setValue('amount', '0');
+            setValue('percentage', 0);
+            return;
+          }
           const quote = await getQuote({
             inputToken,
             outputToken,
@@ -62,7 +66,7 @@ export function InitialStep() {
   useEffect(() => {
     if (inputAmount === '0' || inputAmount === '' || !inputAmount) {
       setValue('outputAmount', '');
-      setValue('amount', '');
+      setValue('amount', inputAmount === '0' ? '0' : '');
       setValue('percentage', 0);
       return;
     }
@@ -107,10 +111,13 @@ export function InitialStep() {
       const numValue = Number(formattedValue);
       if (isNaN(numValue)) return;
 
-      // if (numValue > 10) {
-      //   numValue = 10;
-      //   toast.info('During the alpha, trade size should be between 5 and 10 USDC.');
-      // }
+      if (numValue === 0) {
+        setValue('outputAmount', '0');
+        setValue('amount', /^0\.0*$/.test(formattedValue) ? formattedValue : '0');
+        setValue('percentage', 0);
+        debouncedGetQuoteRef?.current?.(inputToken, outputToken, 0);
+        return;
+      }
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
         debouncedGetQuoteRef.current(inputToken, outputToken, numValue.toString());
@@ -118,10 +125,6 @@ export function InitialStep() {
     },
     [inputToken, outputToken, setValue]
   );
-
-  const formatNumber = (num: number): string => {
-    return num.toFixed(MAX_DECIMALS).replace(/\.?0+$/, '');
-  };
 
   return (
     <>

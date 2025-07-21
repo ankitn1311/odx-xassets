@@ -2,7 +2,7 @@ import { useFormContext } from 'react-hook-form';
 
 import { useXAssetSignature } from '@/hooks/mutations/use-xasset-signature';
 import { toast } from 'sonner';
-import { PERMIT_TESTNET_ADDRESS, XUSDT_DECIMALS } from '@/utils/chain-client/txs/constants';
+import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
 import { useTokenSwapStore, TradeState, TabState } from '@/stores/token-swap-store';
 import { useEffect } from 'react';
 import { ethers } from 'ethers';
@@ -11,18 +11,11 @@ import { useWalletStore } from '@/stores/wallet-store';
 import { useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
-
+import { useQueryClient } from '@tanstack/react-query';
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
-  const {
-    numericBalance,
-    tradeState,
-    setTradeState,
-    isApproved,
-    setIsApproved,
-    setLatestTradeHash,
-    activeTab,
-  } = useTokenSwapStore();
+  const { tradeState, setTradeState, isApproved, setIsApproved, setLatestTradeHash, activeTab } =
+    useTokenSwapStore();
   const { connectedWallet } = useWalletStore();
   const form = useFormContext<SwapFormValues>();
 
@@ -107,7 +100,6 @@ export function TokenSwapForm() {
   };
 
   const roundOutputAndAdjustInput = (values: SwapFormValues) => {
-    console.log('ROUNDING', values);
     const inputAmount = Number(values.amount);
     const outputAmount = Number(values.outputAmount);
 

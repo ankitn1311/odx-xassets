@@ -245,7 +245,7 @@ export function TokenInput({
                 strokeLinejoin="round"
               />
             </svg>
-            <p className="text-xs text-muted-foreground">Balance: {Number(balance).toFixed(2)}</p>
+            <p className="text-xs text-muted-foreground">Balance: {balance}</p>
           </div>
           {activeTab === TabState.SELL && showPercentageButtons && (
             <div className="flex items-center gap-1.5">

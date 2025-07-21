@@ -83,7 +83,6 @@ export const exploreColumn: ColumnDef<Available>[] = [
     cell: ({ row }) => {
       const totalSupply = row.getValue('totalSupply') as string;
       const totalSupplyUSD = row.original.totalSupplyUSD;
-      console.log('totalSupply', { totalSupply, totalSupplyUSD });
       return (
         <div className="flex flex-col items-start">
           <p className="font-mono text-base font-normal text-foreground">

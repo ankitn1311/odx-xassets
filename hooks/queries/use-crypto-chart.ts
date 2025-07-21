@@ -38,7 +38,6 @@ async function fetchCryptoChartData(token: string, duration: string): Promise<Ch
   try {
     const res = await axios.get(url);
     const json = res.data;
-    console.log('candlestick json', json);
     if (
       !json.result ||
       !json.result.data ||

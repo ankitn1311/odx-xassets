@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import Image from 'next/image';
 import { XCircle } from 'lucide-react';
-import { convertXUSDT } from '@/lib/utils';
+import { removeTrailingZeros } from '@/lib/utils';
 import { SwapFormValues } from './TokenSwapCard';
 import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
 
@@ -38,10 +38,8 @@ export function FailedStep() {
                 className="rounded-full"
               />
               <div className="flex flex-col">
-                <p className="font-medium">{amount}</p>
-                <p className="text-sm text-muted-foreground">
-                  {convertXUSDT(inputToken?.Name ?? '')}
-                </p>
+                <p className="font-mono font-medium">{removeTrailingZeros(amount)}</p>
+                <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
               </div>
             </div>
           </div>
@@ -52,10 +50,8 @@ export function FailedStep() {
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
-                <p className="font-medium">{Number(outputAmount).toFixed(8)}</p>
-                <p className="text-sm text-muted-foreground">
-                  {convertXUSDT(outputToken?.Name ?? '')}
-                </p>
+                <p className="font-mono font-medium">{removeTrailingZeros(outputAmount)}</p>
+                <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
               </div>
               <Image
                 src={`/images/tokens/${outputToken?.Name}.png`}

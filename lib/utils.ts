@@ -28,3 +28,9 @@ export const convertXUSDT = (symbol: string) => {
 };
 
 export const WHOLE_NUMBER_TOKENS = ['x1XRP', 'x1ADA', 'x1DOGE', 'x1PEPE', 'x1SUI'];
+
+export const removeTrailingZeros = (value: string) => {
+  const numValue = Number(value);
+
+  return numValue.toFixed(8).replace(/\.?0+$/, '');
+};

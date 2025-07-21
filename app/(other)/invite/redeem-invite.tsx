@@ -35,9 +35,8 @@ export default function ReedemInvite() {
   const reauthMutation = useReauth();
 
   const onSubmit = (data: InviteSchema) => {
-    console.log('=====CODE=====', code, data.otp);
-    Cookies.set('invite_code', '829239');
     if (data.otp === '829239') {
+      Cookies.set('invite_code', '829239');
       router.push('/markets');
       return;
     } else {

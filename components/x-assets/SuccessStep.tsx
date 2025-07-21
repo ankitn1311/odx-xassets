@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useWatchAsset } from 'wagmi';
 import { toast } from 'sonner';
 import { shortenAddress } from '@/utils/crypto';
-import { convertXUSDT } from '@/lib/utils';
+import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
 import { SwapFormValues } from './TokenSwapCard';
 
 export function SuccessStep() {
@@ -63,10 +63,8 @@ export function SuccessStep() {
                 className="rounded-full"
               />
               <div className="flex flex-col">
-                <p className="font-medium">{amount}</p>
-                <p className="text-sm text-muted-foreground">
-                  {convertXUSDT(inputToken?.Name ?? '')}
-                </p>
+                <p className="font-mono font-medium">{removeTrailingZeros(amount)}</p>
+                <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
                 {/* <p className="text-sm text-muted-foreground">
                   ${(Number(amount) * 2.056).toFixed(2)}
                 </p> */}
@@ -93,10 +91,8 @@ export function SuccessStep() {
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
-                <p className="font-medium">{Number(outputAmount).toFixed(8)}</p>
-                <p className="text-sm text-muted-foreground">
-                  {convertXUSDT(outputToken?.Name ?? '')}
-                </p>
+                <p className="font-mono font-medium">{removeTrailingZeros(outputAmount)}</p>
+                <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
                 {/* <p className="text-sm text-muted-foreground">${Number(outputAmount).toFixed(2)}</p> */}
               </div>
               <Image
@@ -131,9 +127,10 @@ export function SuccessStep() {
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">Rate</p>
-            <p className="text-sm">
-              {amount} {convertXUSDT(inputToken?.Name ?? '')} = {Number(outputAmount).toFixed(8)}{' '}
-              {convertXUSDT(outputToken?.Name ?? '')}
+            <p className="font-mono text-sm">
+              1 <span className="text-muted-foreground">{inputToken?.Name}</span> = $
+              {removeTrailingZeros((Number(outputAmount) / Number(amount)).toString())}{' '}
+              {/* {outputToken?.Name} */}
             </p>
           </div>
 

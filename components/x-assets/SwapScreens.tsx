@@ -10,10 +10,13 @@ import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
 import { Loader } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Trade } from '@/utils/chain-client/query/type-trade';
 
 export function SwapScreens() {
   const { tradeState, quoteLoading, activeTab } = useTokenSwapStore();
   const isBuy = activeTab === TabState.BUY;
+  const queryClient = useQueryClient();
 
   const {
     watch,
@@ -25,7 +28,7 @@ export function SwapScreens() {
   const outputToken = watch('outputToken');
   const outputAmount = watch('outputAmount');
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
-  const { data: numericBalance } = useTokenBalance(
+  const { data: numericBalance, isRefetching: isTokenBalanceRefetching } = useTokenBalance(
     isBuy ? (outputToken?.Address ?? '') : (inputToken?.Address ?? ''),
     isBuy ? (outputToken?.Decimals ?? 18) : (inputToken?.Decimals ?? 18)
   );
@@ -66,6 +69,9 @@ export function SwapScreens() {
     if (quoteLoading) {
       return 'Fetching quote...';
     }
+    if (isTokenBalanceRefetching) {
+      return 'Updating balance...';
+    }
     if (numericBalance && Number(numericBalance) < Number(amountToUse)) {
       return 'Insufficient Balance';
     }
@@ -94,6 +100,27 @@ export function SwapScreens() {
   const isValidAmount = amountToUse && Number(amountToUse) > 0;
   const isInsufficientOutputAmount = Number(outputAmount) === 0;
 
+  useEffect(() => {
+    if (tradeState === TradeState.SUCCESS) {
+      console.log('UPDATING BALANCE SUCCESS', tradeState);
+      queryClient.invalidateQueries({
+        queryKey: ['token-balance', inputToken?.Address, inputToken?.Decimals],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['token-balance', outputToken?.Address, outputToken?.Decimals],
+      });
+    }
+    // if (tradeState === TradeState.INITIAL) {
+    //   console.log('UPDATING BALANCE INITIAL', tradeState);
+    //   queryClient.invalidateQueries({
+    //     queryKey: ['token-balance', inputToken?.Address, inputToken?.Decimals],
+    //   });
+    //   queryClient.invalidateQueries({
+    //     queryKey: ['token-balance', outputToken?.Address, outputToken?.Decimals],
+    //   });
+    // }
+  }, [tradeState]);
+
   return (
     <>
       <SwapBody />
@@ -116,6 +143,7 @@ export function SwapScreens() {
             isInsufficientBalance ||
             isInsufficientOutputAmount ||
             !isValidAmount ||
+            isTokenBalanceRefetching ||
             tradeState === TradeState.CHECKING_APPROVAL
           }
         >

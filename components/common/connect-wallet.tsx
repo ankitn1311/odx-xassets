@@ -47,7 +47,6 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
   const { data: userInfo, isLoading: userInfoLoading } = useUserInfo();
 
   const { address, chainId } = useAccount();
-  console.log('chainID', chainId);
   const { disconnect: disconnectEVM } = useDisconnect();
 
   const connectBTCWallet = async () => {

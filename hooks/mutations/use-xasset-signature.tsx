@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/utils/axiosConfig';
 import { CosignerData, NonceManager, V2DutchOrderBuilder } from '@uniswap/uniswapx-sdk';
@@ -6,7 +6,7 @@ import { ethers as ethersV5 } from 'ethers';
 import { useAccount, useWalletClient } from 'wagmi';
 import { WalletClient, createWalletClient, custom } from 'viem';
 import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
-import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
+import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import axios, { AxiosError } from 'axios';
 
 interface SigData {
@@ -87,7 +87,8 @@ const SUCCESS_STATES = ['PROCESSED'];
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
   const { address } = useAccount();
-  const { setTradeState, setLatestTradeHash } = useTokenSwapStore();
+  const { setTradeState, setLatestTradeHash, activeTab } = useTokenSwapStore();
+  const queryClient = useQueryClient();
 
   const sigDataMutation = useMutation({
     mutationFn: async (data: SigData) => {
@@ -103,6 +104,30 @@ export const useXAssetSignature = () => {
       return response;
     },
   });
+
+  const updateTokenBalancesManually = async (data: SigData) => {
+    return;
+    // TODO: to be done this later
+    const { token, output_token, amount, output_amount } = data;
+
+    if (activeTab === TabState.BUY) {
+      // update input token balance
+      queryClient.setQueryData(['token-balance', token], (old: any) => {
+        return old + amount;
+      });
+      queryClient.setQueryData(['token-balance', output_token], (old: any) => {
+        return old - Number(output_amount);
+      });
+    } else {
+      // update output token balance
+      queryClient.setQueryData(['token-balance', output_token], (old: any) => {
+        return old + output_amount;
+      });
+      queryClient.setQueryData(['token-balance', token], (old: any) => {
+        return old - Number(amount);
+      });
+    }
+  };
 
   const signatureMutation = useMutation({
     mutationFn: async (data: SigDataWithSignature) => {
@@ -167,57 +192,44 @@ export const useXAssetSignature = () => {
   };
 
   const getSignatureAndSerializedOrderV2 = async (data: SigData, wallet: WalletClient) => {
-    console.log('Starting getSignatureAndSerializedOrderV2 with data:', data);
-
     if (!wallet) {
       throw new Error('Wallet not connected. Please connect your wallet first.');
     }
-    console.log('Wallet connected:', wallet);
 
     if (!address) {
       throw new Error('No account address found. Please connect your wallet first.');
     }
-    console.log('Address found:', address);
 
     const account = await wallet.getAddresses();
     if (!account[0]) {
       throw new Error('No account found');
     }
-    console.log('Account addresses:', account);
 
     // Create a provider and signer using wallet client
     const walletClient = createWalletClient({
       transport: custom(wallet.transport),
     });
-    console.log('Wallet client created:', walletClient);
 
     // Create ethers provider from wallet client
     const provider = new ethersV5.providers.Web3Provider(walletClient.transport);
-    console.log('Provider created:', provider);
 
     const signer = provider.getSigner(account[0]);
-    console.log('Signer created:', signer);
 
     const signerAccount = await signer.getAddress();
-    console.log('Signer account address:', signerAccount);
 
     const chainId = wallet.chain?.id;
     if (!chainId) {
       toast.error('Chain ID not found');
       throw new Error('Chain ID not found');
     }
-    console.log('Chain ID:', chainId);
 
     // Use the provider for NonceManager with permit2 configuration
     const nonceMgr = new NonceManager(provider, chainId, BASE_PERMIT2);
-    console.log('Nonce manager created:', nonceMgr);
 
     const nonce = await nonceMgr.useNonce(signerAccount);
-    console.log('Nonce obtained:', nonce);
 
     // const builder = new DutchOrderBuilder(chainId, BASE_REACTOR, BASE_PERMIT2);
     const v2Builder = new V2DutchOrderBuilder(chainId, BASE_REACTOR, BASE_PERMIT2);
-    console.log('V2 Dutch order builder created:', v2Builder);
 
     // Set deadline to 20 minutes from now (in seconds)
     // const deadline = Math.floor(Date.now() / 1000) + 1000;
@@ -225,27 +237,7 @@ export const useXAssetSignature = () => {
     const startTime = now;
     const endTime = now + 3600; // 1 hour duration
     const deadline = now + 7200; //
-    console.log(
-      'dat',
-      data
-      // ethersV5.utils.parseUnits(data.output_amount, data.output_decimals),
-      // ethersV5.utils.parseUnits(data.amount, data.input_decimals)
-    );
-    console.log(
-      'Time parameters - now:',
-      now,
-      'startTime:',
-      startTime,
-      'endTime:',
-      endTime,
-      'deadline:',
-      deadline
-    );
 
-    // console.log('DATA', data);
-    // return;
-    //
-    //
     const inputAmount = ethersV5.utils.parseUnits(
       Number(data.amount).toFixed(data.input_decimals),
       data.input_decimals
@@ -254,7 +246,6 @@ export const useXAssetSignature = () => {
       Number(data.output_amount).toFixed(data.output_decimals),
       data.output_decimals
     );
-    console.log('amounts', inputAmount, outputAmount, data);
 
     const cosignerData: CosignerData = {
       decayStartTime: startTime,
@@ -264,7 +255,6 @@ export const useXAssetSignature = () => {
       inputOverride: inputAmount,
       outputOverrides: [outputAmount],
     };
-    console.log('Cosigner data created:', cosignerData);
 
     v2Builder
       .swapper(signerAccount)
@@ -290,31 +280,23 @@ export const useXAssetSignature = () => {
       .cosignerData(cosignerData)
       .inputOverride(inputAmount)
       .outputOverrides([outputAmount]);
-    console.log('V2 Builder configured with all parameters');
 
     let order = v2Builder.build();
     console.log('Initial order built:', order);
 
     const hash = order.cosignatureHash(cosignerData);
-    console.log('Cosignature hash generated:', hash);
 
     const cosignature = await cosignatureMutation.mutateAsync({
       cosign_hash: hash,
     });
-    console.log('Cosignature received:', cosignature);
 
     order = v2Builder.cosignature(cosignature.cosignature).build();
-    console.log('Final order built with cosignature:', order);
 
     const { domain, types, values } = order.permitData();
-    console.log('Permit data extracted - domain:', domain, 'types:', types, 'values:', values);
 
     const signature = await signer._signTypedData(domain, types, values);
-    console.log('Signature generated:', signature);
 
     const serializedOrder = order.serialize();
-    console.log('Order serialized:', serializedOrder);
-    console.log('Final result - signature:', signature, 'serializedOrder:', serializedOrder);
 
     return {
       signature,
@@ -340,8 +322,6 @@ export const useXAssetSignature = () => {
         signature: signatureAndSerializedOrder.signature,
         serialized_order: signatureAndSerializedOrder.serializedOrder,
       });
-      console.log('result', result);
-
       // Start polling for order status
       let orderStatus: OrderStatusResponse;
 
@@ -351,7 +331,7 @@ export const useXAssetSignature = () => {
       do {
         await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL));
         orderStatus = await checkOrderStatus(result?.executionName);
-        console.log('orderStatus', orderStatus);
+        console.log('TRADE STATUS: ', orderStatus.status);
         attempts++;
       } while (PENDING_STATES.includes(orderStatus.status) && attempts < 20);
 
@@ -366,6 +346,7 @@ export const useXAssetSignature = () => {
             </a>
           ),
         });
+        updateTokenBalancesManually(data);
         setTradeState(TradeState.SUCCESS);
         setLatestTradeHash(txHash);
       } else if (ERROR_STATES.includes(orderStatus.status)) {

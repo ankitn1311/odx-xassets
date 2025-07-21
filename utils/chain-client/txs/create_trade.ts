@@ -3,6 +3,8 @@ import { DEX_ADDRESS } from '@/lib/constants';
 import { ethers } from 'ethers';
 import { createWalletClient, custom, erc20Abi } from 'viem';
 import SwapAbi from '@/utils/chain-client/abis/SwapAbi.json';
+import { formatUnits } from 'ethers/lib/utils';
+import { removeTrailingZeros } from '@/lib/utils';
 /**
  * Buy a token using the user's  wallet
  * @param wallet - The wallet to use
@@ -28,7 +30,6 @@ export const buyTokenEvm = async ({
   if (Number(currentAllowance) < Number(requiredAmount)) {
     const approveTx = await assetContract.approve(DEX_ADDRESS, ethers.constants.MaxUint256); // Approve max to save gas on future trades
     const approveTxRes = await approveTx.wait();
-    console.log({ approveTxRes });
   }
 
   const dexContract = new ethers.Contract(
@@ -72,7 +73,6 @@ export const sellTokenEvm = async ({
   if (Number(currentAllowance) < Number(requiredAmount)) {
     const approveTx = await assetContract.approve(DEX_ADDRESS, ethers.constants.MaxUint256);
     const approveTxRes = await approveTx.wait();
-    console.log({ approveTxRes });
   }
 
   // const assetFactoryContract = new ethers.Contract(
@@ -128,7 +128,7 @@ export const getQuote = async ({
  * @param wallet - The wallet to use
  * @returns The balance of the token
  */
-export const getBalance = async (wallet: any, tokenAddress: string) => {
+export const getBalance = async (wallet: any, tokenAddress: string, decimals: number) => {
   // Create a provider and signer using wallet client
   const walletClient = createWalletClient({
     transport: custom(wallet.transport),
@@ -139,7 +139,9 @@ export const getBalance = async (wallet: any, tokenAddress: string) => {
 
   const balances = await tokenContract.balanceOf(wallet.account.address);
 
-  return balances;
+  const balance = balances ? parseFloat(formatUnits(balances, decimals)).toFixed(6) : '0';
+
+  return removeTrailingZeros(balance);
 };
 
 export const sonicBalance = async (wallet: any) => {

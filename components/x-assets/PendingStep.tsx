@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import { SwapFormValues } from './TokenSwapCard';
 import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
+import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
 
 export function PendingStep() {
   const form = useFormContext<SwapFormValues>();
@@ -37,10 +38,8 @@ export function PendingStep() {
                 className="rounded-full"
               />
               <div className="flex flex-col">
-                <p className="font-medium">{amount}</p>
-                <p className="text-sm text-muted-foreground">
-                  ${(Number(amount) * 2.056).toFixed(2)}
-                </p>
+                <p className="font-mono font-medium">{removeTrailingZeros(amount)}</p>
+                <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
               </div>
             </div>
           </div>
@@ -51,8 +50,8 @@ export function PendingStep() {
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
-                <p className="font-medium">{outputAmount}</p>
-                <p className="text-sm text-muted-foreground">${Number(outputAmount).toFixed(2)}</p>
+                <p className="font-mono font-medium">{removeTrailingZeros(outputAmount)}</p>
+                <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
               </div>
               <Image
                 src={`/images/tokens/${outputToken?.Name}.png`}
