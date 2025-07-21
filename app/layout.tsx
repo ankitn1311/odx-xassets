@@ -47,7 +47,7 @@ export default async function RootLayout({
       />
 
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans text-xs antialiased`}>
-        <NextTopLoader color="#d7a7d7" />
+        <NextTopLoader color="#d7a7d7" showSpinner={false} />
         <Providers>
           <ThemeProvider
             attribute="class"

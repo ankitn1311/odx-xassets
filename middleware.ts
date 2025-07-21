@@ -8,24 +8,13 @@ export default async function middleware(request: NextRequest) {
   // return NextResponse.redirect(new URL('/maintenance', request.url));
   const token = request.cookies.get('invite_code') ? request.cookies.get('invite_code')?.value : '';
 
-  // if (request.nextUrl.pathname === '/') {
-  //   console.log('======ROOT PAGE REDIRECT=====');
-  //   return NextResponse.redirect(new URL('/x-assets', request.url));
-  // }
-  //
-
-  // return NextResponse.next();
-
   if (
     !token &&
     ['/', '/invite', '/x-assets', '/reserves', '/markets'].includes(request.nextUrl.pathname)
   ) {
-    console.log('=====TOKEN NOT FOUND=====');
     if (request.nextUrl.pathname === '/invite') {
-      console.log('=====TRADE PAGE=====');
       return NextResponse.next();
     }
-    console.log('=====REDIRECT TO X-ASSETS PAGE=====');
     return NextResponse.redirect(new URL('/invite', request.url));
   }
 

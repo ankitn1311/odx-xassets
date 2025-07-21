@@ -16,6 +16,7 @@ import { useWalletStore } from '@/stores/wallet-store';
 import { useQuote } from '@/hooks/queries/use-quote';
 import { convertXUSDT } from '@/lib/utils';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
+import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
 
 const CHAIN_ID = 146;
 
@@ -23,6 +24,7 @@ export const Portfolio = () => {
   const { allTokens } = useTokenSwapStore();
   const allTokensData = { data: allTokens, isLoading: false };
   const { connectedWallet } = useWalletStore();
+  const { data: walletProfile } = useWalletProfile(connectedWallet);
   const { data: sonicBalance } = useSonicBalance();
   const [, copyToClipboard] = useCopyToClipboard();
   const queryClient = useQueryClient();
@@ -95,6 +97,15 @@ export const Portfolio = () => {
             />
           </div>
         </div>
+        {walletProfile && (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Your Points</p>
+            <p className="text-xl font-medium">
+              <span className="text-accent">{walletProfile.totalPoints}</span>
+            </p>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">Sonic Balance</p>
           <p className="text-xl font-medium">

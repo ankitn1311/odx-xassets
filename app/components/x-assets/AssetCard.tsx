@@ -32,8 +32,6 @@ export function AssetCard({
     enabled: !!tokenPair.TokenA.Address && !!tokenPair.TokenB.Address,
   });
 
-  console.log('QOUTE : ', quote, tokenPair);
-
   return (
     <Card
       className={cn(

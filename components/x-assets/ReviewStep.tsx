@@ -1,24 +1,65 @@
 import { useFormContext } from 'react-hook-form';
 import { useWatchAsset } from 'wagmi';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Network, Zap, DollarSign, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { toast } from 'sonner';
-import { convertXUSDT } from '@/lib/utils';
+import { removeTrailingZeros } from '@/lib/utils';
 import { SwapFormValues } from './TokenSwapCard';
+import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
+
+const POLLING_INTERVAL = 5000; // 5 seconds
 
 export function ReviewStep() {
   const { watchAssetAsync, isPending } = useWatchAsset();
   const [tokenToAdd, setTokenToAdd] = useState<TokenInfo | null>(null);
-  const { setTradeState, activeTab } = useTokenSwapStore();
+  const { setTradeState, activeTab, tradeState } = useTokenSwapStore();
   const form = useFormContext<SwapFormValues>();
   const amount = form.watch('amount');
   const outputAmount = form.watch('outputAmount');
   const inputToken = form.watch('inputToken');
   const outputToken = form.watch('outputToken');
+
+  const { getQuote } = useTradeQuote();
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Polling effect to update outputAmount every 500ms
+  useEffect(() => {
+    // Only poll if all required values are present
+    if (!inputToken || !outputToken || !amount || amount === '' || amount === '0') {
+      form.setValue('outputAmount', '');
+      return;
+    }
+
+    if (tradeState === TradeState.PROCESSING && pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      return;
+    }
+
+    // Clear any existing interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    // Set up polling
+    pollingIntervalRef.current = setInterval(async () => {
+      try {
+        const quote = await getQuote({ inputToken, outputToken, inputAmount: amount });
+        if (quote !== undefined && quote !== null) {
+          form.setValue('outputAmount', quote.toString());
+        }
+      } catch (error) {
+        // Optionally handle error (e.g., toast)
+      }
+    }, POLLING_INTERVAL);
+    // Cleanup
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [inputToken, outputToken, amount, getQuote, form, tradeState]);
 
   const addTokenToWallet = async (token: TokenInfo) => {
     setTokenToAdd(token);
@@ -74,10 +115,8 @@ export function ReviewStep() {
               className="rounded-full"
             />
             <div className="flex flex-col">
-              <p className="font-medium">{amount}</p>
-              <p className="text-sm text-muted-foreground">
-                {convertXUSDT(inputToken?.Name ?? '')}
-              </p>
+              <p className="font-medium">{removeTrailingZeros(amount)}</p>
+              <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
             </div>
           </div>
           <Button
@@ -101,10 +140,8 @@ export function ReviewStep() {
           </p>
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
-              <p className="font-medium">{Number(outputAmount).toFixed(8)}</p>
-              <p className="text-sm text-muted-foreground">
-                {convertXUSDT(outputToken?.Name ?? '')}
-              </p>
+              <p className="font-medium">{removeTrailingZeros(outputAmount)}</p>
+              <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
             </div>
             <Image
               src={`/images/tokens/${outputToken?.Name}.png`}
@@ -146,8 +183,11 @@ export function ReviewStep() {
             <Zap className="h-4 w-4 text-primary" /> Rate
           </span>
           <span className="text-sm font-medium">
-            {amount} {convertXUSDT(inputToken?.Name ?? '')} = {Number(outputAmount).toFixed(8)}{' '}
-            {convertXUSDT(outputToken?.Name ?? '')}
+            <span className="font-mono font-bold">1</span>{' '}
+            <span className="text-muted-foreground">{inputToken?.Name}</span> = $
+            <span className="font-mono font-bold">
+              {removeTrailingZeros((Number(outputAmount) / Number(amount)).toString())}
+            </span>{' '}
           </span>
         </div>
         <div className="flex items-center justify-between">
@@ -166,11 +206,13 @@ export function ReviewStep() {
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
             <ArrowRight className="h-4 w-4 text-primary" /> Receive at least
           </span>
-          <span className="text-sm font-bold text-success">
-            {activeTab === TabState.BUY
-              ? Number(amount).toFixed(8)
-              : Number(outputAmount).toFixed(8)}{' '}
-            {convertXUSDT(activeTab === TabState.BUY ? inputToken?.Name : outputToken?.Name)}
+          <span className="text-sm font-semibold">
+            <span className="font-mono font-bold text-success">
+              {activeTab === TabState.BUY
+                ? removeTrailingZeros(amount)
+                : removeTrailingZeros(outputAmount)}
+            </span>{' '}
+            {activeTab === TabState.BUY ? inputToken?.Name : outputToken?.Name}
           </span>
         </div>
       </div>
