@@ -155,7 +155,7 @@ const navbarItems = [
   { label: 'xAssets', route: 'markets' },
   { label: 'reserves', route: 'reserves' },
   // { label: 'score', route: 'score', isProtected: true },
-  { label: 'leaderboard', route: 'leaderboard', comingSoon: true },
+  { label: 'leaderboard', route: 'leaderboard' },
   // { label: "components", route: "components" },
 ];
 
