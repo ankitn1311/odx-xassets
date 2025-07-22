@@ -109,7 +109,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
 
   return (
     <>
-      <Card className="hidden py-4 md:block">
+      <Card className="py-4">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (

@@ -103,12 +103,12 @@ export function SwapScreens() {
   useEffect(() => {
     if (tradeState === TradeState.SUCCESS) {
       console.log('UPDATING BALANCE SUCCESS', tradeState);
-      queryClient.invalidateQueries({
-        queryKey: ['token-balance', inputToken?.Address, inputToken?.Decimals],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['token-balance', outputToken?.Address, outputToken?.Decimals],
-      });
+      // queryClient.invalidateQueries({
+      //   queryKey: ['token-balance', inputToken?.Address, inputToken?.Decimals],
+      // });
+      // queryClient.invalidateQueries({
+      //   queryKey: ['token-balance', outputToken?.Address, outputToken?.Decimals],
+      // });
     }
     // if (tradeState === TradeState.INITIAL) {
     //   console.log('UPDATING BALANCE INITIAL', tradeState);

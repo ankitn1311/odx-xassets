@@ -4,7 +4,7 @@ import { FileText } from 'lucide-react';
 
 export default function AppFooter() {
   return (
-    <div className="z-20 flex h-16 items-center justify-center gap-4 border-t border-muted/60 px-4 py-2 lg:px-6">
+    <div className="z-10 hidden h-16 items-center justify-center gap-4 border-t border-muted/60 px-4 py-2 md:flex lg:px-6">
       {/* Left Section - Social Media Icons */}
       <div className="flex items-center gap-3">
         <a

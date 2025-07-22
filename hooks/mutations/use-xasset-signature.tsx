@@ -106,26 +106,38 @@ export const useXAssetSignature = () => {
   });
 
   const updateTokenBalancesManually = async (data: SigData) => {
-    return;
-    // TODO: to be done this later
-    const { token, output_token, amount, output_amount } = data;
+    const { token, output_token, amount, output_amount, input_decimals, output_decimals } = data;
+
+    const currentInputBalance = queryClient.getQueryData<string>([
+      'token-balance',
+      token,
+      input_decimals,
+    ]);
+
+    const currentOutputBalance = queryClient.getQueryData<string>([
+      'token-balance',
+      output_token,
+      output_decimals,
+    ]);
 
     if (activeTab === TabState.BUY) {
       // update input token balance
-      queryClient.setQueryData(['token-balance', token], (old: any) => {
-        return old + amount;
-      });
-      queryClient.setQueryData(['token-balance', output_token], (old: any) => {
-        return old - Number(output_amount);
-      });
+      const balance = Number(currentInputBalance) - Number(amount);
+      queryClient.setQueryData(['token-balance', token, input_decimals], balance.toString());
+      const newBalance = Number(currentOutputBalance) + Number(output_amount);
+      queryClient.setQueryData(
+        ['token-balance', output_token, output_decimals],
+        newBalance.toString()
+      );
     } else {
       // update output token balance
-      queryClient.setQueryData(['token-balance', output_token], (old: any) => {
-        return old + output_amount;
-      });
-      queryClient.setQueryData(['token-balance', token], (old: any) => {
-        return old - Number(amount);
-      });
+      const balance = Number(currentOutputBalance) + Number(output_amount);
+      queryClient.setQueryData(
+        ['token-balance', output_token, output_decimals],
+        balance.toString()
+      );
+      const newBalance = Number(currentInputBalance) - Number(amount);
+      queryClient.setQueryData(['token-balance', token, input_decimals], newBalance.toString());
     }
   };
 
