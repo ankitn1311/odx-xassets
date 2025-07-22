@@ -10,7 +10,7 @@ export default async function MainLayout({
   return (
     <div className="flex h-screen w-screen flex-col">
       <AppHeader />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 pb-20 md:pb-0">{children}</div>
       <AppFooter />
     </div>
   );

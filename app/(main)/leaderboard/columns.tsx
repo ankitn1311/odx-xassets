@@ -41,7 +41,7 @@ export const leaderboardColumns: ColumnDef<LeaderboardEntry>[] = [
       const wallet = row.getValue('address') as string;
       // Use a random avatar image based on wallet address (for demo)
       const avatarUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${wallet}`;
-      const explorerUrl = `https://etherscan.io/address/${wallet}`;
+      const explorerUrl = `https://sonicscan.org/address/${wallet}`;
       return (
         <span className="flex items-center gap-2">
           <Avatar className="h-5 w-5">

@@ -11,7 +11,7 @@ import { useWalletStore } from '@/stores/wallet-store';
 import { useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
-import { useQueryClient } from '@tanstack/react-query';
+
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
   const { tradeState, setTradeState, isApproved, setIsApproved, setLatestTradeHash, activeTab } =

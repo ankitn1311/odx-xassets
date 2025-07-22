@@ -1,46 +1,21 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { AppHeaderNavbarItemType } from './types';
-import { Button } from '../components/ui/button';
-import ODXLogo from '../components/svg/odx-logo';
 import ODXLogoDark from '../components/svg/odx-logo-dark';
 import ODXLogoLight from '../components/svg/odx-logo-light';
 import { useRouter } from 'nextjs-toploader/app';
 import { usePathname } from 'next/navigation';
-import Login from '../components/popups/login';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUserInfo } from '@/hooks/queries/use-user';
 import Cookies from 'js-cookie';
-import Authenticated from '@/components/common/authenticated';
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { shortenAddress } from '../utils/crypto';
-import { Copy, LogOut, Menu, User, Star, Power } from 'lucide-react';
+
+import { Home, Database, Trophy } from 'lucide-react';
 import { useCopyToClipboard, useMediaQuery } from 'usehooks-ts';
 import { toast } from 'sonner';
 import { ModeToggle } from '@/components/theme-toggle';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 import Link from 'next/link';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTheme } from 'next-themes';
-import millify from 'millify';
-import { ScorePopup } from '@/components/score-popup';
 import ConnectWallet from '@/components/common/connect-wallet';
 import { useWalletStore } from '@/stores/wallet-store';
 import { useDisconnect } from 'wagmi';
@@ -86,7 +61,6 @@ const AppHeaderCenter = () => {
 };
 
 const AppHeaderRight = () => {
-  const { data: userInfo, isLoading: userInfoLoading } = useUserInfo();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [, copyToClipboard] = useCopyToClipboard();
   const logout = async () => {
@@ -117,37 +91,38 @@ const AppHeaderRight = () => {
 };
 
 const MobileNavbar = () => {
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const navItems = [
+    { label: 'xAssets', route: '/markets', icon: Home },
+    { label: 'reserves', route: '/reserves', icon: Database },
+    { label: 'leaderboard', route: '/leaderboard', icon: Trophy },
+  ];
   return (
-    <nav className="flex flex-1 items-center justify-center gap-2 pl-2 md:hidden">
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline">
-            <Menu />
-          </Button>
-        </SheetTrigger>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
-          </SheetHeader>
-          <SheetContent>
-            <nav className="flex h-full flex-1 flex-col items-center justify-center gap-2 pl-2">
-              {navbarItems.map(navbarItem => {
-                return (
-                  <AppHeaderNavbarItem
-                    closeSheet={() => setOpen(false)}
-                    key={navbarItem.label}
-                    {...navbarItem}
-                  />
-                );
-              })}
-            </nav>
-          </SheetContent>
-        </SheetContent>
-      </Sheet>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-muted/60 bg-background md:hidden">
+      {navItems.map(({ label, route, icon: Icon }) => {
+        const isActive =
+          (label === 'xAssets' && pathname.includes('x-assets')) || pathname === route;
+        return (
+          <Link
+            key={label}
+            href={route}
+            className={cn(
+              'flex h-full flex-1 flex-col items-center justify-center text-xs',
+              isActive
+                ? 'font-bold text-black dark:text-white'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+            style={{ textDecoration: 'none' }}
+          >
+            <Icon className="mb-1 h-6 w-6" />
+            <span>{label}</span>
+          </Link>
+        );
+      })}
     </nav>
   );
 };
+
 const navbarItems = [
   // { label: "buyCrypto", route: "buy-crypto" },
   // { label: "markets", route: "markets" },
