@@ -5,6 +5,8 @@ import { useState } from 'react';
 import * as RechartsPrimitive from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAccount } from 'wagmi';
+import ConnectWallet from '@/components/common/connect-wallet';
 
 export function AnalyticsCard() {
   const [tvlDuration, setTvlDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
@@ -12,6 +14,8 @@ export function AnalyticsCard() {
   const { totalTVL, totalVolume24h, isLoading, tvlChart, volumeChart } =
     useTotalAnalytics(tvlDuration);
   const analytics = useAllTokenAnalytics();
+  const { isConnected, isConnecting } = useAccount();
+
   return (
     <Card className="p-6">
       <section className="flex flex-col gap-4">
@@ -23,7 +27,7 @@ export function AnalyticsCard() {
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
                 <span className="font-mono text-3xl font-semibold">
-                  {isLoading ? (
+                  {isLoading || isConnecting ? (
                     <Skeleton className="h-9 w-32" />
                   ) : (
                     `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
@@ -43,32 +47,43 @@ export function AnalyticsCard() {
               </div>
             </div>
             <div className="mt-2 h-32 w-full">
-              <ChartContainer
-                config={{ tvl: { label: 'TVL', color: 'var(--chart-1)' } }}
-                className="h-full w-full"
-              >
-                <RechartsPrimitive.AreaChart
-                  data={tvlChart}
-                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+              {!isConnected ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <p className="text-muted-foreground">Connect your wallet to view TVL chart</p>
+                </div>
+              ) : (
+                <ChartContainer
+                  config={{ tvl: { label: 'TVL', color: 'var(--chart-1)' } }}
+                  className="h-full w-full"
                 >
-                  <defs>
-                    <linearGradient id="colorGradient-tvl" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.7} />
-                      <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.01} />
-                    </linearGradient>
-                  </defs>
-                  <RechartsPrimitive.XAxis dataKey="time" hide axisLine={false} tickLine={false} />
-                  <RechartsPrimitive.YAxis hide axisLine={false} tickLine={false} />
-                  <RechartsPrimitive.Area
-                    type="linear"
-                    dataKey="value"
-                    stroke="hsl(var(--chart-1))"
-                    fill="url(#colorGradient-tvl)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </RechartsPrimitive.AreaChart>
-              </ChartContainer>
+                  <RechartsPrimitive.AreaChart
+                    data={isLoading || isConnecting ? [] : tvlChart}
+                    margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorGradient-tvl" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.7} />
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.01} />
+                      </linearGradient>
+                    </defs>
+                    <RechartsPrimitive.XAxis
+                      dataKey="time"
+                      hide
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <RechartsPrimitive.YAxis hide axisLine={false} tickLine={false} />
+                    <RechartsPrimitive.Area
+                      type="linear"
+                      dataKey="value"
+                      stroke="hsl(var(--chart-1))"
+                      fill="url(#colorGradient-tvl)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </RechartsPrimitive.AreaChart>
+                </ChartContainer>
+              )}
             </div>
           </div>
           {/* Volume */}
@@ -77,7 +92,7 @@ export function AnalyticsCard() {
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
                 <span className="font-mono text-3xl font-semibold">
-                  {isLoading ? (
+                  {isLoading || isConnecting ? (
                     <Skeleton className="h-9 w-32" />
                   ) : (
                     `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
@@ -97,32 +112,43 @@ export function AnalyticsCard() {
               </div>
             </div>
             <div className="mt-2 h-32 w-full">
-              <ChartContainer
-                config={{ volume: { label: 'Volume', color: 'var(--chart-2)' } }}
-                className="h-full w-full"
-              >
-                <RechartsPrimitive.AreaChart
-                  data={volumeChart}
-                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+              {!isConnected ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <p className="text-muted-foreground">Connect your wallet to view volume chart</p>
+                </div>
+              ) : (
+                <ChartContainer
+                  config={{ volume: { label: 'Volume', color: 'var(--chart-2)' } }}
+                  className="h-full w-full"
                 >
-                  <defs>
-                    <linearGradient id="colorGradient-volume" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.7} />
-                      <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.01} />
-                    </linearGradient>
-                  </defs>
-                  <RechartsPrimitive.XAxis dataKey="time" hide axisLine={false} tickLine={false} />
-                  <RechartsPrimitive.YAxis hide axisLine={false} tickLine={false} />
-                  <RechartsPrimitive.Area
-                    type="linear"
-                    dataKey="value"
-                    stroke="hsl(var(--chart-2))"
-                    fill="url(#colorGradient-volume)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </RechartsPrimitive.AreaChart>
-              </ChartContainer>
+                  <RechartsPrimitive.AreaChart
+                    data={isLoading || isConnecting ? [] : volumeChart}
+                    margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorGradient-volume" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.7} />
+                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.01} />
+                      </linearGradient>
+                    </defs>
+                    <RechartsPrimitive.XAxis
+                      dataKey="time"
+                      hide
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <RechartsPrimitive.YAxis hide axisLine={false} tickLine={false} />
+                    <RechartsPrimitive.Area
+                      type="linear"
+                      dataKey="value"
+                      stroke="hsl(var(--chart-2))"
+                      fill="url(#colorGradient-volume)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </RechartsPrimitive.AreaChart>
+                </ChartContainer>
+              )}
             </div>
           </div>
         </div>

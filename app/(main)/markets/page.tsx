@@ -5,20 +5,16 @@ import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useMemo } from 'react';
 import { useMarketsColumns } from './markets-columns';
 import { useRouter } from 'nextjs-toploader/app';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { PriceDisplay } from './price-display';
 import { PriceChangeDisplay } from './price-change-display';
 import Image from 'next/image';
 import { AnalyticsCard } from './analytics-card';
-import { useAccount } from 'wagmi';
 import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
 
 export default function MarketsPage() {
   const { allTokens = [] } = useTokenSwapStore();
   const columns = useMarketsColumns();
-  const isMobile = useIsMobile();
-  const { isConnected } = useAccount();
 
   const router = useRouter();
 
@@ -35,7 +31,7 @@ export default function MarketsPage() {
 
   return (
     <div className="flex h-full w-full max-w-4xl flex-col items-stretch gap-2 p-2 md:py-12">
-      {isConnected && <AnalyticsCard />}
+      <AnalyticsCard />
 
       <Card className="p-4">
         <section className="flex h-full flex-col justify-center">
