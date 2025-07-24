@@ -80,9 +80,10 @@ const PENDING_STATES = [
   'CUSTODY_VERIFIER_START',
   'CUSTODY_VERIFIER_SUCCESS',
   'PROCESSING',
+  'PROCESSED',
 ];
 
-const SUCCESS_STATES = ['PROCESSED'];
+const SUCCESS_STATES = ['POINTS_AWARDED'];
 
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();

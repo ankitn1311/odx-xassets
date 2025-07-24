@@ -1,0 +1,119 @@
+import { Card } from '@/components/ui/card';
+import { useAllTokenAnalytics } from '@/hooks/queries/use-all-token-analytics';
+import { useTotalAnalytics } from '@/hooks/queries/use-all-token-analytics';
+import { useState } from 'react';
+import * as RechartsPrimitive from 'recharts';
+import { ChartContainer } from '@/components/ui/chart';
+
+export function AnalyticsCard() {
+  const [tvlDuration, setTvlDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
+  const [volumeDuration, setVolumeDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
+  const { totalTVL, totalVolume24h, isLoading, tvlChart, volumeChart } =
+    useTotalAnalytics(tvlDuration);
+  const analytics = useAllTokenAnalytics();
+  return (
+    <Card className="p-6">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-semibold">xAssets Overview</h2>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-8">
+          {/* TVL */}
+          <div className="flex flex-1 flex-col gap-2">
+            <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
+            <span className="font-mono text-3xl font-bold">
+              {isLoading
+                ? 'Loading...'
+                : `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            </span>
+            <div className="mt-2 flex gap-2">
+              {['7D', '30D', '90D', '180D'].map(d => (
+                <button
+                  key={d}
+                  className={`rounded px-2 py-1 font-mono text-xs font-medium ${tvlDuration === d ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
+                  onClick={() => setTvlDuration(d as any)}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 h-32 w-full">
+              <ChartContainer
+                config={{ tvl: { label: 'TVL', color: 'var(--chart-1)' } }}
+                className="h-full w-full"
+              >
+                <RechartsPrimitive.AreaChart
+                  data={tvlChart}
+                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="colorGradient-tvl" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.7} />
+                      <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.01} />
+                    </linearGradient>
+                  </defs>
+                  <RechartsPrimitive.XAxis dataKey="time" hide axisLine={false} tickLine={false} />
+                  <RechartsPrimitive.YAxis hide axisLine={false} tickLine={false} />
+                  <RechartsPrimitive.Area
+                    type="linear"
+                    dataKey="value"
+                    stroke="hsl(var(--chart-1))"
+                    fill="url(#colorGradient-tvl)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </RechartsPrimitive.AreaChart>
+              </ChartContainer>
+            </div>
+          </div>
+          {/* Volume */}
+          <div className="flex flex-1 flex-col gap-2">
+            <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
+            <span className="font-mono text-3xl font-bold">
+              {isLoading
+                ? 'Loading...'
+                : `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            </span>
+            <div className="mt-2 flex gap-2">
+              {['7D', '30D', '90D', '180D'].map(d => (
+                <button
+                  key={d}
+                  className={`rounded px-2 py-1 font-mono text-xs font-medium ${volumeDuration === d ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
+                  onClick={() => setVolumeDuration(d as any)}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 h-32 w-full">
+              <ChartContainer
+                config={{ volume: { label: 'Volume', color: 'var(--chart-2)' } }}
+                className="h-full w-full"
+              >
+                <RechartsPrimitive.AreaChart
+                  data={volumeChart}
+                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="colorGradient-volume" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.7} />
+                      <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.01} />
+                    </linearGradient>
+                  </defs>
+                  <RechartsPrimitive.XAxis dataKey="time" hide axisLine={false} tickLine={false} />
+                  <RechartsPrimitive.YAxis hide axisLine={false} tickLine={false} />
+                  <RechartsPrimitive.Area
+                    type="linear"
+                    dataKey="value"
+                    stroke="hsl(var(--chart-2))"
+                    fill="url(#colorGradient-volume)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </RechartsPrimitive.AreaChart>
+              </ChartContainer>
+            </div>
+          </div>
+        </div>
+      </section>
+    </Card>
+  );
+}

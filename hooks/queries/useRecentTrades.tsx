@@ -50,10 +50,10 @@ const fetchRecentTrades = async (
   return recentTrades.slice(0, 100);
 };
 
-export const useRecentTrades = (type: 'token' | 'user') => {
+export const useRecentTrades = (type: 'token' | 'user', tokenAddressOverride?: string | null) => {
   const { data: walletClient } = useWalletClient();
   const searchParams = useSearchParams();
-  const tokenAddress = searchParams.get('token');
+  const tokenAddress = tokenAddressOverride ?? searchParams.get('token');
 
   return useQuery({
     queryKey: ['recent-trades', type, tokenAddress],
