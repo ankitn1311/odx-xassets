@@ -16,7 +16,7 @@ import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import { convertXUSDT } from '@/lib/utils';
+import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { useRouter } from 'nextjs-toploader/app';
 const MAX_DECIMALS = 2;
@@ -245,7 +245,9 @@ export function TokenInput({
                 strokeLinejoin="round"
               />
             </svg>
-            <p className="text-xs text-muted-foreground">Balance: {balance}</p>
+            <p className="text-xs text-muted-foreground">
+              Balance: {removeTrailingZeros(Number(balance).toFixed(5))}
+            </p>
           </div>
           {activeTab === TabState.SELL && showPercentageButtons && (
             <div className="flex items-center gap-1.5">

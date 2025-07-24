@@ -189,7 +189,7 @@ export function ReservesTable() {
   if (isMobile) {
     // Mobile: Render compact cards with headings and grid details, ratio next to symbol
     return (
-      <div className="flex flex-col gap-2 md:hidden">
+      <div className="flex flex-col gap-2 pb-[4.5rem] md:hidden">
         {tableData.length ? (
           tableData.map((row, idx) => (
             <Card key={row.tokenSymbol || idx} className="flex flex-col gap-2 p-4">

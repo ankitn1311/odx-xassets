@@ -41,54 +41,49 @@ export default function MarketsPage() {
           </p>
         </section>
       </Card>
-      {isMobile ? (
-        <div className="flex flex-col gap-2 md:hidden">
-          {tableData.length ? (
-            tableData.map((row, idx) => (
-              <Card key={row.address || idx} className="flex flex-col gap-2 p-4">
-                <div className="flex flex-row items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={row.image}
-                      alt={row.tokenSymbol}
-                      className="h-10 w-10 rounded-full"
-                      width={40}
-                      height={40}
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-base font-semibold">{row.tokenName}</span>
-                      <span className="text-xs text-muted-foreground">{row.tokenSymbol}</span>
-                    </div>
-                  </div>
-                  {/* <div className="mt-2 flex items-center gap-2">
-                    <SmallPriceChart tokenName={row.tokenName} />
-                  </div> */}
-                  <div className="flex flex-col items-end gap-1">
-                    <PriceDisplay
-                      tokenSymbol={row.tokenSymbol}
-                      className="text-base font-semibold"
-                    />
-                    <PriceChangeDisplay tokenSymbol={row.tokenSymbol} className="text-xs" />
+      <div className="flex flex-col gap-2 pb-[4.5rem] md:hidden">
+        {tableData.length ? (
+          tableData.map((row, idx) => (
+            <Card key={row.address || idx} className="flex flex-col gap-2 p-4">
+              <div className="flex flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={row.image}
+                    alt={row.tokenSymbol}
+                    className="h-10 w-10 rounded-full"
+                    width={40}
+                    height={40}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold">{row.tokenName}</span>
+                    <span className="text-xs text-muted-foreground">{row.tokenSymbol}</span>
                   </div>
                 </div>
+                {/* <div className="mt-2 flex items-center gap-2">
+                    <SmallPriceChart tokenName={row.tokenName} />
+                  </div> */}
+                <div className="flex flex-col items-end gap-1">
+                  <PriceDisplay tokenSymbol={row.tokenSymbol} className="text-base font-semibold" />
+                  <PriceChangeDisplay tokenSymbol={row.tokenSymbol} className="text-xs" />
+                </div>
+              </div>
 
-                <Button
-                  className="mt-4 w-full"
-                  onClick={() => router.push(`/x-assets?selected-token=${row.address}`)}
-                >
-                  Trade
-                </Button>
-              </Card>
-            ))
-          ) : (
-            <div className="text-center text-muted-foreground">No results.</div>
-          )}
-        </div>
-      ) : (
-        <Card className="hidden py-4 md:block">
-          <DataTable columns={columns} data={tableData} />
-        </Card>
-      )}
+              <Button
+                variant="secondary"
+                className="mt-4 w-full"
+                onClick={() => router.push(`/x-assets?selected-token=${row.address}`)}
+              >
+                Trade
+              </Button>
+            </Card>
+          ))
+        ) : (
+          <div className="text-center text-muted-foreground">No results.</div>
+        )}
+      </div>
+      <Card className="hidden py-4 md:block">
+        <DataTable columns={columns} data={tableData} />
+      </Card>
     </div>
   );
 }

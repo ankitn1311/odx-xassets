@@ -47,6 +47,14 @@ interface OrderStatusResponse {
   processedAt: any;
   completedAt: any;
   txHash: any;
+  errorMessage: any;
+  custodyTxHash: any;
+  orderQtyRequested: string;
+  orderPrice: string;
+  avgFillPrice: string;
+  cmltvValue: string;
+  cmltvQty: string;
+  cmltvFees: string;
 }
 
 const POLL_INTERVAL = 2000; // 2 seconds
@@ -196,6 +204,14 @@ export const useXAssetSignature = () => {
             processedAt: null,
             completedAt: null,
             txHash: null,
+            errorMessage: null,
+            custodyTxHash: null,
+            orderQtyRequested: '0',
+            orderPrice: '0',
+            avgFillPrice: '0',
+            cmltvValue: '0',
+            cmltvQty: '0',
+            cmltvFees: '0',
           };
         }
       }
@@ -351,6 +367,11 @@ export const useXAssetSignature = () => {
       const txHash = orderStatus.txHash;
 
       if (SUCCESS_STATES.includes(orderStatus.status)) {
+        if (orderStatus.errorMessage) {
+          toast.error('Transaction failed');
+          setTradeState(TradeState.FAILED);
+          throw new Error('Transaction failed');
+        }
         toast.success('Transaction successful', {
           description: (
             // <a href={`https://testnet.sonicscan.org/tx/${txHash}`} target="_blank">
