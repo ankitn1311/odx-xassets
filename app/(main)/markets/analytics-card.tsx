@@ -4,6 +4,7 @@ import { useTotalAnalytics } from '@/hooks/queries/use-all-token-analytics';
 import { useState } from 'react';
 import * as RechartsPrimitive from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function AnalyticsCard() {
   const [tvlDuration, setTvlDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
@@ -18,22 +19,28 @@ export function AnalyticsCard() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-8">
           {/* TVL */}
           <div className="flex flex-1 flex-col gap-2">
-            <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
-            <span className="font-mono text-3xl font-bold">
-              {isLoading
-                ? 'Loading...'
-                : `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
-            </span>
-            <div className="mt-2 flex gap-2">
-              {['7D', '30D', '90D', '180D'].map(d => (
-                <button
-                  key={d}
-                  className={`rounded px-2 py-1 font-mono text-xs font-medium ${tvlDuration === d ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
-                  onClick={() => setTvlDuration(d as any)}
-                >
-                  {d}
-                </button>
-              ))}
+            <div className="flex flex-row items-start justify-between">
+              <div className="flex flex-col items-start gap-2">
+                <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
+                <span className="font-mono text-3xl font-bold">
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-32" />
+                  ) : (
+                    `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                  )}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                {['7D', '30D', '90D', '180D'].map(d => (
+                  <button
+                    key={d}
+                    className={`rounded px-2 py-1 font-mono text-xs font-medium ${tvlDuration === d ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
+                    onClick={() => setTvlDuration(d as any)}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="mt-2 h-32 w-full">
               <ChartContainer
@@ -66,22 +73,28 @@ export function AnalyticsCard() {
           </div>
           {/* Volume */}
           <div className="flex flex-1 flex-col gap-2">
-            <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
-            <span className="font-mono text-3xl font-bold">
-              {isLoading
-                ? 'Loading...'
-                : `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
-            </span>
-            <div className="mt-2 flex gap-2">
-              {['7D', '30D', '90D', '180D'].map(d => (
-                <button
-                  key={d}
-                  className={`rounded px-2 py-1 font-mono text-xs font-medium ${volumeDuration === d ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
-                  onClick={() => setVolumeDuration(d as any)}
-                >
-                  {d}
-                </button>
-              ))}
+            <div className="flex flex-row items-start justify-between">
+              <div className="flex flex-col items-start gap-2">
+                <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
+                <span className="font-mono text-3xl font-bold">
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-32" />
+                  ) : (
+                    `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                  )}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                {['7D', '30D', '90D', '180D'].map(d => (
+                  <button
+                    key={d}
+                    className={`rounded px-2 py-1 font-mono text-xs font-medium ${volumeDuration === d ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
+                    onClick={() => setVolumeDuration(d as any)}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="mt-2 h-32 w-full">
               <ChartContainer
