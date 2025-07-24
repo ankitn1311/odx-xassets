@@ -18,12 +18,14 @@ const swapFormSchema = z
       FullName: z.string(),
       Address: z.string(),
       Decimals: z.number(),
+      QtyTickSize: z.number().optional(),
     }),
     outputToken: z.object({
       Name: z.string(),
       FullName: z.string(),
       Address: z.string(),
       Decimals: z.number(),
+      QtyTickSize: z.number().optional(),
     }),
     amount: z.string().refine(val => !isNaN(Number(val)), { message: 'Invalid number' }),
     outputAmount: z.string().refine(val => !isNaN(Number(val)), { message: 'Invalid number' }),
@@ -52,6 +54,37 @@ const swapFormSchema = z
     {
       message: 'USDC amount must be between 5 and 10, during the alpha',
       path: ['outputAmount'],
+    }
+  )
+  .refine(
+    data => {
+      // Only validate if QtyTickSize is defined and token is not USDC
+      const tick = data.inputToken.QtyTickSize;
+      console.log('tick', tick, data);
+
+      if (
+        typeof tick === 'number' &&
+        data.inputToken.Name !== 'USDC' &&
+        data.amount !== '' &&
+        !isNaN(Number(data.amount))
+      ) {
+        const amt = Number(data.amount);
+        // Use toFixed to avoid floating point issues
+        const remainder = Math.abs((amt / tick) % 1);
+        // Allow a small epsilon for floating point errors
+        return remainder < 1e-8 || remainder > 1 - 1e-8;
+      }
+      return true;
+    },
+    data => {
+      const tick = data.inputToken.QtyTickSize;
+      return {
+        message:
+          typeof tick === 'number'
+            ? `Amount must be a multiple of ${tick} (e.g., ${tick}, ${tick * 2}, ${tick * 3}, ...)`
+            : "Amount must be a valid multiple of the token's minimum increment.",
+        path: ['amount'],
+      };
     }
   );
 

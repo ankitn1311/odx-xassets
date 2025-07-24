@@ -5,13 +5,12 @@ import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useMemo } from 'react';
 import { useMarketsColumns } from './markets-columns';
 import { useRouter } from 'nextjs-toploader/app';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { SmallPriceChart } from '@/components/markets/small-price-chart';
 import { PriceDisplay } from './price-display';
 import { PriceChangeDisplay } from './price-change-display';
 import Image from 'next/image';
+import { AnalyticsCard } from './analytics-card';
 
 export default function MarketsPage() {
   const { allTokens = [] } = useTokenSwapStore();
@@ -32,6 +31,8 @@ export default function MarketsPage() {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-2 p-2 md:pt-12">
+      <AnalyticsCard />
+
       <Card className="p-4">
         <section className="flex h-full flex-col justify-center gap-2">
           <h2 className="text-lg font-semibold">Markets</h2>

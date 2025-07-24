@@ -8,6 +8,7 @@ export type TokenInfo = {
   FullName: string;
   Address: string;
   Decimals: number;
+  QtyTickSize?: number;
 };
 
 export type TokenPair = {
@@ -29,6 +30,7 @@ export const ALL_TOKEN_PAIRS = [
       FullName: 'x1SOL',
       Address: '0x40eF79F7f9B0e05e761440B2eC2A6210fc453B1e',
       Decimals: 18,
+      QtyTickSize: 0.001,
     },
     Name: 'USDC/x1SOL',
   },
@@ -44,6 +46,7 @@ export const ALL_TOKEN_PAIRS = [
       FullName: 'x1XRP',
       Address: '0x1B4FEAE9cc60940d1F8745d13527A56c7eb16bCc',
       Decimals: 18,
+      QtyTickSize: 0.1,
     },
     Name: 'USDC/x1XRP',
   },
@@ -59,6 +62,7 @@ export const ALL_TOKEN_PAIRS = [
       FullName: 'x1ADA',
       Address: '0xEbbEaEF27b155F46A5C13d9fa2760E376990510A',
       Decimals: 18,
+      QtyTickSize: 0.1,
     },
     Name: 'USDC/x1ADA',
   },
@@ -74,8 +78,10 @@ export const ALL_TOKEN_PAIRS = [
       FullName: 'x1DOGE',
       Address: '0x4C4Cf2E8ED4c387818CBdD2B00Dc634A3b3805B6',
       Decimals: 18,
+      QtyTickSize: 0.1,
     },
     Name: 'USDC/x1DOGE',
+    QtyTickSize: 1,
   },
   {
     TokenA: {
@@ -89,6 +95,7 @@ export const ALL_TOKEN_PAIRS = [
       FullName: 'x1PEPE',
       Address: '0x66a9087b66eb373F344b2E88A3eaEA7Baa978397',
       Decimals: 18,
+      QtyTickSize: 10000,
     },
     Name: 'USDC/x1PEPE',
   },
@@ -104,6 +111,7 @@ export const ALL_TOKEN_PAIRS = [
       FullName: 'x1SUI',
       Address: '0xdCaCe98a85EE692a214c0B6Bf8F10C53ddF03643',
       Decimals: 18,
+      QtyTickSize: 0.1,
     },
     Name: 'USDC/x1SUI',
   },
@@ -123,8 +131,6 @@ const getAllTokens = async (xAssetScreen: boolean) => {
 };
 
 export const useAllTokens = (override?: boolean) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const pathname = usePathname();
 
   const xAssetScreen = pathname.includes('x-asset');
