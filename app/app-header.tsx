@@ -22,7 +22,7 @@ import { useDisconnect } from 'wagmi';
 
 export default function AppHeader() {
   return (
-    <div className="z-20 flex h-16 items-center justify-between gap-2 border-b border-muted/60 px-4 py-2 lg:px-6">
+    <div className="sticky top-0 z-20 flex h-16 items-center justify-between gap-2 border-b border-muted/60 bg-white/20 px-4 py-2 backdrop-blur-md dark:bg-black/20">
       <AppHeaderLeft />
       <AppHeaderCenter />
       <AppHeaderRight />
@@ -85,20 +85,19 @@ const AppHeaderRight = () => {
     <div className="flex basis-1/2 items-center justify-end gap-2">
       <ModeToggle />
       <ConnectWallet />
-      <MobileNavbar />
     </div>
   );
 };
 
-const MobileNavbar = () => {
+export const MobileNavbar = () => {
   const pathname = usePathname();
   const navItems = [
     { label: 'xAssets', route: '/markets', icon: Home },
-    { label: 'reserves', route: '/reserves', icon: Database },
-    { label: 'leaderboard', route: '/leaderboard', icon: Trophy },
+    { label: 'Reserves', route: '/reserves', icon: Database },
+    { label: 'Leaderboard', route: '/leaderboard', icon: Trophy },
   ];
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-muted/60 bg-background md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-muted/60 bg-white/40 backdrop-blur-md dark:bg-black/40 md:hidden">
       {navItems.map(({ label, route, icon: Icon }) => {
         const isActive =
           (label === 'xAssets' && pathname.includes('x-assets')) || pathname === route;
@@ -180,7 +179,7 @@ const AppHeaderNavbarItem: React.FC<AppHeaderNavbarItemType> = ({
       }
       className={cn(
         'flex items-center px-3 py-2 text-base transition-colors',
-        isActive ? 'font-bold text-foreground' : 'text-muted-foreground hover:text-foreground',
+        isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
         comingSoon && 'opacity-50 hover:text-muted-foreground'
       )}
       style={{ textDecoration: 'none' }}

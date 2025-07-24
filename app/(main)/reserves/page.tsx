@@ -40,14 +40,13 @@ export default function XAssets() {
     })) || [];
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-2 p-2 md:pt-12">
+    <div className="flex h-full w-full max-w-4xl flex-col items-stretch gap-2 p-2 md:py-12">
       <Card className="p-4">
-        <section className="flex h-full flex-col justify-center gap-2">
+        <section className="flex h-full flex-col justify-center">
           <h2 className="text-lg font-semibold">Reserves</h2>
           <p className="text-sm text-muted-foreground">
-            Each xAsset maintains a minimum one to one backing ratio with its underlying asset, and
-            reserves are securely custodied by Safeheron, ensuring full transparency and verifiable
-            proof of reserves.
+            Each xAsset is backed 1:1 with its underlying asset, and is securely custodied by
+            Safeheron, ensuring full transparency and verifiable proof of reserves.
           </p>
         </section>
       </Card>

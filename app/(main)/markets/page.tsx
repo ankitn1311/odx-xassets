@@ -12,6 +12,7 @@ import { PriceChangeDisplay } from './price-change-display';
 import Image from 'next/image';
 import { AnalyticsCard } from './analytics-card';
 import { useAccount } from 'wagmi';
+import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
 
 export default function MarketsPage() {
   const { allTokens = [] } = useTokenSwapStore();
@@ -24,7 +25,7 @@ export default function MarketsPage() {
   const tableData = useMemo(
     () =>
       allTokens?.map(tokenPair => ({
-        tokenName: tokenPair.TokenB.Name,
+        tokenName: tokenConvert[tokenPair.TokenB.Name as keyof typeof tokenConvert],
         tokenSymbol: tokenPair.TokenB.Name,
         address: tokenPair.TokenB.Address,
         image: `/images/tokens/${tokenPair.TokenB.Name}.png`,
@@ -33,11 +34,11 @@ export default function MarketsPage() {
   );
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-2 p-2 md:pt-12">
+    <div className="flex h-full w-full max-w-4xl flex-col items-stretch gap-2 p-2 md:py-12">
       {isConnected && <AnalyticsCard />}
 
       <Card className="p-4">
-        <section className="flex h-full flex-col justify-center gap-2">
+        <section className="flex h-full flex-col justify-center">
           <h2 className="text-lg font-semibold">Markets</h2>
           <p className="text-sm text-muted-foreground">
             Explore available xAssets and start trading with ease.

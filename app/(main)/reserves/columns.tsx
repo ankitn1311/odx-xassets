@@ -1,15 +1,14 @@
 import Image from 'next/image';
 
-const changeToProperName = (name: string) => {
-  switch (name) {
-    case 'SOL':
-      return 'Solana';
-    default:
-      return name;
-  }
-};
-
-const TokenName = ({ name, symbol, image }: { name: string; symbol: string; image: string }) => {
+export const TokenName = ({
+  name,
+  symbol,
+  image,
+}: {
+  name: string;
+  symbol: string;
+  image: string;
+}) => {
   return (
     <div className="flex items-center gap-2">
       <Image
@@ -18,10 +17,12 @@ const TokenName = ({ name, symbol, image }: { name: string; symbol: string; imag
         width="40"
         height="40"
         loading="lazy"
-        className="h-10 w-10 rounded-full"
+        className="h-10 w-10"
       />
       <div className="flex flex-col">
-        <div className="text-base">{changeToProperName(name)}</div>
+        <div className="text-md text-foreground">
+          {tokenConvertForUI[name as keyof typeof tokenConvertForUI]}
+        </div>
         <div className="text-xs font-semibold text-muted-foreground">{symbol}</div>
       </div>
     </div>
@@ -31,7 +32,8 @@ const TokenName = ({ name, symbol, image }: { name: string; symbol: string; imag
 // columns.ts
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { removeTrailingZeros } from '@/lib/utils';
+import { tokenConvert, tokenConvertForUI } from '@/hooks/mutations/use-trade-quote';
 
 export type Available = {
   tokenName: string;
@@ -85,10 +87,14 @@ export const exploreColumn: ColumnDef<Available>[] = [
       const totalSupplyUSD = row.original.totalSupplyUSD;
       return (
         <div className="flex flex-col items-start">
-          <p className="font-mono text-base font-normal text-foreground">
-            {Number(totalSupply).toFixed(3)} x1SOL
+          <p className="font-mono text-base font-normal text-card-foreground">
+            {removeTrailingZeros(Number(totalSupply).toFixed(3))}
+            <span className="font-sans text-xs font-semibold text-muted-foreground">
+              {' '}
+              {row.original.tokenSymbol}
+            </span>
           </p>
-          <p className="text-md font-mono font-normal">
+          <p className="font-mono text-sm font-semibold">
             ${parseFloat(totalSupplyUSD).toLocaleString()}
           </p>
         </div>
@@ -111,10 +117,14 @@ export const exploreColumn: ColumnDef<Available>[] = [
       const unitsInReserveUSD = row.original.unitsInReserveUSD;
       return (
         <div className="flex flex-col items-start">
-          <p className="font-mono text-base font-normal text-foreground">
-            {Number(unitsInReserve).toFixed(3)} SOL
+          <p className="font-mono text-base font-normal text-card-foreground">
+            {removeTrailingZeros(Number(unitsInReserve).toFixed(3))}
+            <span className="font-sans text-xs font-semibold text-muted-foreground">
+              {' '}
+              {tokenConvert[row.original.tokenSymbol as keyof typeof tokenConvert]}
+            </span>
           </p>
-          <p className="text-md font-mono font-normal">
+          <p className="font-mono text-sm font-semibold">
             ${parseFloat(unitsInReserveUSD).toLocaleString()}
           </p>
         </div>

@@ -4,6 +4,7 @@ import { SmallPriceChart } from '@/components/markets/small-price-chart';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { useRouter } from 'nextjs-toploader/app';
 import { PriceChangeDisplay } from './price-change-display';
+import { TokenName } from '../reserves/columns';
 
 export function useMarketsColumns(): ColumnDef<any>[] {
   const router = useRouter();
@@ -14,12 +15,17 @@ export function useMarketsColumns(): ColumnDef<any>[] {
       header: 'Token',
       cell: ({ row }: { row: Row<any> }) => (
         <div className="flex items-center gap-2">
-          <img
+          <TokenName
+            name={row.original.tokenName}
+            symbol={row.original.tokenSymbol}
+            image={row.original.image}
+          />
+          {/* <img
             src={row.original.image}
             alt={row.original.tokenSymbol}
             className="h-8 w-8 rounded-full"
           />
-          <span>{row.original.tokenName}</span>
+          <span>{row.original.tokenName}</span> */}
         </div>
       ),
     },
