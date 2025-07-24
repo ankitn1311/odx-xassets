@@ -171,7 +171,12 @@ export const TokenChart = () => {
                 tickLine={false}
                 axisLine={false}
               />
-              <RechartsPrimitive.Tooltip content={<ChartTooltipContent />} />
+              <RechartsPrimitive.Tooltip
+                content={<ChartTooltipContent />}
+                formatter={(value, name) => {
+                  return [value, `${selectedToken?.Name} Price`];
+                }}
+              />
               <RechartsPrimitive.Area
                 type="linear"
                 dataKey="price"

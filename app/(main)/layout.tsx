@@ -1,6 +1,5 @@
 import AppFooter from '../app-footer';
-import AppHeader from '../app-header';
-import { Github, Twitter, MessageCircle } from 'lucide-react';
+import AppHeader, { MobileNavbar } from '../app-header';
 
 export default async function MainLayout({
   children,
@@ -8,10 +7,11 @@ export default async function MainLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-screen w-screen flex-col">
+    <div className="relative flex h-screen w-screen flex-col overflow-y-auto">
       <AppHeader />
-      <div className="min-h-[calc(100vh-6.875rem)] flex-1 overflow-y-auto pb-20">{children}</div>
+      <div className="flex flex-1 items-center justify-center">{children}</div>
       <AppFooter />
+      <MobileNavbar />
     </div>
   );
 }

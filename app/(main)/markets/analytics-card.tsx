@@ -22,9 +22,9 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
-                <span className="font-mono text-3xl font-bold">
+                <span className="font-mono text-3xl font-semibold">
                   {isLoading ? (
-                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-9 w-32" />
                   ) : (
                     `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                   )}
@@ -76,9 +76,9 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
-                <span className="font-mono text-3xl font-bold">
+                <span className="font-mono text-3xl font-semibold">
                   {isLoading ? (
-                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-9 w-32" />
                   ) : (
                     `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                   )}

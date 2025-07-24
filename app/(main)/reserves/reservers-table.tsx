@@ -9,6 +9,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import Image from 'next/image';
 import { useAccount } from 'wagmi';
 import ConnectWallet from '@/components/common/connect-wallet';
+import { removeTrailingZeros } from '@/lib/utils';
 
 const xTokenToToken = tokenConvert;
 
@@ -133,7 +134,7 @@ export function ReservesTable() {
 
   if (!isConnected) {
     return (
-      <div className="flex w-full items-center justify-center py-12">
+      <div className="flex w-full items-stretch justify-center py-12">
         <Card className="mx-auto flex w-full max-w-md flex-col items-center gap-6 p-8 text-center">
           <h2 className="text-2xl font-bold">Connect Wallet</h2>
           <p className="text-base text-muted-foreground">
@@ -234,19 +235,27 @@ export function ReservesTable() {
                 <div className="flex flex-col">
                   <span className="text-xs text-muted-foreground">Total Supply of xAsset</span>
                   <span className="mt-1 font-mono text-lg font-semibold">
-                    {Number(row.totalSupply).toFixed(3)} {row.tokenSymbol}
+                    {removeTrailingZeros(Number(row.totalSupply).toFixed(3))}
+                    <span className="font-sans text-sm text-muted-foreground">
+                      {' '}
+                      {row.tokenSymbol}
+                    </span>
                   </span>
-                  <span className="font-mono text-sm text-muted-foreground">
-                    ${parseFloat(row.totalSupplyUSD).toLocaleString()}
+                  <span className="font-mono text-xs text-muted-foreground">
+                    ${removeTrailingZeros(parseFloat(row.totalSupplyUSD).toLocaleString())}
                   </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-muted-foreground">Units in Reserve</span>
                   <span className="mt-1 font-mono text-lg font-semibold">
-                    {Number(row.unitsInReserve).toFixed(3)} {row.tokenSymbol.replace('x1', '')}
+                    {removeTrailingZeros(Number(row.unitsInReserve).toFixed(3))}
+                    <span className="font-sans text-sm text-muted-foreground">
+                      {' '}
+                      {tokenConvert[row.tokenSymbol as keyof typeof tokenConvert]}
+                    </span>
                   </span>
-                  <span className="font-mono text-sm text-muted-foreground">
-                    ${parseFloat(row.unitsInReserveUSD).toLocaleString()}
+                  <span className="font-mono text-xs text-muted-foreground">
+                    ${removeTrailingZeros(parseFloat(row.unitsInReserveUSD).toLocaleString())}
                   </span>
                 </div>
               </div>

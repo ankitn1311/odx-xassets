@@ -9,13 +9,7 @@ const getTokenSupply = async (tokenAddress: string | undefined, decimals: number
   if (!tokenAddress) return '0';
 
   try {
-    let provider;
-    if (wallet) {
-      provider = new ethers.providers.Web3Provider(wallet as any);
-    } else {
-      provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
-    }
-
+    const provider = new ethers.providers.Web3Provider(wallet as any);
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
     const totalSupply = await tokenContract.totalSupply();
     return ethers.utils.formatUnits(totalSupply, decimals);

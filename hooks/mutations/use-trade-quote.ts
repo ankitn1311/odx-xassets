@@ -23,6 +23,18 @@ export const tokenConvert = {
   x1SUI: 'SUI',
 };
 
+export const tokenConvertForUI = {
+  USDC: 'USD',
+  USDT: 'USD',
+  USD: 'USD',
+  SOL: 'Solana',
+  XRP: 'XRP',
+  ADA: 'Cardano',
+  DOGE: 'Dogecoin',
+  PEPE: 'Pepe',
+  SUI: 'Sui',
+};
+
 // Helper function to calculate quote
 const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
   const inputToken = params.inputToken.Name;
