@@ -11,11 +11,14 @@ import { PriceDisplay } from './price-display';
 import { PriceChangeDisplay } from './price-change-display';
 import Image from 'next/image';
 import { AnalyticsCard } from './analytics-card';
+import { useAccount } from 'wagmi';
 
 export default function MarketsPage() {
   const { allTokens = [] } = useTokenSwapStore();
   const columns = useMarketsColumns();
   const isMobile = useIsMobile();
+  const { isConnected } = useAccount();
+
   const router = useRouter();
 
   const tableData = useMemo(
@@ -31,7 +34,7 @@ export default function MarketsPage() {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-4xl flex-col gap-2 p-2 md:pt-12">
-      <AnalyticsCard />
+      {isConnected && <AnalyticsCard />}
 
       <Card className="p-4">
         <section className="flex h-full flex-col justify-center gap-2">
