@@ -50,7 +50,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
     return (
       <>
         <Card className="hidden py-4 md:block">
-          <Table>
+          <Table className="w-full table-fixed">
             <TableHeader>
               {table.getHeaderGroups().map(headerGroup => (
                 <TableRow key={headerGroup.id}>
@@ -110,7 +110,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
   return (
     <>
       <Card className="py-4">
-        <Table>
+        <Table className="w-full table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>

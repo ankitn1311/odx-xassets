@@ -227,7 +227,9 @@ const ConnectWallet = ({ loginUI }: { loginUI?: boolean }) => {
                         <Wallet
                           className={`h-4 w-4 ${chainId !== CHAIN_ID ? 'text-destructive-foreground' : 'text-foreground'}`}
                         />
-                        <p className="text-xs">{shortenAddressWithLength(connectedWallet!, 3)}</p>
+                        <p className="font-mono text-xs">
+                          {shortenAddressWithLength(connectedWallet!, 3)}
+                        </p>
                         {/* Remove this for mainnet */}
                         {chainId !== CHAIN_ID && (
                           <TooltipProvider>

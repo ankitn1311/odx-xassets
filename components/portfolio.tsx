@@ -99,7 +99,7 @@ export const Portfolio = () => {
         </div>
         {walletProfile && (
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">Your Points</p>
+            <p className="text-sm text-muted-foreground">Points</p>
             <p className="text-xl font-medium">
               <span className="text-accent">{walletProfile.totalPoints}</span>
             </p>

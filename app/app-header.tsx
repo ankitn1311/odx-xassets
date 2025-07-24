@@ -18,7 +18,8 @@ import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import ConnectWallet from '@/components/common/connect-wallet';
 import { useWalletStore } from '@/stores/wallet-store';
-import { useDisconnect } from 'wagmi';
+import { useDisconnect, useAccount } from 'wagmi';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AppHeader() {
   return (
@@ -73,6 +74,7 @@ const AppHeaderRight = () => {
     window.location.reload();
   };
   const router = useRouter();
+  const { isConnecting } = useAccount();
   const { disconnect: disconnectEVM } = useDisconnect();
   const { connectedWallet, disconnectWallet } = useWalletStore();
 
@@ -84,7 +86,7 @@ const AppHeaderRight = () => {
   return (
     <div className="flex basis-1/2 items-center justify-end gap-2">
       <ModeToggle />
-      <ConnectWallet />
+      {isConnecting ? <Skeleton className="h-8 w-[8.6rem] rounded-full" /> : <ConnectWallet />}
     </div>
   );
 };

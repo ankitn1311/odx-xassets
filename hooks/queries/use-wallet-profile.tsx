@@ -9,7 +9,7 @@ export interface SwapperData {
   tradeCount: number;
   legacyPoints: number;
   lastTradeTimestamp: number;
-  currentRank?: number;
+  current_rank?: number;
   lastRankUpdate?: number;
 }
 
