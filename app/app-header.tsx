@@ -74,7 +74,7 @@ const AppHeaderRight = () => {
     window.location.reload();
   };
   const router = useRouter();
-  const { isConnecting } = useAccount();
+  const { isConnecting, isReconnecting } = useAccount();
   const { disconnect: disconnectEVM } = useDisconnect();
   const { connectedWallet, disconnectWallet } = useWalletStore();
 
@@ -86,7 +86,11 @@ const AppHeaderRight = () => {
   return (
     <div className="flex basis-1/2 items-center justify-end gap-2">
       <ModeToggle />
-      {isConnecting ? <Skeleton className="h-8 w-[8.6rem] rounded-full" /> : <ConnectWallet />}
+      {isConnecting || isReconnecting ? (
+        <Skeleton className="h-8 w-[8.6rem] rounded-full" />
+      ) : (
+        <ConnectWallet />
+      )}
     </div>
   );
 };

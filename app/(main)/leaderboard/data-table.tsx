@@ -21,6 +21,11 @@ import { leaderboardColumns, LeaderboardEntry } from './columns';
 import { fetchLeaderboardPage, LeaderboardApiResponse } from './api';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ExternalLink } from 'lucide-react';
+import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
+import { useAccount } from 'wagmi';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { shortenAddress } from '@/utils/crypto';
 interface LeaderboardTableProps {
   pageSize?: number;
 }
@@ -45,6 +50,55 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
     },
     manualSorting: false,
   });
+
+  const { address } = useAccount();
+  const { data: userData, isLoading: userLoading } = useWalletProfile(address);
+
+  // Prepare a row-like object for the current user
+  const userRow = userData
+    ? {
+        rank: userData?.current_rank ?? '-',
+        address: userData?.address ?? '-',
+        totalPoints: userData?.totalPoints ?? '-',
+      }
+    : null;
+
+  let userRowTable = null;
+  if (address && userRow) {
+    const avatarUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${userRow.address}`;
+    const explorerUrl = `https://sonicscan.org/address/${userRow.address}`;
+    userRowTable = (
+      <TableRow>
+        {/* Rank */}
+        <TableCell className="bg-primary/5 py-2 first:pl-4 last:pr-4 last:text-right">
+          <span className="font-mono text-base font-semibold">
+            {userLoading ? <Skeleton className="h-6 w-20" /> : userRow.rank}
+          </span>
+        </TableCell>
+        {/* Address */}
+        <TableCell className="bg-primary/5 py-2 first:pl-4 last:pr-4 last:text-right">
+          <span className="flex items-center gap-2">
+            <Avatar className="h-5 w-5">
+              <AvatarImage src={avatarUrl} alt={userRow.address} />
+              <AvatarFallback>{shortenAddress(userRow.address).slice(2, 4)}</AvatarFallback>
+            </Avatar>
+            <span className="font-mono text-xs text-muted-foreground">
+              {userLoading ? <Skeleton className="h-6 w-20" /> : shortenAddress(userRow.address)}
+            </span>
+            <a href={explorerUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-4 w-4 text-muted-foreground transition-colors hover:text-primary" />
+            </a>
+          </span>
+        </TableCell>
+        {/* Points */}
+        <TableCell className="bg-primary/5 py-2 first:pl-4 last:pr-4 last:text-right">
+          <span className="font-mono text-base font-semibold">
+            {userLoading ? <Skeleton className="h-6 w-20" /> : userRow.totalPoints}
+          </span>
+        </TableCell>
+      </TableRow>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -128,6 +182,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
             ))}
           </TableHeader>
           <TableBody>
+            {userRowTable}
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
