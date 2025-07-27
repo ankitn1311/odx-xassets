@@ -19,6 +19,7 @@ import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { useRouter } from 'nextjs-toploader/app';
+import { Skeleton } from '../ui/skeleton';
 const MAX_DECIMALS = 2;
 
 interface TokenInputProps {
@@ -59,7 +60,10 @@ export function TokenInput({
     return tokens.TokenA;
   });
 
-  const { data: balance } = useTokenBalance(token?.Address ?? '', token?.Decimals ?? 18);
+  const { data: balance = 0, isLoading: isBalanceLoading } = useTokenBalance(
+    token?.Address ?? '',
+    token?.Decimals ?? 18
+  );
 
   const handlePercentageClick = (percentage: number) => {
     setValue('percentage', percentage);
@@ -245,9 +249,14 @@ export function TokenInput({
                 strokeLinejoin="round"
               />
             </svg>
-            <p className="text-xs text-muted-foreground">
-              Balance: {removeTrailingZeros(Number(balance).toFixed(5))}
-            </p>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span>Balance: </span>
+              {isBalanceLoading ? (
+                <Skeleton className="h-4 w-20" />
+              ) : (
+                removeTrailingZeros(Number(balance).toFixed(5))
+              )}
+            </div>
           </div>
           {activeTab === TabState.SELL && showPercentageButtons && (
             <div className="flex items-center gap-1.5">
