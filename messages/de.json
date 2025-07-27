@@ -35,6 +35,8 @@
     "score": "Punktzahl",
     "components": "Komponenten",
     "xAssets": "xAssets",
-    "reserves": "Reserven"
+    "reserves": "Reserven",
+    "explorer": "Explorer",
+    "leaderboard": "Rangliste"
   }
 }

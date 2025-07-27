@@ -67,7 +67,7 @@ export const TokenChart = () => {
             <img
               src={`/images/tokens/${selectedToken.Name}.png`}
               alt={selectedToken.Name}
-              className="h-12 w-12 rounded-full border border-muted"
+              className="h-12 w-12 border border-muted"
             />
           )}
           <div className="flex min-w-0 flex-col">

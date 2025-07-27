@@ -5,10 +5,11 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { getQueryClient } from '@/app/get-query-client';
 import { RainbowKitProvider, darkTheme, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { sonic, sonicTestnet } from 'viem/chains';
+import { sonic } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
 import { Toaster } from 'sonner';
 import WalletSync from './wallet-sync';
+import { TradesProvider } from '@/providers/trades-provider';
 
 const config = getDefaultConfig({
   appName: 'Ordinox',
@@ -26,9 +27,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <WagmiProvider config={config} reconnectOnMount>
         <RainbowKitProvider theme={darkTheme()} key="ODX">
           <WalletSync>
-            {children}
-            <ReactQueryDevtools />
-            <Toaster richColors />
+            <TradesProvider>
+              {children}
+              <ReactQueryDevtools />
+              <Toaster richColors />
+            </TradesProvider>
           </WalletSync>
         </RainbowKitProvider>
       </WagmiProvider>

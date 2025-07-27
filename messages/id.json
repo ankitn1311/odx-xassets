@@ -28,13 +28,15 @@
     "title": "Profil"
   },
   "Navbar": {
-    "buyCrypto": "Beli Kripto",
+    "buyCrypto": "Beli Crypto",
     "markets": "Pasar",
     "trade": "Perdagangan",
-    "portfolio": "Portofolio",
+    "portfolio": "Portfolio",
     "score": "Skor",
     "components": "Komponen",
     "xAssets": "xAssets",
-    "reserves": "Reserven"
+    "reserves": "Cadangan",
+    "explorer": "Explorer",
+    "leaderboard": "Papan Peringkat"
   }
 }
