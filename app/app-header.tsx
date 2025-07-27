@@ -23,7 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AppHeader() {
   return (
-    <div className="sticky top-0 z-20 flex h-16 items-center justify-between gap-2 border-b border-muted/60 bg-white/20 px-4 py-2 backdrop-blur-md dark:bg-black/20">
+    <div className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-muted/60 bg-white/20 px-4 py-2 backdrop-blur-md dark:bg-black/20">
       <AppHeaderLeft />
       <AppHeaderCenter />
       <AppHeaderRight />
