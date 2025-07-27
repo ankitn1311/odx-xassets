@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { useUserInfo } from '@/hooks/queries/use-user';
 import Cookies from 'js-cookie';
 
-import { Home, Database, Trophy } from 'lucide-react';
+import { Home, Database, Trophy, Activity } from 'lucide-react';
 import { useCopyToClipboard, useMediaQuery } from 'usehooks-ts';
 import { toast } from 'sonner';
 import { ModeToggle } from '@/components/theme-toggle';
@@ -100,6 +100,7 @@ export const MobileNavbar = () => {
   const navItems = [
     { label: 'xAssets', route: '/markets', icon: Home },
     { label: 'Reserves', route: '/reserves', icon: Database },
+    { label: 'Explorer', route: '/explorer', icon: Activity },
     { label: 'Leaderboard', route: '/leaderboard', icon: Trophy },
   ];
   return (
@@ -134,6 +135,7 @@ const navbarItems = [
   // { label: 'trade', route: 'trade' },
   { label: 'xAssets', route: 'markets' },
   { label: 'reserves', route: 'reserves' },
+  { label: 'explorer', route: 'explorer' },
   // { label: 'score', route: 'score', isProtected: true },
   { label: 'leaderboard', route: 'leaderboard' },
   // { label: "components", route: "components" },
