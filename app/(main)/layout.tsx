@@ -7,7 +7,7 @@ export default async function MainLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="relative flex h-screen w-screen flex-col overflow-y-auto">
+    <div className="relative flex h-dvh w-screen flex-col overflow-y-auto">
       <AppHeader />
       <div className="flex flex-1 items-center justify-center">{children}</div>
       <AppFooter />
