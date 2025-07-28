@@ -32,11 +32,9 @@ interface TradesTableProps {
 export function TradesTable({ pageSize = 20 }: TradesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'currency', desc: false }]);
 
-  const { readyState, trades } = useTrades();
-  const { data: tradesData = [] } = useTradesData();
+  const { data: tableData = [] } = useTradesData();
 
   // Use trades from provider as the main data source
-  const tableData = trades.length > 0 ? trades : tradesData;
 
   const table = useReactTable({
     data: tableData,
