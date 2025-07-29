@@ -193,17 +193,13 @@ export function ReservesTable() {
 
   if (!isConnected) {
     return (
-      <div className="flex w-full items-stretch justify-center py-12">
-        <Card className="mx-auto flex w-full max-w-md flex-col items-center gap-6 p-8 text-center">
-          <h2 className="text-2xl font-bold">Connect Wallet</h2>
-          <p className="text-base text-muted-foreground">
-            Connect your wallet to view xAsset reserves.
-          </p>
-          <div className="flex w-full justify-center">
-            <ConnectWallet />
-          </div>
-        </Card>
-      </div>
+      <Card className="flex w-full flex-col gap-6 p-8 text-center">
+        <h2 className="text-2xl font-bold">Connect Wallet</h2>
+        <p className="text-base text-muted-foreground">Connect your wallet to view live trades.</p>
+        <div className="flex w-full justify-center">
+          <ConnectWallet />
+        </div>
+      </Card>
     );
   }
 

@@ -26,13 +26,19 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
-                <span className="font-mono text-3xl font-semibold">
-                  {isLoading || isConnecting ? (
-                    <Skeleton className="h-9 w-32" />
-                  ) : (
-                    `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
-                  )}
-                </span>
+                {isConnected ? (
+                  <span className="font-mono text-3xl font-semibold">
+                    {isLoading || isConnecting ? (
+                      <Skeleton className="h-9 w-32" />
+                    ) : (
+                      `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                    )}
+                  </span>
+                ) : (
+                  <span className="h-9 text-base font-semibold text-muted-foreground">
+                    Connect wallet to see TVL
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -41,15 +47,21 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
-                <span className="font-mono text-3xl font-semibold">
-                  {isLoading || isConnecting ? (
-                    <Skeleton className="h-9 w-32" />
-                  ) : totalVolume24h === 0 ? (
-                    '-'
-                  ) : (
-                    `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
-                  )}
-                </span>
+                {isConnected ? (
+                  <span className="font-mono text-3xl font-semibold">
+                    {isLoading || isConnecting ? (
+                      <Skeleton className="h-9 w-32" />
+                    ) : totalVolume24h === 0 ? (
+                      '-'
+                    ) : (
+                      `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                    )}
+                  </span>
+                ) : (
+                  <span className="h-9 text-base font-semibold text-muted-foreground">
+                    Connect wallet to see volume
+                  </span>
+                )}
               </div>
               {/* <div className="flex gap-2">
                 {['7D', '30D', '90D', '180D'].map(d => (
