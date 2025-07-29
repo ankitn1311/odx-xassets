@@ -32,7 +32,9 @@ export function useMarketsColumns(): ColumnDef<any>[] {
     {
       accessorKey: 'priceChart',
       header: 'Chart',
-      cell: ({ row }: { row: Row<any> }) => <SmallPriceChart tokenName={row.original.tokenName} />,
+      cell: ({ row }: { row: Row<any> }) => (
+        <SmallPriceChart tokenName={row.original.tokenSymbol} />
+      ),
     },
     {
       accessorKey: 'price',
