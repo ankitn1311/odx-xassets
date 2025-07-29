@@ -7,6 +7,18 @@ import { TradeData } from '@/providers/trades-provider';
 import { tokenConvertReverse } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
 
+// Helper function to format timestamp
+const formatTimestamp = (timestamp: string | number) => {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
 export const tradeColumns: ColumnDef<TradeData>[] = [
   {
     accessorKey: 'currency',
@@ -52,6 +64,27 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
           {side.toUpperCase()}
         </span>
       );
+    },
+  },
+  {
+    accessorKey: 'timestamp',
+    header: ({ column }) => (
+      <div
+        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        <p className="select-none text-sm font-semibold">Time</p>
+        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
+      </div>
+    ),
+    cell: ({ row }) => {
+      const timestamp = row.getValue('timestamp') as string | number;
+      return <span className="text-md text-muted-foreground">{formatTimestamp(timestamp)}</span>;
+    },
+    sortingFn: (rowA, rowB) => {
+      const a = rowA.getValue('timestamp') as number;
+      const b = rowB.getValue('timestamp') as number;
+      return a - b;
     },
   },
   {

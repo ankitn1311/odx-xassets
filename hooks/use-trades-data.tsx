@@ -10,9 +10,15 @@ export const getTradesData = async (type?: 'user' | 'explorer', address?: string
   const response = await axios.get<SwapperData>(`${BASE_URL}/swapper/${address}`);
 
   if (type === 'user') {
-    return response.data.userTrades;
+    return response.data.userTrades.map(trade => ({
+      ...trade,
+      timestamp: Number(new Date(trade.timestamp as string)),
+    }));
   }
-  return response.data.recentTrades;
+  return response.data.recentTrades.map(trade => ({
+    ...trade,
+    timestamp: Number(new Date(trade.timestamp as string)),
+  }));
 };
 
 export const useTradesData = (type?: 'user' | 'explorer') => {
