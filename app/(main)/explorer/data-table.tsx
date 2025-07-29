@@ -25,6 +25,8 @@ import { ExternalLink } from 'lucide-react';
 import { tokenConvertReverse } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
+import ConnectWallet from '@/components/common/connect-wallet';
+import { useAccount } from 'wagmi';
 
 interface TradesTableProps {
   pageSize?: number;
@@ -68,6 +70,7 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'currency', desc: false }]);
 
   const { data: tableData = [], isLoading: tradesDataLoading } = useTradesData(type);
+  const { isConnected } = useAccount();
 
   // Use trades from provider as the main data source
 
@@ -88,6 +91,18 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
       },
     },
   });
+
+  if (!isConnected) {
+    return (
+      <Card className="flex w-full flex-col gap-6 p-8 text-center">
+        <h2 className="text-2xl font-bold">Connect Wallet</h2>
+        <p className="text-base text-muted-foreground">Connect your wallet to view live trades.</p>
+        <div className="flex w-full justify-center">
+          <ConnectWallet />
+        </div>
+      </Card>
+    );
+  }
 
   if (tradesDataLoading) {
     return (

@@ -30,7 +30,7 @@ export default function MarketsPage() {
   );
 
   return (
-    <div className="flex h-full w-full max-w-4xl flex-col items-stretch gap-2 p-2 md:py-12">
+    <div className="flex h-full w-full max-w-5xl flex-col items-stretch gap-2 p-2 md:py-12">
       <AnalyticsCard />
 
       <Card className="p-4">
