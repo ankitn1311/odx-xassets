@@ -14,7 +14,7 @@ import React from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useWalletStore } from '@/stores/wallet-store';
 import { useQuote } from '@/hooks/queries/use-quote';
-import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
+import { convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
 
@@ -207,7 +207,7 @@ export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }
         <p className="text-base text-foreground">
           {isUsdx
             ? usdxBalance.data
-            : removeTrailingZeros(Number(tokenBalanceData.data).toFixed(6))}
+            : removeTrailingZeros(truncateToFixed(Number(tokenBalanceData.data), 6))}
         </p>
         {/* {!isUsdx && (
           <div className="text-xs text-muted-foreground">

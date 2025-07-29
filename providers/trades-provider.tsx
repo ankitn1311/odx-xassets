@@ -1,21 +1,31 @@
 import React, { createContext, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { useAccount } from 'wagmi';
 
 export interface TradeData {
-  currency: string;
-  usdAmount: string;
   quantity: string;
+  executionName: string;
+  currency: string;
+  userAddress: string;
+  swapper?: string;
   txHash: string;
+  timestamp: string;
+  usdAmount: number;
   side: string;
+  tradeId: string;
 }
 
 export interface WebSocketMessage {
-  currency: string;
-  usdAmount: string;
   quantity: string;
+  executionName: string;
+  currency: string;
+  userAddress: string;
   txHash: string;
+  timestamp: string;
+  usdAmount: number;
   side: string;
+  tradeId: string;
 }
 
 type TradesContextType = {
@@ -33,6 +43,7 @@ const TradesContext = createContext<TradesContextType | null>(null);
 
 const WEB_SOCKET_URL = 'wss://y3mnua6ij2.execute-api.ap-northeast-1.amazonaws.com/devo';
 export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
+  const { address } = useAccount();
   const queryClient = useQueryClient();
   const connectionIdRef = useRef<string>(crypto.randomUUID());
   const tradesRef = useRef<TradeData[]>([]);
@@ -74,13 +85,26 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
         quantity: message.quantity,
         txHash: message.txHash,
         side: message.side,
+        executionName: message.executionName,
+        userAddress: message.userAddress,
+        timestamp: message.timestamp,
+        tradeId: message.tradeId,
       };
 
       // Add to local ref for immediate access
       tradesRef.current = [trade, ...tradesRef.current.slice(0, 999)]; // Keep last 1000 trades
 
+      const userAddress = trade.userAddress || trade.swapper;
+
+      if (userAddress === address) {
+        queryClient.setQueryData(['trades', 'user'], (oldData: TradeData[] = []) => {
+          const newData = [trade, ...oldData];
+          return newData.slice(0, 1000); // Keep last 1000 trades
+        });
+      }
+
       // Update React Query cache
-      queryClient.setQueryData(['trades'], (oldData: TradeData[] = []) => {
+      queryClient.setQueryData(['trades', 'all'], (oldData: TradeData[] = []) => {
         const newData = [trade, ...oldData];
         return newData.slice(0, 1000); // Keep last 1000 trades
       });

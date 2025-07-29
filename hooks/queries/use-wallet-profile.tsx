@@ -1,3 +1,4 @@
+import { TradeData } from '@/providers/trades-provider';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -11,6 +12,8 @@ export interface SwapperData {
   lastTradeTimestamp: number;
   current_rank?: number;
   lastRankUpdate?: number;
+  userTrades: TradeData[];
+  recentTrades: TradeData[];
 }
 
 const fetchWalletProfile = async (address: string): Promise<SwapperData> => {

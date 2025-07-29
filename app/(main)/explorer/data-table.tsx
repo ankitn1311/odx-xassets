@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useEffect } from 'react';
+import { useState } from 'react';
 import {
   ColumnDef,
   SortingState,
@@ -18,21 +18,56 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { tradeColumns } from './columns';
-import { TradeData, useTrades } from '@/providers/trades-provider';
+import { TradeData } from '@/providers/trades-provider';
 import { useTradesData } from '@/hooks/use-trades-data';
 import { Card } from '@/components/ui/card';
-import { Wifi, WifiOff, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { tokenConvertReverse } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TradesTableProps {
   pageSize?: number;
+  type?: 'user' | 'explorer';
 }
 
-export function TradesTable({ pageSize = 20 }: TradesTableProps) {
+// Skeleton component for table rows
+function TableSkeletonRow({ columns }: { columns: number }) {
+  return (
+    <TableRow>
+      {Array.from({ length: columns }).map((_, index) => (
+        <TableCell key={index} className="py-2 first:pl-4 last:pr-4">
+          <Skeleton className="h-4 w-full" />
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
+// Skeleton component for mobile view
+function MobileSkeletonRow() {
+  return (
+    <div className="flex items-start justify-between">
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-6 w-12 rounded" />
+        </div>
+        <Skeleton className="h-3 w-20" />
+      </div>
+      <div className="space-y-1 text-right">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-3 w-12" />
+      </div>
+    </div>
+  );
+}
+
+export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'currency', desc: false }]);
 
-  const { data: tableData = [] } = useTradesData();
+  const { data: tableData = [], isLoading: tradesDataLoading } = useTradesData(type);
 
   // Use trades from provider as the main data source
 
@@ -53,6 +88,44 @@ export function TradesTable({ pageSize = 20 }: TradesTableProps) {
       },
     },
   });
+
+  if (tradesDataLoading) {
+    return (
+      <>
+        <Card className="hidden py-4 md:block">
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="border-b-0 py-2 first:pl-4 last:pr-4">Token</TableHead>
+                <TableHead className="border-b-0 py-2 first:pl-4 last:pr-4">Side</TableHead>
+                <TableHead className="border-b-0 py-2 first:pl-4 last:pr-4">Quantity</TableHead>
+                <TableHead className="border-b-0 py-2 first:pl-4 last:pr-4">USD Amount</TableHead>
+                <TableHead className="border-b-0 py-2 first:pl-4 last:pr-4 last:text-right">
+                  Transaction
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: pageSize }).map((_, index) => (
+                <TableSkeletonRow key={index} columns={5} />
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+
+        <Card className="py-4 md:hidden">
+          <div className="px-4 pb-4">
+            <h2 className="text-lg font-semibold">Live Trades</h2>
+          </div>
+          <div className="space-y-6 px-4">
+            {Array.from({ length: Math.min(10, pageSize) }).map((_, index) => (
+              <MobileSkeletonRow key={index} />
+            ))}
+          </div>
+        </Card>
+      </>
+    );
+  }
 
   return (
     <>

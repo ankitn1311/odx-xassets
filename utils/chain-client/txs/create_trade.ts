@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { createWalletClient, custom, erc20Abi } from 'viem';
 import SwapAbi from '@/utils/chain-client/abis/SwapAbi.json';
 import { formatUnits } from 'ethers/lib/utils';
-import { removeTrailingZeros } from '@/lib/utils';
+import { removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 /**
  * Buy a token using the user's  wallet
  * @param wallet - The wallet to use
@@ -138,8 +138,11 @@ export const getBalance = async (wallet: any, tokenAddress: string, decimals: nu
   const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
 
   const balances = await tokenContract.balanceOf(wallet.account.address);
-
-  const balance = balances ? parseFloat(formatUnits(balances, decimals)).toFixed(6) : '0';
+  console.log('balances', tokenAddress, balances);
+  console.log('formatUnits', formatUnits(balances, decimals));
+  console.log('parseFloat', parseFloat(formatUnits(balances, decimals)));
+  console.log('balance', truncateToFixed(parseFloat(formatUnits(balances, decimals)), 6));
+  const balance = balances ? truncateToFixed(parseFloat(formatUnits(balances, decimals)), 6) : '0';
 
   return removeTrailingZeros(balance);
 };
