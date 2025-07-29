@@ -138,10 +138,6 @@ export const getBalance = async (wallet: any, tokenAddress: string, decimals: nu
   const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
 
   const balances = await tokenContract.balanceOf(wallet.account.address);
-  console.log('balances', tokenAddress, balances);
-  console.log('formatUnits', formatUnits(balances, decimals));
-  console.log('parseFloat', parseFloat(formatUnits(balances, decimals)));
-  console.log('balance', truncateToFixed(parseFloat(formatUnits(balances, decimals)), 6));
   const balance = balances ? truncateToFixed(parseFloat(formatUnits(balances, decimals)), 6) : '0';
 
   return removeTrailingZeros(balance);
