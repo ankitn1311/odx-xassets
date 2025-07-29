@@ -67,7 +67,7 @@ function MobileSkeletonRow() {
 }
 
 export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'currency', desc: false }]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'timestamp', desc: true }]);
 
   const { data: tableData = [], isLoading: tradesDataLoading } = useTradesData(type);
   const { isConnected } = useAccount();
@@ -89,6 +89,7 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
       pagination: {
         pageSize,
       },
+      sorting: [{ id: 'timestamp', desc: true }],
     },
   });
 

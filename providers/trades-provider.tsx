@@ -7,10 +7,11 @@ export interface TradeData {
   quantity: string;
   executionName: string;
   currency: string;
-  userAddress: string;
+  userAddress?: string;
   swapper?: string;
   txHash: string;
-  timestamp: string;
+  timestamp?: string | number;
+  time?: string;
   usdAmount: number;
   side: string;
   tradeId: string;
@@ -20,10 +21,11 @@ export interface WebSocketMessage {
   quantity: string;
   executionName: string;
   currency: string;
-  userAddress: string;
+  swapper: string;
   txHash: string;
   timestamp: string;
   usdAmount: number;
+  time: string;
   side: string;
   tradeId: string;
 }
@@ -86,15 +88,16 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
         txHash: message.txHash,
         side: message.side,
         executionName: message.executionName,
-        userAddress: message.userAddress,
-        timestamp: message.timestamp,
+        swapper: message.swapper,
+        userAddress: message.swapper,
+        timestamp: Number(message.time),
         tradeId: message.tradeId,
       };
 
       // Add to local ref for immediate access
       tradesRef.current = [trade, ...tradesRef.current.slice(0, 999)]; // Keep last 1000 trades
 
-      const userAddress = trade.userAddress || trade.swapper;
+      const userAddress = trade.swapper;
 
       if (userAddress === address) {
         queryClient.setQueryData(['trades', 'user'], (oldData: TradeData[] = []) => {
@@ -109,7 +112,7 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
         return newData.slice(0, 1000); // Keep last 1000 trades
       });
     },
-    [queryClient]
+    [queryClient, address]
   );
 
   useEffect(() => {
