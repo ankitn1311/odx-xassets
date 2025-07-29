@@ -112,10 +112,9 @@ export function ReviewStep() {
               alt={inputToken?.Name ?? ''}
               width={32}
               height={32}
-              className="rounded-full"
             />
             <div className="flex flex-col">
-              <p className="font-medium">{removeTrailingZeros(amount)}</p>
+              <p className="font-mono text-base font-medium">{removeTrailingZeros(amount)}</p>
               <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
             </div>
           </div>
@@ -140,7 +139,7 @@ export function ReviewStep() {
           </p>
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
-              <p className="font-medium">{removeTrailingZeros(outputAmount)}</p>
+              <p className="font-mono text-base font-medium">{removeTrailingZeros(outputAmount)}</p>
               <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
             </div>
             <Image

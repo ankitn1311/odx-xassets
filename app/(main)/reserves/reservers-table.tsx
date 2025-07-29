@@ -236,27 +236,37 @@ export function ReservesTable() {
                 <div className="flex flex-col">
                   <span className="text-xs text-muted-foreground">Total Supply of xAsset</span>
                   <span className="mt-1 font-mono text-lg font-semibold">
-                    {removeTrailingZeros(Number(row.totalSupply).toFixed(3))}
+                    {parseFloat(
+                      removeTrailingZeros(Number(row.totalSupply).toFixed(3))
+                    ).toLocaleString()}
                     <span className="font-sans text-sm text-muted-foreground">
                       {' '}
                       {row.tokenSymbol}
                     </span>
                   </span>
                   <span className="font-mono text-xs text-muted-foreground">
-                    ${removeTrailingZeros(parseFloat(row.totalSupplyUSD).toLocaleString())}
+                    $
+                    {parseFloat(
+                      removeTrailingZeros(Number(row.totalSupplyUSD).toFixed(3))
+                    ).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-muted-foreground">Units in Reserve</span>
                   <span className="mt-1 font-mono text-lg font-semibold">
-                    {removeTrailingZeros(Number(row.unitsInReserve).toFixed(3))}
+                    {parseFloat(
+                      removeTrailingZeros(Number(row.unitsInReserve).toFixed(3))
+                    ).toLocaleString()}
                     <span className="font-sans text-sm text-muted-foreground">
                       {' '}
                       {tokenConvert[row.tokenSymbol as keyof typeof tokenConvert]}
                     </span>
                   </span>
                   <span className="font-mono text-xs text-muted-foreground">
-                    ${removeTrailingZeros(parseFloat(row.unitsInReserveUSD).toLocaleString())}
+                    $
+                    {parseFloat(
+                      removeTrailingZeros(Number(row.unitsInReserveUSD).toFixed(3))
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>
