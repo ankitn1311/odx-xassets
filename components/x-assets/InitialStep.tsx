@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Info } from 'lucide-react';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
+import { useTheme } from 'next-themes';
 
 const MAX_DECIMALS = 6;
 const POLLING_INTERVAL = 5000; // 5 seconds
@@ -190,21 +191,8 @@ export function InitialStep() {
 
       <div className="mt-2 flex items-center justify-between py-4">
         <p className="text-sm text-muted-foreground">Source</p>
-        {/* <Button variant="outline" type="button">
-          <div className="flex items-center gap-2">
-            <Image src="/images/ODX.svg" alt="ODX" width={16} height={16} className="h-4 w-4" />
-            <p className="text-xs">ODX API</p>
-          </div>
-        </Button> */}
-        <MovingButton
-          // borderRadius="1.75rem"
-          // className="border-neutral-200 bg-white text-black dark:border-border dark:bg-slate-900 dark:text-white"
-          className="border-border bg-card text-card-foreground"
-        >
-          <div className="flex items-center gap-2">
-            <Image src="/images/ODX.svg" alt="ODX" width={16} height={16} className="h-4 w-4" />
-            <p className="text-xs">ODX API</p>
-          </div>
+        <MovingButton className="border-border bg-card text-card-foreground">
+          <ODXApiSource />
         </MovingButton>
       </div>
 
@@ -218,5 +206,32 @@ export function InitialStep() {
         </div>
       </div>
     </>
+  );
+}
+
+export function ODXApiSource() {
+  const { theme, systemTheme } = useTheme();
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+  return (
+    <div className="flex items-center gap-2">
+      {currentTheme === 'dark' ? (
+        <Image
+          src="/images/logos/odx-dark.svg"
+          alt="ODX"
+          width={16}
+          height={16}
+          className="h-4 w-4"
+        />
+      ) : (
+        <Image
+          src="/images/logos/odx-light.svg"
+          alt="ODX"
+          width={16}
+          height={16}
+          className="h-4 w-4"
+        />
+      )}
+      <p className="text-xs">ODX API</p>
+    </div>
   );
 }

@@ -8,13 +8,6 @@ export default function AppBanner() {
 
   return (
     <div className="hidden h-[4.6rem] w-full items-center justify-center gap-4 bg-card px-2 py-1 backdrop-blur-md md:flex">
-      {/* <Image
-        src="/images/ODX.svg"
-        width={53}
-        height={67}
-        alt="Phising icon"
-        className="hidden h-10 sm:block"
-      /> */}
       <div className="flex items-center gap-20 rounded-md bg-background px-4 py-4 backdrop-blur-md">
         <div className="flex items-center gap-2">
           <h4 className="font-poppins text-xs font-bold text-accent">PHISHING WARNING: </h4>

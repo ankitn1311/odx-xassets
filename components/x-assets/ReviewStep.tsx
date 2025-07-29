@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { removeTrailingZeros } from '@/lib/utils';
 import { SwapFormValues } from './TokenSwapCard';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
+import { ODXApiSource } from './InitialStep';
 
 const POLLING_INTERVAL = 5000; // 5 seconds
 
@@ -172,10 +173,7 @@ export function ReviewStep() {
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
             <DollarSign className="h-4 w-4 text-primary" /> Source
           </span>
-          <span className="flex items-center gap-2 text-sm font-medium">
-            <Image src="/images/ODX.svg" alt="ODX" width={16} height={16} className="h-4 w-4" />
-            ODX API
-          </span>
+          <ODXApiSource />
         </div>
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
