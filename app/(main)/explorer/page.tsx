@@ -15,7 +15,7 @@ export default function ExplorerPage() {
           </p>
         </section>
       </Card>
-      <TradesTable />
+      <TradesTable type="explorer" />
     </div>
   );
 }

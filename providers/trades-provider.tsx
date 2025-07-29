@@ -104,7 +104,7 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
       }
 
       // Update React Query cache
-      queryClient.setQueryData(['trades', 'all'], (oldData: TradeData[] = []) => {
+      queryClient.setQueryData(['trades', 'explorer'], (oldData: TradeData[] = []) => {
         const newData = [trade, ...oldData];
         return newData.slice(0, 1000); // Keep last 1000 trades
       });
