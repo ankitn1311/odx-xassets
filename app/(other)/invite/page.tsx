@@ -4,8 +4,14 @@ import ReedemInvite from './redeem-invite';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
+import ODXLogoDark from '@/components/svg/odx-logo-dark';
+import ODXLogoLight from '@/components/svg/odx-logo-light';
 
 export default function Invite() {
+  const { theme, systemTheme } = useTheme();
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+
   return (
     <div className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-background">
       <div
@@ -23,13 +29,11 @@ export default function Invite() {
           <Card className="w-full max-w-lg p-10">
             <CardHeader className="flex flex-col items-center gap-2">
               <CardTitle className="text-center text-lg font-semibold">
-                <Image
-                  src="/images/logos/odx-dark-text.svg"
-                  alt="ODX Logo"
-                  width={169}
-                  height={211}
-                  className="h-10"
-                />
+                {currentTheme === 'dark' ? (
+                  <ODXLogoDark className="h-10 w-auto" />
+                ) : (
+                  <ODXLogoLight className="h-10 w-auto" />
+                )}
               </CardTitle>
               <CardDescription className="text-center text-lg text-muted-foreground">
                 Mainnet Alpha Access
