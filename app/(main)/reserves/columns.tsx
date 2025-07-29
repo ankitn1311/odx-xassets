@@ -88,7 +88,7 @@ export const exploreColumn: ColumnDef<Available>[] = [
       return (
         <div className="flex flex-col items-start">
           <p className="font-mono text-base font-normal text-card-foreground">
-            {removeTrailingZeros(Number(totalSupply).toFixed(3))}
+            {parseFloat(removeTrailingZeros(Number(totalSupply).toFixed(3))).toLocaleString()}
             <span className="font-sans text-xs font-semibold text-muted-foreground">
               {' '}
               {row.original.tokenSymbol}
@@ -118,7 +118,7 @@ export const exploreColumn: ColumnDef<Available>[] = [
       return (
         <div className="flex flex-col items-start">
           <p className="font-mono text-base font-normal text-card-foreground">
-            {removeTrailingZeros(Number(unitsInReserve).toFixed(3))}
+            {parseFloat(removeTrailingZeros(Number(unitsInReserve).toFixed(3))).toLocaleString()}
             <span className="font-sans text-xs font-semibold text-muted-foreground">
               {' '}
               {tokenConvert[row.original.tokenSymbol as keyof typeof tokenConvert]}

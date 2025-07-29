@@ -2,7 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
 import Image from 'next/image';
 import { Button } from '../ui/button';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ExternalLink } from 'lucide-react';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { useState } from 'react';
 import { useWatchAsset } from 'wagmi';
@@ -60,10 +60,9 @@ export function SuccessStep() {
                 alt={inputToken?.Name ?? ''}
                 width={24}
                 height={24}
-                className="rounded-full"
               />
               <div className="flex flex-col">
-                <p className="font-mono font-medium">{removeTrailingZeros(amount)}</p>
+                <p className="font-mono text-base font-medium">{removeTrailingZeros(amount)}</p>
                 <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
                 {/* <p className="text-sm text-muted-foreground">
                   ${(Number(amount) * 2.056).toFixed(2)}
@@ -91,7 +90,9 @@ export function SuccessStep() {
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
-                <p className="font-mono font-medium">{removeTrailingZeros(outputAmount)}</p>
+                <p className="font-mono text-base font-medium">
+                  {removeTrailingZeros(outputAmount)}
+                </p>
                 <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
                 {/* <p className="text-sm text-muted-foreground">${Number(outputAmount).toFixed(2)}</p> */}
               </div>
@@ -100,7 +101,6 @@ export function SuccessStep() {
                 alt={outputToken?.Name ?? ''}
                 width={24}
                 height={24}
-                className="rounded-full"
               />
             </div>
             <Button
@@ -136,16 +136,14 @@ export function SuccessStep() {
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">TxHash</p>
-            <div className="flex items-center gap-1">
-              <a
-                className="text-sm text-primary"
-                // href={`https://testnet.sonicscan.org/tx/${latestTradeHash}`}
-                href={`https://sonicscan.org/tx/${latestTradeHash}`}
-                target="_blank"
-              >
-                {shortenAddress(latestTradeHash)}
-              </a>
-            </div>
+            <a
+              className="flex items-center gap-1 text-primary hover:underline"
+              href={`https://sonicscan.org/tx/${latestTradeHash}`}
+              target="_blank"
+            >
+              <span className="font-mono text-sm">{shortenAddress(latestTradeHash)}</span>
+              <ExternalLink className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </div>

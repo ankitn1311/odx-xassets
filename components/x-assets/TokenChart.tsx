@@ -71,9 +71,12 @@ export const TokenChart = () => {
             />
           )}
           <div className="flex min-w-0 flex-col">
-            <span className="truncate text-2xl font-semibold">
-              {selectedToken?.Name || 'Token'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="truncate text-2xl font-semibold">
+                {selectedToken?.Name || 'Token'}
+              </span>
+              <Verified className="text-muted-foreground" />
+            </div>
             {selectedToken?.Address && (
               <div className="mt-1 flex items-center gap-1">
                 <a
@@ -95,7 +98,6 @@ export const TokenChart = () => {
               </div>
             )}
           </div>
-          <Verified className="text-muted-foreground" />
         </div>
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col items-start">

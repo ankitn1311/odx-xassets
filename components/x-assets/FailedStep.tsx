@@ -35,10 +35,9 @@ export function FailedStep() {
                 alt={inputToken?.Name ?? ''}
                 width={24}
                 height={24}
-                className="rounded-full"
               />
               <div className="flex flex-col">
-                <p className="font-mono font-medium">{removeTrailingZeros(amount)}</p>
+                <p className="font-mono text-base font-medium">{removeTrailingZeros(amount)}</p>
                 <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
               </div>
             </div>
@@ -50,7 +49,9 @@ export function FailedStep() {
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
-                <p className="font-mono font-medium">{removeTrailingZeros(outputAmount)}</p>
+                <p className="font-mono text-base font-medium">
+                  {removeTrailingZeros(outputAmount)}
+                </p>
                 <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
               </div>
               <Image
@@ -58,7 +59,6 @@ export function FailedStep() {
                 alt={outputToken?.Name ?? ''}
                 width={24}
                 height={24}
-                className="rounded-full"
               />
             </div>
           </div>
