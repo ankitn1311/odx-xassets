@@ -1,3 +1,4 @@
+import { truncateToFixed } from '@/lib/utils';
 import { sonicBalance } from '@/utils/chain-client/txs/create_trade';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
@@ -14,7 +15,7 @@ export const useSonicBalance = () => {
     enabled: !!address,
   });
 
-  const balance = data ? parseFloat(ethers.utils.formatEther(data)).toFixed(4) : '0';
+  const balance = data ? truncateToFixed(parseFloat(ethers.utils.formatEther(data)), 4) : '0';
 
   return {
     data: balance,

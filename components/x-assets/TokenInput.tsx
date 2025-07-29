@@ -16,7 +16,7 @@ import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
+import { convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { useRouter } from 'nextjs-toploader/app';
 import { Skeleton } from '../ui/skeleton';
@@ -69,7 +69,7 @@ export function TokenInput({
     setValue('percentage', percentage);
     // use the balance of the token
     // setValue('amount', ((Number(balance) * percentage) / 100).toFixed(2));
-    onAmountChange(((Number(balance) * percentage) / 100).toFixed(2));
+    onAmountChange(truncateToFixed((Number(balance) * percentage) / 100, 3));
   };
 
   const handleTokenSelect = (tokenName: string) => {
@@ -254,7 +254,7 @@ export function TokenInput({
               {isBalanceLoading ? (
                 <Skeleton className="h-4 w-20" />
               ) : (
-                removeTrailingZeros(Number(balance).toFixed(5))
+                removeTrailingZeros(truncateToFixed(Number(balance), 5))
               )}
             </div>
           </div>

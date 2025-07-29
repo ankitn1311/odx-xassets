@@ -34,3 +34,8 @@ export const removeTrailingZeros = (value: string) => {
 
   return numValue.toFixed(8).replace(/\.?0+$/, '');
 };
+
+export const truncateToFixed = (num: number, decimals: number) => {
+  const factor = Math.pow(10, decimals);
+  return (Math.floor(num * factor) / factor).toFixed(decimals);
+};

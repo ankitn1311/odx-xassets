@@ -11,6 +11,7 @@ import { useWalletStore } from '@/stores/wallet-store';
 import { useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
+import { truncateToFixed } from '@/lib/utils';
 
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
@@ -118,11 +119,11 @@ export function TokenSwapForm() {
 
     // Update form values
     form.setValue('outputAmount', roundedOutputAmount.toString());
-    form.setValue('amount', adjustedInputAmount.toFixed(6)); // Keep 6 decimal places for precision
+    form.setValue('amount', truncateToFixed(adjustedInputAmount, 6)); // Keep 6 decimal places for precision
 
     return {
       ...values,
-      amount: adjustedInputAmount.toFixed(6),
+      amount: truncateToFixed(adjustedInputAmount, 6),
       outputAmount: roundedOutputAmount.toString(),
     };
   };
