@@ -20,7 +20,7 @@ export function AnalyticsCard() {
     <Card className="p-6">
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">xAssets Overview</h2>
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-8">
           {/* TVL */}
           <div className="flex flex-1 flex-col gap-2">
             <div className="flex flex-row items-start justify-between">
@@ -34,56 +34,6 @@ export function AnalyticsCard() {
                   )}
                 </span>
               </div>
-              <div className="flex gap-2">
-                {['7D', '30D', '90D', '180D'].map(d => (
-                  <button
-                    key={d}
-                    className={`rounded px-2 py-1 font-mono text-xs font-medium ${tvlDuration === d ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
-                    onClick={() => setTvlDuration(d as any)}
-                  >
-                    {d}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="mt-2 h-32 w-full">
-              {!isConnected ? (
-                <div className="flex h-full w-full items-center justify-center">
-                  <p className="text-muted-foreground">Connect your wallet to view TVL chart</p>
-                </div>
-              ) : (
-                <ChartContainer
-                  config={{ tvl: { label: 'TVL', color: 'var(--chart-1)' } }}
-                  className="h-full w-full"
-                >
-                  <RechartsPrimitive.AreaChart
-                    data={isLoading || isConnecting ? [] : tvlChart}
-                    margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient id="colorGradient-tvl" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.7} />
-                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.01} />
-                      </linearGradient>
-                    </defs>
-                    <RechartsPrimitive.XAxis
-                      dataKey="time"
-                      hide
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <RechartsPrimitive.YAxis hide axisLine={false} tickLine={false} />
-                    <RechartsPrimitive.Area
-                      type="linear"
-                      dataKey="value"
-                      stroke="hsl(var(--chart-1))"
-                      fill="url(#colorGradient-tvl)"
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                  </RechartsPrimitive.AreaChart>
-                </ChartContainer>
-              )}
             </div>
           </div>
           {/* Volume */}
@@ -94,12 +44,14 @@ export function AnalyticsCard() {
                 <span className="font-mono text-3xl font-semibold">
                   {isLoading || isConnecting ? (
                     <Skeleton className="h-9 w-32" />
+                  ) : totalVolume24h === 0 ? (
+                    '-'
                   ) : (
                     `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                   )}
                 </span>
               </div>
-              <div className="flex gap-2">
+              {/* <div className="flex gap-2">
                 {['7D', '30D', '90D', '180D'].map(d => (
                   <button
                     key={d}
@@ -109,9 +61,9 @@ export function AnalyticsCard() {
                     {d}
                   </button>
                 ))}
-              </div>
+              </div> */}
             </div>
-            <div className="mt-2 h-32 w-full">
+            {/* <div className="mt-2 h-32 w-full">
               {!isConnected ? (
                 <div className="flex h-full w-full items-center justify-center">
                   <p className="text-muted-foreground">Connect your wallet to view volume chart</p>
@@ -149,7 +101,7 @@ export function AnalyticsCard() {
                   </RechartsPrimitive.AreaChart>
                 </ChartContainer>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
