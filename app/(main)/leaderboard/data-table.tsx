@@ -23,9 +23,9 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ExternalLink } from 'lucide-react';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
-import { useAccount } from 'wagmi';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { shortenAddress } from '@/utils/crypto';
+import { useWalletStore } from '@/stores/wallet-store';
 interface LeaderboardTableProps {
   pageSize?: number;
 }
@@ -51,7 +51,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
     manualSorting: false,
   });
 
-  const { address } = useAccount();
+  const { connectedWallet: address } = useWalletStore();
   const { data: userData, isLoading: userLoading } = useWalletProfile(address);
 
   // Prepare a row-like object for the current user

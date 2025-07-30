@@ -1,7 +1,7 @@
 import { TokenPair } from '@/hooks/queries/use-all-tokens';
 import { Skeleton } from './ui/skeleton';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import { Ban, Copy, Power, RefreshCw } from 'lucide-react';
+import { Ban, Copy, Power, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { toast } from 'sonner';
 import { Separator } from './ui/separator';
@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { Button } from './ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
 import { useWalletStore } from '@/stores/wallet-store';
 import { useQuote } from '@/hooks/queries/use-quote';
 import { convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
@@ -19,6 +19,23 @@ import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
 
 const CHAIN_ID = 146;
+
+// Skeleton component for portfolio items
+const PortfolioItemSkeleton = () => {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <div className="flex flex-col gap-1">
+          <Skeleton className="h-4 w-20" />
+        </div>
+      </div>
+      <div className="flex flex-col items-end">
+        <Skeleton className="h-5 w-16" />
+      </div>
+    </div>
+  );
+};
 
 export const Portfolio = () => {
   const { allTokens } = useTokenSwapStore();
@@ -29,6 +46,7 @@ export const Portfolio = () => {
   const [, copyToClipboard] = useCopyToClipboard();
   const queryClient = useQueryClient();
   const { chainId } = useAccount();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const { disconnect: disconnectEVM, isPending: isDisconnecting } = useDisconnect();
@@ -44,18 +62,6 @@ export const Portfolio = () => {
         disconnectEVMWallet();
         break;
       }
-      // case 'TON': {
-      //   try {
-      //     disconnectWallet();
-      //     tonConnect?.disconnect();
-      //   } catch (error) {
-      //     console.log('Error disconnecting wallet', error);
-      //   }
-      //   break;
-      // }
-      // case 'SUI': {
-      //   disconnectSUIWallet();
-      // }
       default: {
         toast.info('Please select a wallet');
       }
@@ -65,22 +71,50 @@ export const Portfolio = () => {
     setIsRefreshing(true);
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['token-balance'] }),
-      // queryClient.invalidateQueries({ queryKey: ['balances'] }),
       queryClient.invalidateQueries({ queryKey: ['sonic-balance'] }),
     ]);
     setIsRefreshing(false);
   };
 
+  const handleSwitchToSonic = () => {
+    try {
+      switchChain({ chainId: CHAIN_ID });
+    } catch (error) {
+      toast.error('Failed to switch to Sonic chain');
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 px-4 pb-4">
-        {/* Remove this for mainnet */}
-        {chainId !== CHAIN_ID && (
-          <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-2 py-1 text-destructive">
-            <Ban className="h-4 w-4 flex-shrink-0" />
-            <p className="text-xs">Not connected to Sonic or Wallet is not connected properly</p>
+        {/* Chain Status */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">Connected Chain</p>
+          <div className="flex items-center gap-2">
+            {chainId === CHAIN_ID ? (
+              <div className="flex items-center gap-1 rounded-md bg-green-500/10 px-2 py-1 text-green-600">
+                <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                <p className="text-xs font-medium">Sonic</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <Button
+                  variant="warning"
+                  size="sm"
+                  onClick={handleSwitchToSonic}
+                  disabled={isSwitching}
+                  className="h-6 px-2 text-xs"
+                >
+                  <div className="flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    {isSwitching ? 'Switching...' : 'Switch to Sonic'}
+                  </div>
+                </Button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">Address</p>
           <div className="flex items-center gap-1">
@@ -112,11 +146,6 @@ export const Portfolio = () => {
             <span className="text-accent">{sonicBalance}</span> S
           </p>
         </div>
-        {/* <div className="self-end">
-          <Button variant="outline" onClick={disconnectWalletHandler} disabled={isDisconnecting}>
-            <Power className="h-4 w-4 text-red-600 hover:text-red-500" />
-          </Button>
-        </div> */}
       </div>
 
       <div className="px-4">
@@ -165,17 +194,21 @@ export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }
   const [, copyToClipboard] = useCopyToClipboard();
   const tokenBalanceData = useTokenBalance(data?.TokenB.Address || '', data?.TokenB.Decimals);
   const usdxBalance = useTokenBalance(data?.TokenA.Address || '', data?.TokenA.Decimals);
-  const { data: quote, isLoading: isQuoteLoading } = useQuote({
-    assetIn: data?.TokenA.Address || '',
-    assetOut: data?.TokenB.Address || '',
-    amount: 1,
-    enabled: !!data?.TokenA.Address && !!data?.TokenB.Address,
-  });
 
-  if (!data || tokenBalanceData.isLoading || usdxBalance.isLoading || isQuoteLoading) {
-    return <Skeleton className="h-4 w-20 shrink-0" />;
+  if (!data) {
+    return <PortfolioItemSkeleton />;
   }
+
   const isUsdx = type === 'USDX';
+
+  if (isUsdx && usdxBalance.isLoading) {
+    return <PortfolioItemSkeleton />;
+  }
+
+  if (!isUsdx && tokenBalanceData.isLoading) {
+    return <PortfolioItemSkeleton />;
+  }
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -209,12 +242,6 @@ export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }
             ? usdxBalance.data
             : removeTrailingZeros(truncateToFixed(Number(tokenBalanceData.data), 6))}
         </p>
-        {/* {!isUsdx && (
-          <div className="text-xs text-muted-foreground">
-            {quote ? Number(quote * Number(tokenBalanceData.data)).toFixed(4) : '0'}{' '}
-            {convertXUSDT(data.TokenA.Name)}
-          </div>
-        )} */}
       </div>
     </div>
   );

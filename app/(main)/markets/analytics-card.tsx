@@ -1,20 +1,15 @@
 import { Card } from '@/components/ui/card';
-import { useAllTokenAnalytics } from '@/hooks/queries/use-all-token-analytics';
 import { useTotalAnalytics } from '@/hooks/queries/use-all-token-analytics';
 import { useState } from 'react';
-import * as RechartsPrimitive from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAccount } from 'wagmi';
-import ConnectWallet from '@/components/common/connect-wallet';
+import { useWalletStore } from '@/stores/wallet-store';
 
 export function AnalyticsCard() {
   const [tvlDuration, setTvlDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
   const [volumeDuration, setVolumeDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
   const { totalTVL, totalVolume24h, isLoading, tvlChart, volumeChart } =
     useTotalAnalytics(tvlDuration);
-  const analytics = useAllTokenAnalytics();
-  const { isConnected, isConnecting } = useAccount();
+  const { connectedWallet } = useWalletStore();
 
   return (
     <Card className="p-6">
@@ -26,9 +21,9 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
-                {isConnected ? (
+                {connectedWallet ? (
                   <span className="font-mono text-3xl font-semibold">
-                    {isLoading || isConnecting ? (
+                    {isLoading ? (
                       <Skeleton className="h-9 w-32" />
                     ) : (
                       `$${totalTVL.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
@@ -47,9 +42,9 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
-                {isConnected ? (
+                {connectedWallet ? (
                   <span className="font-mono text-3xl font-semibold">
-                    {isLoading || isConnecting ? (
+                    {isLoading ? (
                       <Skeleton className="h-9 w-32" />
                     ) : totalVolume24h === 0 ? (
                       '-'

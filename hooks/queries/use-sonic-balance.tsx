@@ -1,13 +1,13 @@
 import { truncateToFixed } from '@/lib/utils';
+import { useWalletStore } from '@/stores/wallet-store';
 import { sonicBalance } from '@/utils/chain-client/txs/create_trade';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { useAccount } from 'wagmi';
 import { useWalletClient } from 'wagmi';
 
 export const useSonicBalance = () => {
   const { data: wallet } = useWalletClient();
-  const { address } = useAccount();
+  const { connectedWallet: address } = useWalletStore();
 
   const { data, isLoading } = useQuery({
     queryKey: ['sonic-balance', address],

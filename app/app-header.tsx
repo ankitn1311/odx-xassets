@@ -8,24 +8,19 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useUserInfo } from '@/hooks/queries/use-user';
-import Cookies from 'js-cookie';
 
 import { Home, Database, Trophy, Activity } from 'lucide-react';
-import { useCopyToClipboard, useMediaQuery } from 'usehooks-ts';
 import { toast } from 'sonner';
 import { ModeToggle } from '@/components/theme-toggle';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import ConnectWallet from '@/components/common/connect-wallet';
-import { useWalletStore } from '@/stores/wallet-store';
-import { useDisconnect, useAccount } from 'wagmi';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AppHeader() {
   return (
     <div className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-muted/60 bg-white/20 px-4 py-2 backdrop-blur-md dark:bg-black/20">
       <AppHeaderLeft />
-      <AppHeaderCenter />
+      <AppHeaderNavbar />
       <AppHeaderRight />
     </div>
   );
@@ -55,42 +50,15 @@ const AppHeaderLeft = () => {
   );
 };
 
-const AppHeaderCenter = () => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-
-  return !isMobile && <AppHeaderNavbar />;
-};
-
 const AppHeaderRight = () => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const [, copyToClipboard] = useCopyToClipboard();
-  const logout = async () => {
-    Cookies.remove('auth_token');
-    // localStorage.removeItem(StorageKeys.AuthBundle); // DEPRECATED
-    // localStorage.removeItem(StorageKeys.CurrentUser);
-    // localStorage.removeItem(StorageKeys.UserSession);
-    // localStorage.removeItem(StorageKeys.ReadWriteSession);
-    // localStorage.removeItem('sessionExpiry');
-    window.location.reload();
-  };
-  const router = useRouter();
-  const { isConnecting, isReconnecting } = useAccount();
-  const { disconnect: disconnectEVM } = useDisconnect();
-  const { connectedWallet, disconnectWallet } = useWalletStore();
-
-  const disconnectWalletHandler = async () => {
-    disconnectEVM();
-    disconnectWallet();
-  };
-
   return (
     <div className="flex basis-1/2 items-center justify-end gap-2">
       <ModeToggle />
-      {isConnecting || isReconnecting ? (
+      {/* {isConnecting || isReconnecting ? (
         <Skeleton className="h-8 w-[8.6rem] rounded-full" />
-      ) : (
-        <ConnectWallet />
-      )}
+      ) : ( */}
+      <ConnectWallet />
+      {/* )} */}
     </div>
   );
 };
@@ -130,15 +98,10 @@ export const MobileNavbar = () => {
 };
 
 const navbarItems = [
-  // { label: "buyCrypto", route: "buy-crypto" },
-  // { label: "markets", route: "markets" },
-  // { label: 'trade', route: 'trade' },
   { label: 'xAssets', route: 'markets' },
   { label: 'reserves', route: 'reserves' },
   { label: 'explorer', route: 'explorer' },
-  // { label: 'score', route: 'score', isProtected: true },
   { label: 'leaderboard', route: 'leaderboard' },
-  // { label: "components", route: "components" },
 ];
 
 const AppHeaderNavbar = () => {

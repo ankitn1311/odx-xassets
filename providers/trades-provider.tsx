@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { useAccount } from 'wagmi';
+import { useWalletStore } from '@/stores/wallet-store';
 
 export interface TradeData {
   quantity: string;
@@ -45,7 +45,7 @@ const TradesContext = createContext<TradesContextType | null>(null);
 
 const WEB_SOCKET_URL = 'wss://y3mnua6ij2.execute-api.ap-northeast-1.amazonaws.com/devo';
 export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
-  const { address } = useAccount();
+  const { connectedWallet: address } = useWalletStore();
   const queryClient = useQueryClient();
   const connectionIdRef = useRef<string>(crypto.randomUUID());
   const tradesRef = useRef<TradeData[]>([]);

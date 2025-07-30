@@ -7,16 +7,16 @@ import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Image from 'next/image';
-import { useAccount } from 'wagmi';
-import ConnectWallet from '@/components/common/connect-wallet';
 import { removeTrailingZeros } from '@/lib/utils';
+import { useWalletStore } from '@/stores/wallet-store';
+import ConnectWallet from '@/components/common/connect-wallet';
 
 const xTokenToToken = tokenConvert;
 
 export function ReservesTable() {
   const { allTokens } = useTokenSwapStore();
   const isMobile = useIsMobile();
-  const { isConnected, isConnecting } = useAccount();
+  const { connectedWallet } = useWalletStore();
   const solToken = allTokens.find(token => token.TokenB.Name === 'x1SOL');
   const xrpToken = allTokens.find(token => token.TokenB.Name === 'x1XRP');
   const adaToken = allTokens.find(token => token.TokenB.Name === 'x1ADA');
@@ -133,7 +133,6 @@ export function ReservesTable() {
     : [];
 
   if (
-    isConnecting ||
     isSupplyLoading ||
     isXrpSupplyLoading ||
     isAdaSupplyLoading ||
@@ -191,7 +190,7 @@ export function ReservesTable() {
     );
   }
 
-  if (!isConnected) {
+  if (!connectedWallet) {
     return (
       <Card className="flex w-full flex-col gap-6 p-8 text-center">
         <h2 className="text-2xl font-bold">Connect Wallet</h2>

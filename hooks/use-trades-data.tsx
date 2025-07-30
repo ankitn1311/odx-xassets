@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { TradeData } from '@/providers/trades-provider';
 import axios from 'axios';
-import { useAccount } from 'wagmi';
+import { useWalletStore } from '@/stores/wallet-store';
 import { SwapperData } from './queries/use-wallet-profile';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -22,13 +22,14 @@ export const getTradesData = async (type?: 'user' | 'explorer', address?: string
 };
 
 export const useTradesData = (type?: 'user' | 'explorer') => {
-  const { address } = useAccount();
+  const { connectedWallet } = useWalletStore();
 
   return useQuery<TradeData[]>({
     queryKey: ['trades', type],
-    queryFn: () => getTradesData(type, address),
+    queryFn: () => getTradesData(type, connectedWallet || ''),
     // staleTime: 0, // Always consider data stale to get real-time updates
     staleTime: Infinity,
     refetchInterval: false, // Don't refetch automatically
+    enabled: !!connectedWallet,
   });
 };
