@@ -3,12 +3,11 @@ import { toast } from 'sonner';
 import { api } from '@/utils/axiosConfig';
 import { CosignerData, NonceManager, V2DutchOrderBuilder } from '@uniswap/uniswapx-sdk';
 import { ethers as ethersV5 } from 'ethers';
-import { useWalletClient } from 'wagmi';
+import { useWalletClient, useAccount } from 'wagmi';
 import { WalletClient, createWalletClient, custom } from 'viem';
 import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
 import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import axios, { AxiosError } from 'axios';
-import { useWalletStore } from '@/stores/wallet-store';
 
 interface SigData {
   user_address: string;
@@ -92,7 +91,7 @@ interface OrderStatusResponse {
 
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
-  const { connectedWallet: address } = useWalletStore();
+  const { address } = useAccount();
   const { setTradeState, setLatestTradeHash, activeTab } = useTokenSwapStore();
   const queryClient = useQueryClient();
 

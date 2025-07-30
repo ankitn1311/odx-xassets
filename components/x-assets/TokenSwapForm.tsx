@@ -7,8 +7,7 @@ import { useTokenSwapStore, TradeState, TabState } from '@/stores/token-swap-sto
 import { useEffect } from 'react';
 import { ethers } from 'ethers';
 import { erc20Abi } from 'viem';
-import { useWalletStore } from '@/stores/wallet-store';
-import { useWalletClient } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
 import { truncateToFixed } from '@/lib/utils';
@@ -17,7 +16,7 @@ export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
   const { tradeState, setTradeState, isApproved, setIsApproved, setLatestTradeHash, activeTab } =
     useTokenSwapStore();
-  const { connectedWallet } = useWalletStore();
+  const { address } = useAccount();
   const form = useFormContext<SwapFormValues>();
 
   const { watch } = form;
@@ -52,10 +51,7 @@ export function TokenSwapForm() {
           erc20Abi,
           provider
         );
-        const currentAllowance = await xUSDTContract.allowance(
-          connectedWallet,
-          PERMIT_TESTNET_ADDRESS
-        );
+        const currentAllowance = await xUSDTContract.allowance(address, PERMIT_TESTNET_ADDRESS);
         const requiredAmount = ethers.utils.parseUnits(
           amount,
           isBuy ? outputToken?.Decimals : inputToken?.Decimals
@@ -75,7 +71,7 @@ export function TokenSwapForm() {
     };
 
     checkApproval();
-  }, [inputToken, wallet, connectedWallet, setIsApproved, setTradeState, tradeState, amount]);
+  }, [inputToken, wallet, address, setIsApproved, setTradeState, tradeState, amount]);
 
   const isValidAmount = amount && Number(amount) > 0;
 
@@ -133,7 +129,7 @@ export function TokenSwapForm() {
     //   'We are currently upgrading our xAssets platform to bring you an even better experience. Please check back soon!'
     // );
 
-    if (!connectedWallet) return toast.error('Please connect your wallet');
+    if (!address) return toast.error('Please connect your wallet');
     // if (isInsufficientBalance) return toast.error('Insufficient balance');
     if (!isValidAmount) return toast.error('Amount must be greater than 0');
 
@@ -186,7 +182,7 @@ export function TokenSwapForm() {
         setTradeState(TradeState.PROCESSING);
         if (activeTab === TabState.BUY) {
           await submitSignature({
-            user_address: connectedWallet ?? '',
+            user_address: address ?? '',
             token: outputToken?.Address ?? '',
             amount: values.outputAmount,
             output_amount: values.amount,
@@ -196,7 +192,7 @@ export function TokenSwapForm() {
           });
         } else if (activeTab === TabState.SELL) {
           await submitSignature({
-            user_address: connectedWallet ?? '',
+            user_address: address ?? '',
             token: inputToken?.Address ?? '',
             amount: values.amount,
             output_amount: values.outputAmount,

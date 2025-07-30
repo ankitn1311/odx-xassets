@@ -253,30 +253,14 @@ export const getRandomNumber = (min: number, max: number) => {
 };
 
 export const walletConnectedProperly = ({
-  connectedWallet,
-  connectedWalletType,
-  tonAddress,
+  address,
   evmAddress,
-  suiAddress,
 }: {
-  connectedWallet: string;
-  connectedWalletType: string;
-  tonAddress: string;
+  address: string;
   evmAddress: string;
-  suiAddress: string;
 }) => {
-  if (!connectedWallet) return false;
-
-  switch (connectedWalletType) {
-    case 'TON':
-      return connectedWallet === tonAddress;
-    case 'EVM':
-      return connectedWallet === evmAddress;
-    case 'SUI':
-      return connectedWallet === suiAddress;
-    default:
-      return false;
-  }
+  if (!address) return false;
+  return address === evmAddress;
 };
 
 // export const TOKENS: TokenType[] = [

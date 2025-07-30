@@ -2,14 +2,14 @@ import { Card } from '@/components/ui/card';
 import { useTotalAnalytics } from '@/hooks/queries/use-all-token-analytics';
 import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useWalletStore } from '@/stores/wallet-store';
+import { useAccount } from 'wagmi';
 
 export function AnalyticsCard() {
   const [tvlDuration, setTvlDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
   const [volumeDuration, setVolumeDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
   const { totalTVL, totalVolume24h, isLoading, tvlChart, volumeChart } =
     useTotalAnalytics(tvlDuration);
-  const { connectedWallet } = useWalletStore();
+  const { isConnected } = useAccount();
 
   return (
     <Card className="p-6">
@@ -21,7 +21,7 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">TVL (Total Value Locked)</span>
-                {connectedWallet ? (
+                {isConnected ? (
                   <span className="font-mono text-3xl font-semibold">
                     {isLoading ? (
                       <Skeleton className="h-9 w-32" />
@@ -42,7 +42,7 @@ export function AnalyticsCard() {
             <div className="flex flex-row items-start justify-between">
               <div className="flex flex-col items-start gap-2">
                 <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
-                {connectedWallet ? (
+                {isConnected ? (
                   <span className="font-mono text-3xl font-semibold">
                     {isLoading ? (
                       <Skeleton className="h-9 w-32" />

@@ -27,7 +27,7 @@ import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import ConnectWallet from '@/components/common/connect-wallet';
 import { shortenAddress } from '@/utils/crypto';
-import { useWalletStore } from '@/stores/wallet-store';
+import { useAccount } from 'wagmi';
 
 interface TradesTableProps {
   pageSize?: number;
@@ -71,7 +71,7 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'timestamp', desc: true }]);
 
   const { data: tableData = [], isLoading: tradesDataLoading } = useTradesData(type);
-  const { connectedWallet } = useWalletStore();
+  const { isConnected } = useAccount();
 
   // Use trades from provider as the main data source
 
@@ -94,7 +94,7 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
     },
   });
 
-  if (!connectedWallet) {
+  if (!isConnected) {
     return (
       <Card className="flex w-full flex-col gap-6 p-8 text-center">
         <h2 className="text-2xl font-bold">Connect Wallet</h2>

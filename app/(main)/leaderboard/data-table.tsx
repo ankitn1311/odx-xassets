@@ -25,7 +25,7 @@ import { ExternalLink } from 'lucide-react';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { shortenAddress } from '@/utils/crypto';
-import { useWalletStore } from '@/stores/wallet-store';
+import { useAccount } from 'wagmi';
 interface LeaderboardTableProps {
   pageSize?: number;
 }
@@ -51,7 +51,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
     manualSorting: false,
   });
 
-  const { connectedWallet: address } = useWalletStore();
+  const { address } = useAccount();
   const { data: userData, isLoading: userLoading } = useWalletProfile(address);
 
   // Prepare a row-like object for the current user

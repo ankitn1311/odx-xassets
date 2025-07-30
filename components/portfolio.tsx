@@ -12,7 +12,6 @@ import { Button } from './ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
-import { useWalletStore } from '@/stores/wallet-store';
 import { useQuote } from '@/hooks/queries/use-quote';
 import { convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
@@ -40,8 +39,8 @@ const PortfolioItemSkeleton = () => {
 export const Portfolio = () => {
   const { allTokens } = useTokenSwapStore();
   const allTokensData = { data: allTokens, isLoading: false };
-  const { connectedWallet } = useWalletStore();
-  const { data: walletProfile } = useWalletProfile(connectedWallet);
+  const { address } = useAccount();
+  const { data: walletProfile } = useWalletProfile(address);
   const { data: sonicBalance } = useSonicBalance();
   const [, copyToClipboard] = useCopyToClipboard();
   const queryClient = useQueryClient();
@@ -50,23 +49,11 @@ export const Portfolio = () => {
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const { disconnect: disconnectEVM, isPending: isDisconnecting } = useDisconnect();
-  const { connectWalletType, disconnectWallet } = useWalletStore();
-  const disconnectEVMWallet = async () => {
-    disconnectEVM();
-    disconnectWallet();
-  };
-  /** Disconnect wallet based on wallet type */
+
   const disconnectWalletHandler = () => {
-    switch (connectWalletType) {
-      case 'EVM': {
-        disconnectEVMWallet();
-        break;
-      }
-      default: {
-        toast.info('Please select a wallet');
-      }
-    }
+    disconnectEVM();
   };
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await Promise.all([
@@ -118,14 +105,14 @@ export const Portfolio = () => {
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">Address</p>
           <div className="flex items-center gap-1">
-            <p className="text-sm">{shortenAddress(connectedWallet || '')}</p>
+            <p className="text-sm">{shortenAddress(address || '')}</p>
             <Copy
               className="h-3 w-3 cursor-pointer text-muted-foreground hover:text-primary-foreground"
               strokeWidth={1}
               onClick={() => {
-                copyToClipboard(connectedWallet || '');
+                copyToClipboard(address || '');
                 toast.success(`Copied!`, {
-                  description: connectedWallet,
+                  description: address,
                 });
               }}
             />

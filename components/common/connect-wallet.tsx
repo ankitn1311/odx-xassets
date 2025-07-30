@@ -1,10 +1,9 @@
 import React from 'react';
-import { useWalletStore } from '@/stores/wallet-store';
 import { Button } from '@/components/ui/button';
 import { shortenAddressWithLength } from '@/utils/crypto';
 import { AlertTriangle, Wallet } from 'lucide-react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Portfolio } from '../portfolio';
@@ -13,33 +12,21 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 const CHAIN_ID = 146;
 
 const ConnectWallet = () => {
-  const { connectedWallet, selectedWalletType, connectWallet } = useWalletStore();
-
   const { openConnectModal } = useConnectModal();
-  const { address, chainId } = useAccount();
-
-  const connectEVMWallet = async () => {
-    if (address) {
-      connectWallet('EVM', address);
-    } else {
-      openConnectModal?.();
-    }
-  };
+  const { address, chainId, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
 
   const connectWalletHandler = () => {
-    switch (selectedWalletType) {
-      case 'EVM': {
-        connectEVMWallet();
-        break;
-      }
-      default: {
-      }
+    if (isConnected) {
+      // Already connected, do nothing
+      return;
     }
+    openConnectModal?.();
   };
 
   return (
     <div className="flex flex-col gap-4">
-      {connectedWallet && (
+      {isConnected && address && (
         <div className={cn('flex items-center justify-between gap-2')}>
           <TooltipProvider>
             <Tooltip delayDuration={100}>
@@ -51,9 +38,7 @@ const ConnectWallet = () => {
                         <Wallet
                           className={`h-4 w-4 ${chainId !== CHAIN_ID ? 'text-warning-foreground' : 'text-foreground'}`}
                         />
-                        <p className="font-mono text-xs">
-                          {shortenAddressWithLength(connectedWallet!, 3)}
-                        </p>
+                        <p className="font-mono text-xs">{shortenAddressWithLength(address, 3)}</p>
                         {/* Remove this for mainnet */}
                         {chainId !== CHAIN_ID && (
                           <TooltipProvider>
@@ -80,14 +65,12 @@ const ConnectWallet = () => {
           </TooltipProvider>
         </div>
       )}
-      {!connectedWallet && (
+      {!isConnected && (
         <div className="flex w-full gap-4">
           <Button
             variant="outline"
             className="hover:bg-accent hover:text-accent-foreground"
-            onClick={() => {
-              connectWalletHandler();
-            }}
+            onClick={connectWalletHandler}
           >
             Connect Wallet
           </Button>
