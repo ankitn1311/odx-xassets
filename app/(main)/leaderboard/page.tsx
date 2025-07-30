@@ -9,7 +9,7 @@ export default function LeaderboardPage() {
         <section className="flex h-full flex-col justify-center">
           <h2 className="text-lg font-semibold">Leaderboard</h2>
           <p className="text-sm text-muted-foreground">
-            See the top users by points. Rankings are updated every 30 minutes.
+            See the top 100 users by points. Rankings are updated every 30 minutes.
           </p>
         </section>
       </Card>
