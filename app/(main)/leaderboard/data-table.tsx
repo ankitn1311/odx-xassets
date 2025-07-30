@@ -23,9 +23,9 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ExternalLink } from 'lucide-react';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
-import { useAccount } from 'wagmi';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { shortenAddress } from '@/utils/crypto';
+import { useAccount } from 'wagmi';
 interface LeaderboardTableProps {
   pageSize?: number;
 }

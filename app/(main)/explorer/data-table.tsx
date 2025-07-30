@@ -26,8 +26,8 @@ import { tokenConvertReverse } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import ConnectWallet from '@/components/common/connect-wallet';
-import { useAccount } from 'wagmi';
 import { shortenAddress } from '@/utils/crypto';
+import { useAccount } from 'wagmi';
 
 interface TradesTableProps {
   pageSize?: number;

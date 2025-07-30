@@ -2,8 +2,7 @@ import { truncateToFixed } from '@/lib/utils';
 import { sonicBalance } from '@/utils/chain-client/txs/create_trade';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { useAccount } from 'wagmi';
-import { useWalletClient } from 'wagmi';
+import { useWalletClient, useAccount } from 'wagmi';
 
 export const useSonicBalance = () => {
   const { data: wallet } = useWalletClient();

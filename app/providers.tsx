@@ -8,7 +8,6 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { sonic } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
 import { Toaster } from 'sonner';
-import WalletSync from './wallet-sync';
 import { TradesProvider } from '@/providers/trades-provider';
 
 const config = getDefaultConfig({
@@ -26,13 +25,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={config} reconnectOnMount>
         <RainbowKitProvider theme={darkTheme()} key="ODX">
-          <WalletSync>
-            <TradesProvider>
-              {children}
-              <ReactQueryDevtools />
-              <Toaster richColors />
-            </TradesProvider>
-          </WalletSync>
+          <TradesProvider>
+            {children}
+            <ReactQueryDevtools />
+            <Toaster richColors />
+          </TradesProvider>
         </RainbowKitProvider>
       </WagmiProvider>
     </QueryClientProvider>

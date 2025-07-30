@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { api } from '@/utils/axiosConfig';
 import { CosignerData, NonceManager, V2DutchOrderBuilder } from '@uniswap/uniswapx-sdk';
 import { ethers as ethersV5 } from 'ethers';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useWalletClient, useAccount } from 'wagmi';
 import { WalletClient, createWalletClient, custom } from 'viem';
 import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
 import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
