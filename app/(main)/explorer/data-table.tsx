@@ -27,6 +27,7 @@ import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import ConnectWallet from '@/components/common/connect-wallet';
 import { useAccount } from 'wagmi';
+import { shortenAddress } from '@/utils/crypto';
 
 interface TradesTableProps {
   pageSize?: number;
@@ -237,7 +238,7 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary hover:underline"
                       >
-                        {txHash.slice(0, 8)}...
+                        {shortenAddress(txHash)}
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     </div>
