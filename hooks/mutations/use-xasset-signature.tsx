@@ -34,7 +34,7 @@ const POLL_INTERVAL = 2000; // 2 seconds
 // Add Base chain configuration
 // EXECUTOR
 const BASE_REACTOR = '0x0369e0ED08aabE340e7A77f1D39198BB986233e0'; // Replace with actual reactor address
-const BASE_PERMIT2 = PERMIT_TESTNET_ADDRESS; // Base chain Permit2 address
+const BASE_PERMIT2 = '0x000000000022D473030F116dDEE9F6B43aC78BA3'; // Base chain Permit2 address
 const COSIGNER_ADDRESS = '0x3343dB95afe77eA40Cd1333b627A70E16c285ad9';
 
 // Configure Permit2 addresses for different chains

@@ -30,7 +30,7 @@ interface LeaderboardTableProps {
   pageSize?: number;
 }
 
-export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
+export function LeaderboardTable({ pageSize = 100 }: LeaderboardTableProps) {
   const [page, setPage] = useState(1);
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -122,7 +122,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
               ))}
             </TableHeader>
             <TableBody>
-              {[...Array(10)].map((_, rowIdx) => (
+              {[...Array(100)].map((_, rowIdx) => (
                 <TableRow key={rowIdx}>
                   {leaderboardColumns.map((col, colIdx) => (
                     <TableCell key={colIdx} className="py-2 first:pl-4 last:pr-4 last:text-right">
@@ -135,7 +135,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
           </Table>
         </Card>
 
-        <div className="mt-4 flex items-center justify-between gap-2 px-2">
+        {/* <div className="mt-4 flex items-center justify-between gap-2 px-2">
           <button className="rounded border px-3 py-1 text-sm disabled:opacity-50" disabled>
             Previous
           </button>
@@ -145,7 +145,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
           <button className="rounded border px-3 py-1 text-sm disabled:opacity-50" disabled>
             Next
           </button>
-        </div>
+        </div> */}
       </>
     );
   }
@@ -202,7 +202,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
         </Table>
       </Card>
       {/* Pagination Controls */}
-      <div className="z-50 mt-4 flex items-center justify-between gap-2 px-2">
+      {/* <div className="z-50 mt-4 flex items-center justify-between gap-2 px-2">
         <button
           className="rounded border px-3 py-1 text-sm disabled:opacity-50"
           onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -220,7 +220,7 @@ export function LeaderboardTable({ pageSize = 10 }: LeaderboardTableProps) {
         >
           Next
         </button>
-      </div>
+      </div> */}
     </>
   );
 }
