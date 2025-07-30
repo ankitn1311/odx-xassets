@@ -29,34 +29,6 @@ interface CosignatureData {
   cosign_hash: string;
 }
 
-type OrderStatus =
-  | 'VALIDATED'
-  | 'PROCESSED'
-  | 'ERROR'
-  | 'FAILED'
-  | 'PROCESSING'
-  | 'CUSTODY_TRANSFER_START'
-  | 'CUSTODY_TRANSFER_COMPLETE'
-  | 'CUSTODY_TRANSFER_FAILED';
-
-interface OrderStatusResponse {
-  executionName: string;
-  status: OrderStatus;
-  swapper: string;
-  timestamp: string;
-  processedAt: any;
-  completedAt: any;
-  txHash: any;
-  errorMessage: any;
-  custodyTxHash: any;
-  orderQtyRequested: string;
-  orderPrice: string;
-  avgFillPrice: string;
-  cmltvValue: string;
-  cmltvQty: string;
-  cmltvFees: string;
-}
-
 const POLL_INTERVAL = 2000; // 2 seconds
 
 // Add Base chain configuration
@@ -80,7 +52,7 @@ const ERROR_STATES = [
   'CUSTODY_PURCHASE_FAILED',
   'CUSTODY_VERIFIER_FAILED',
   'FAILED',
-];
+] as const;
 const PENDING_STATES = [
   'VALIDATED',
   'CUSTODY_PURCHASE_START',
@@ -89,9 +61,33 @@ const PENDING_STATES = [
   'CUSTODY_VERIFIER_SUCCESS',
   'PROCESSING',
   'PROCESSED',
-];
+] as const;
 
-const SUCCESS_STATES = ['POINTS_AWARDED'];
+const SUCCESS_STATES = ['POINTS_AWARDED'] as const;
+
+type SuccessStatus = (typeof SUCCESS_STATES)[number];
+type ErrorStatus = (typeof ERROR_STATES)[number];
+type PendingStatus = (typeof PENDING_STATES)[number];
+
+type OrderStatus = SuccessStatus | ErrorStatus | PendingStatus;
+
+interface OrderStatusResponse {
+  executionName: string;
+  status: OrderStatus;
+  swapper: string;
+  timestamp: string;
+  processedAt: any;
+  completedAt: any;
+  txHash: any;
+  errorMessage: any;
+  custodyTxHash: any;
+  orderQtyRequested: string;
+  orderPrice: string;
+  avgFillPrice: string;
+  cmltvValue: string;
+  cmltvQty: string;
+  cmltvFees: string;
+}
 
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
@@ -362,19 +358,20 @@ export const useXAssetSignature = () => {
         orderStatus = await checkOrderStatus(result?.executionName);
         console.log('TRADE STATUS: ', orderStatus.status);
         attempts++;
-      } while (PENDING_STATES.includes(orderStatus.status) && attempts < 20);
+      } while (
+        PENDING_STATES.includes(orderStatus.status as (typeof PENDING_STATES)[number]) &&
+        attempts < 20
+      );
 
       const txHash = orderStatus.txHash;
 
-      if (SUCCESS_STATES.includes(orderStatus.status)) {
+      if (SUCCESS_STATES.includes(orderStatus.status as SuccessStatus)) {
         if (orderStatus.errorMessage) {
-          toast.error('Transaction failed');
           setTradeState(TradeState.FAILED);
           throw new Error('Transaction failed');
         }
         toast.success('Transaction successful', {
           description: (
-            // <a href={`https://testnet.sonicscan.org/tx/${txHash}`} target="_blank">
             <a href={`https://sonicscan.org/tx/${txHash}`} target="_blank">
               View on Sonicscan
             </a>
@@ -383,14 +380,20 @@ export const useXAssetSignature = () => {
         updateTokenBalancesManually(data);
         setTradeState(TradeState.SUCCESS);
         setLatestTradeHash(txHash);
-      } else if (ERROR_STATES.includes(orderStatus.status)) {
-        toast.error('Transaction failed');
+      } else if (ERROR_STATES.includes(orderStatus.status as ErrorStatus)) {
+        if (
+          orderStatus.status === 'VALIDATION_FAILED' &&
+          orderStatus.errorMessage &&
+          orderStatus.errorMessage.includes('whitelist')
+        ) {
+          setTradeState(TradeState.FAILED);
+          throw new Error('Address used to trade is not whitelisted');
+        }
         setTradeState(TradeState.FAILED);
         throw new Error('Transaction failed');
-      } else if (PENDING_STATES.includes(orderStatus.status)) {
+      } else if (PENDING_STATES.includes(orderStatus.status as PendingStatus)) {
         toast.info('Transaction pending', {
           description: txHash ? (
-            // <a href={`https://testnet.sonicscan.org/tx/${txHash}`} target="_blank">
             <a href={`https://sonicscan.org/tx/${txHash}`} target="_blank">
               View on Sonicscan
             </a>
@@ -402,7 +405,7 @@ export const useXAssetSignature = () => {
 
       return result;
     } catch (error) {
-      toast.error('Transaction failed');
+      toast.error(error instanceof Error ? error.message : 'Transaction failed');
       setTradeState(TradeState.FAILED);
       throw error;
     }
