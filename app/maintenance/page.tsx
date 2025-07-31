@@ -13,7 +13,7 @@ export default function MaintenancePage() {
           </div>
           <CardTitle className="text-3xl font-bold">Critical Maintenance</CardTitle>
           <CardDescription className="mt-2 text-lg">
-            We&apos;re performing critical system maintenance to improve your experience.
+            We&apos;re doing liquidity rebalancing.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 text-center">
@@ -26,7 +26,7 @@ export default function MaintenancePage() {
             </div>
             <div className="flex items-center justify-center space-x-2">
               <ClockIcon className="h-5 w-5 text-primary" />
-              <p className="text-muted-foreground">Expected completion time: 3-4 hours</p>
+              <p className="text-muted-foreground">Expected completion time: 12-14 hours</p>
             </div>
           </div>
 
