@@ -217,8 +217,23 @@ export function TokenSwapForm() {
     }
   };
 
+  const onError = (error: any) => {
+    switch (tradeState) {
+      case TradeState.SUCCESS:
+        setTradeState(TradeState.INITIAL);
+        resetForm();
+        break;
+      case TradeState.FAILED:
+        setTradeState(TradeState.INITIAL);
+        resetForm();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full flex-col">
+    <form onSubmit={form.handleSubmit(onSubmit, onError)} className="flex h-full flex-col">
       <SwapScreens />
     </form>
   );

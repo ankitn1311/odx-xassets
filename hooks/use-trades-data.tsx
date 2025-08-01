@@ -31,5 +31,6 @@ export const useTradesData = (type?: 'user' | 'explorer') => {
     staleTime: Infinity,
     refetchInterval: false, // Don't refetch automatically
     enabled: !!address,
+    refetchOnMount: 'always',
   });
 };

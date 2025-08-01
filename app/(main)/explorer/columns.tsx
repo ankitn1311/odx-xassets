@@ -1,11 +1,11 @@
 import { shortenAddress } from '@/utils/crypto';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ExternalLink } from 'lucide-react';
 import { TradeData } from '@/providers/trades-provider';
 import { tokenConvertReverse } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
+import { removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 
 // Helper function to format timestamp
 const formatTimestamp = (timestamp: string | number) => {
@@ -102,7 +102,7 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
       const quantity = row.getValue('quantity') as string;
       return (
         <span className="text-md font-mono text-muted-foreground">
-          {quantity}{' '}
+          {removeTrailingZeros(truncateToFixed(Number(quantity), 6))}{' '}
           {tokenConvertReverse[row.original.currency as keyof typeof tokenConvertReverse]}
         </span>
       );
@@ -121,7 +121,11 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
     ),
     cell: ({ row }) => {
       const usdAmount = row.getValue('usdAmount') as string;
-      return <span className="text-md font-mono text-muted-foreground">${usdAmount}</span>;
+      return (
+        <span className="text-md font-mono text-muted-foreground">
+          ${removeTrailingZeros(truncateToFixed(Number(usdAmount), 6))}
+        </span>
+      );
     },
   },
   {
