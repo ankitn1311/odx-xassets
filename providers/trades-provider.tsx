@@ -43,7 +43,7 @@ interface TradesProviderProps {
 
 const TradesContext = createContext<TradesContextType | null>(null);
 
-const WEB_SOCKET_URL = 'wss://y3mnua6ij2.execute-api.ap-northeast-1.amazonaws.com/devo';
+const WEB_SOCKET_URL = 'wss://ashwin-ap-northeast-1.broadcastservice.api.devo.backend.odx.so/devo';
 export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
   const { address } = useAccount();
   const queryClient = useQueryClient();

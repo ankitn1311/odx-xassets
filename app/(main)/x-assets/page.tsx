@@ -10,7 +10,7 @@ export default function XAssets() {
         <TokenChart />
         <TokenSwapCard />
       </div>
-      <TradesTable pageSize={5} type="user" />
+      <TradesTable pageSize={10} type="user" />
     </div>
   );
 }
