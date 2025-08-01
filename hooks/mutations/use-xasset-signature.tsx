@@ -5,10 +5,10 @@ import { CosignerData, NonceManager, V2DutchOrderBuilder } from '@uniswap/uniswa
 import { ethers as ethersV5 } from 'ethers';
 import { useWalletClient, useAccount } from 'wagmi';
 import { WalletClient, createWalletClient, custom } from 'viem';
-import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
 import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import axios, { AxiosError } from 'axios';
-
+import { Copy } from 'lucide-react';
+import { useCopyToClipboard } from 'usehooks-ts';
 interface SigData {
   user_address: string;
   token: string;
@@ -94,6 +94,7 @@ export const useXAssetSignature = () => {
   const { address } = useAccount();
   const { setTradeState, setLatestTradeHash, activeTab } = useTokenSwapStore();
   const queryClient = useQueryClient();
+  const [, copyToClipboard] = useCopyToClipboard();
 
   const sigDataMutation = useMutation({
     mutationFn: async (data: SigData) => {
@@ -349,7 +350,6 @@ export const useXAssetSignature = () => {
       });
       // Start polling for order status
       let orderStatus: OrderStatusResponse;
-
       // status - VALIDATED , PROCESSED , ERROR
 
       let attempts = 0;
@@ -368,7 +368,7 @@ export const useXAssetSignature = () => {
       if (SUCCESS_STATES.includes(orderStatus.status as SuccessStatus)) {
         if (orderStatus.errorMessage) {
           setTradeState(TradeState.FAILED);
-          throw new Error('Transaction failed');
+          throw new Error(`FAILED_${orderStatus.executionName}`);
         }
         toast.success('Transaction successful', {
           description: (
@@ -390,7 +390,7 @@ export const useXAssetSignature = () => {
           throw new Error('Address used to trade is not whitelisted');
         }
         setTradeState(TradeState.FAILED);
-        throw new Error('Transaction failed');
+        throw new Error(`FAILED_${orderStatus.executionName}`);
       } else if (PENDING_STATES.includes(orderStatus.status as PendingStatus)) {
         toast.info('Transaction pending', {
           description: txHash ? (
@@ -405,7 +405,28 @@ export const useXAssetSignature = () => {
 
       return result;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Transaction failed');
+      if (error instanceof Error && error.message.includes('FAILED_')) {
+        const errorMessage = 'Transaction failed';
+        const description = (
+          <div
+            className="flex cursor-pointer items-center gap-2"
+            onClick={() => {
+              copyToClipboard(error.message.replace('FAILED_', ''));
+              toast.success('Error copied to clipboard', {
+                description: 'Send this to support on discord',
+              });
+            }}
+          >
+            <p>Copy error and reach out to support on discord</p>
+            <Copy className="h-4 w-4" />
+          </div>
+        );
+        toast.error(errorMessage, {
+          description,
+        });
+      } else {
+        toast.error(error instanceof Error ? error.message : 'Transaction failed');
+      }
       setTradeState(TradeState.FAILED);
       throw error;
     }
