@@ -12,6 +12,8 @@ import { Info } from 'lucide-react';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
 import { useTheme } from 'next-themes';
+import { SlippageSettings } from './SlippageSettings';
+import { useAppStore } from '@/stores/app-store';
 
 const MAX_DECIMALS = 6;
 const POLLING_INTERVAL = 5000; // 5 seconds
@@ -21,6 +23,7 @@ export function InitialStep() {
   const { setValue, watch } = useFormContext<SwapFormValues>();
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
+  const { slippage } = useAppStore();
 
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -188,12 +191,21 @@ export function InitialStep() {
           showPercentageButtons={false}
         />
       </div>
+      <div className="flex flex-col gap-4">
+        <div className="mt-2 flex items-center justify-between pt-4">
+          <p className="text-sm text-muted-foreground">Source</p>
+          <MovingButton className="border-border bg-card text-card-foreground">
+            <ODXApiSource />
+          </MovingButton>
+        </div>
 
-      <div className="mt-2 flex items-center justify-between py-4">
-        <p className="text-sm text-muted-foreground">Source</p>
-        <MovingButton className="border-border bg-card text-card-foreground">
-          <ODXApiSource />
-        </MovingButton>
+        <div className="flex items-center justify-between pb-4">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">Slippage</p>
+            <SlippageSettings />
+          </div>
+          <p className="text-sm text-muted-foreground">{slippage}%</p>
+        </div>
       </div>
 
       <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">

@@ -8,6 +8,7 @@ export type AppState = {
   privateKey?: string | null;
   sessionExpiry?: number;
   isBannerVisible?: boolean;
+  slippage: number;
 };
 
 export type AppActions = {
@@ -17,6 +18,7 @@ export type AppActions = {
   setPrivateKey: (privateKey: string) => void;
   setSessionExpiry: (sessionExpiry: number) => void;
   setIsBannerVisible: (isBannerVisible: boolean) => void;
+  setSlippage: (slippage: number) => void;
 };
 
 export type AppStore = AppState & AppActions;
@@ -26,6 +28,7 @@ export const defaultInitState: AppState = {
   loginEmail: '',
   imported_addresses: [],
   isBannerVisible: false,
+  slippage: 0.5,
 };
 
 export const useAppStore = create(
@@ -45,6 +48,7 @@ export const useAppStore = create(
         })),
       setIsBannerVisible: (isBannerVisible: boolean) =>
         set(() => ({ isBannerVisible: isBannerVisible })),
+      setSlippage: (slippage: number) => set(() => ({ slippage: slippage })),
     }),
     {
       name: 'app-odx',

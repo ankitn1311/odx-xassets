@@ -17,6 +17,7 @@ interface SigData {
   input_decimals: number;
   output_decimals: number;
   output_amount: string;
+  slippage: number;
 }
 
 interface SigDataWithSignature extends SigData {
@@ -273,12 +274,27 @@ export const useXAssetSignature = () => {
       data.output_decimals
     );
 
+    // Calculate output amounts with slippage
+    // For Market orders: startAmount is the minimum (worst case), endAmount can be higher (best case)
+    // slippage is applied to set the minimum amount the user will accept, but they can get more
+    // const slippageMultiplier = (100 - data.slippage) / 100; // Convert percentage to decimal
+    // const minimumOutputAmount = outputAmount
+    //   .mul(ethersV5.BigNumber.from(Math.floor(slippageMultiplier * 10000)))
+    //   .div(10000);
+
+    // // For Market orders: startAmount is minimum, endAmount can be higher
+    // // This allows users to benefit from price improvements
+    // const maximumOutputAmount = outputAmount
+    //   .mul(ethersV5.BigNumber.from(Math.floor((100 + data.slippage) * 100)))
+    //   .div(10000);
+
     const cosignerData: CosignerData = {
       decayStartTime: startTime,
       decayEndTime: endTime,
       exclusiveFiller: BASE_REACTOR,
       exclusivityOverrideBps: inputAmount,
       inputOverride: inputAmount,
+      // outputOverrides: [minimumOutputAmount],
       outputOverrides: [outputAmount],
     };
 
@@ -297,6 +313,8 @@ export const useXAssetSignature = () => {
       })
       .output({
         token: data.output_token,
+        // startAmount: minimumOutputAmount, // Minimum amount (worst case with slippage)
+        // endAmount: maximumOutputAmount, // Maximum amount (best case, can be higher than expected)
         startAmount: outputAmount,
         endAmount: outputAmount,
         // .mul(90)
@@ -306,6 +324,7 @@ export const useXAssetSignature = () => {
       .cosignerData(cosignerData)
       .inputOverride(inputAmount)
       .outputOverrides([outputAmount]);
+    // .outputOverrides([minimumOutputAmount]);
 
     let order = v2Builder.build();
     console.log('Initial order built:', order);
