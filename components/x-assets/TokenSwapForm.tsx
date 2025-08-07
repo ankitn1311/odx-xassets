@@ -11,11 +11,13 @@ import { useAccount, useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
 import { truncateToFixed } from '@/lib/utils';
+import { useAppStore } from '@/stores/app-store';
 
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
   const { tradeState, setTradeState, isApproved, setIsApproved, setLatestTradeHash, activeTab } =
     useTokenSwapStore();
+  const { slippage } = useAppStore();
   const { address } = useAccount();
   const form = useFormContext<SwapFormValues>();
 
@@ -189,6 +191,7 @@ export function TokenSwapForm() {
             input_decimals: outputToken?.Decimals ?? 0,
             output_decimals: inputToken?.Decimals ?? 0,
             output_token: inputToken?.Address ?? '',
+            slippage: slippage,
           });
         } else if (activeTab === TabState.SELL) {
           await submitSignature({
@@ -199,6 +202,7 @@ export function TokenSwapForm() {
             input_decimals: inputToken?.Decimals ?? 0,
             output_decimals: outputToken?.Decimals ?? 0,
             output_token: outputToken?.Address ?? '',
+            slippage: slippage,
           });
         }
       }

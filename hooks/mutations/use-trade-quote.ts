@@ -45,7 +45,6 @@ export const tokenConvertForUI = {
   SUI: 'Sui',
 };
 
-// Helper function to calculate quote
 const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
   const inputToken = params.inputToken.Name;
   const outputToken = params.outputToken.Name;
@@ -61,7 +60,6 @@ const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
   const currentPrice = parseFloat(response.data.result.data[0].v);
   const inputAmount = parseFloat(params.inputAmount);
 
-  // Calculate how much USDC you'll get for the input SOL amount
   return inputAmount * currentPrice;
 };
 
