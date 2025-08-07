@@ -28,7 +28,7 @@ export const defaultInitState: AppState = {
   loginEmail: '',
   imported_addresses: [],
   isBannerVisible: false,
-  slippage: 0.5,
+  slippage: 0.2,
 };
 
 export const useAppStore = create(
