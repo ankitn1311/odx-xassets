@@ -15,25 +15,25 @@ export function useAllTokenAnalytics() {
       pair.TokenA,
       pair.TokenB
     );
-    // Volume: fetch recent trades for this token
-    const { data: trades, isLoading: isTradesLoading } = useRecentTrades(
-      'token',
-      pair.TokenB.Address
-    );
+    // // Volume: fetch recent trades for this token
+    // const { data: trades, isLoading: isTradesLoading } = useRecentTrades(
+    //   'token',
+    //   pair.TokenB.Address
+    // );
     // Sum amountIn for trades in the last 24h
     const now = Date.now();
-    const volume24h = trades
-      ? trades
-          .filter(trade => trade.timestamp >= get24hAgo())
-          .reduce((sum, trade) => sum + Number(trade.amountIn), 0)
-      : 0;
+    // const volume24h = trades
+    //   ? trades
+    //       .filter(trade => trade.timestamp >= get24hAgo())
+    //       .reduce((sum, trade) => sum + Number(trade.amountIn), 0)
+    //   : 0;
     return {
       token: pair.TokenB,
       tvl: supplyData?.totalSupplyUSD ? parseFloat(supplyData.totalSupplyUSD) : 0,
       tvlRaw: supplyData?.totalSupply || '0',
       isTvlLoading: isSupplyLoading,
-      volume24h,
-      isVolumeLoading: isTradesLoading,
+      volume24h: 0,
+      isVolumeLoading: false,
     };
   });
 
@@ -45,7 +45,7 @@ export function useTotalAnalytics(duration: '7D' | '30D' | '90D' | '180D' = '30D
   const analytics = useAllTokenAnalytics();
   const isLoading = analytics.some(a => a.isTvlLoading || a.isVolumeLoading);
   const totalTVL = analytics.reduce((sum, a) => sum + (a.tvl || 0), 0);
-  const totalVolume24h = analytics.reduce((sum, a) => sum + (a.volume24h || 0), 0);
+  // const totalVolume24h = analytics.reduce((sum, a) => sum + (a.volume24h || 0), 0);
 
   // For now, create a flat chart with N points (simulate history)
   const points = duration === '7D' ? 7 : duration === '30D' ? 30 : duration === '90D' ? 90 : 180;
@@ -55,16 +55,16 @@ export function useTotalAnalytics(duration: '7D' | '30D' | '90D' | '180D' = '30D
     time: now - (points - i - 1) * interval,
     value: totalTVL,
   }));
-  const volumeChart = Array.from({ length: points }, (_, i) => ({
-    time: now - (points - i - 1) * interval,
-    value: totalVolume24h,
-  }));
+  // const volumeChart = Array.from({ length: points }, (_, i) => ({
+  //   time: now - (points - i - 1) * interval,
+  //   value: totalVolume24h,
+  // }));
 
   return {
     totalTVL,
-    totalVolume24h,
+    // totalVolume24h,
     isLoading,
     tvlChart,
-    volumeChart,
+    // volumeChart,
   };
 }

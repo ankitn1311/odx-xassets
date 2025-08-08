@@ -3,7 +3,7 @@ import { TradeData } from '@/providers/trades-provider';
 import axios from 'axios';
 import { useAccount } from 'wagmi';
 import { SwapperData } from './queries/use-wallet-profile';
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import { BASE_URL } from '@/lib/utils';
 
 export const getTradesData = async (type?: 'user' | 'explorer', address?: string) => {
   if (!address) throw new Error('Wallet address is required');

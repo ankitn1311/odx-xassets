@@ -7,8 +7,9 @@ import { useAccount } from 'wagmi';
 export function AnalyticsCard() {
   const [tvlDuration, setTvlDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
   const [volumeDuration, setVolumeDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
-  const { totalTVL, totalVolume24h, isLoading, tvlChart, volumeChart } =
-    useTotalAnalytics(tvlDuration);
+  const { totalTVL, isLoading } = useTotalAnalytics(tvlDuration);
+
+  const totalVolume24h: number = 0;
   const { isConnected } = useAccount();
 
   return (

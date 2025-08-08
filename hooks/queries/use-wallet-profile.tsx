@@ -1,8 +1,7 @@
+import { BASE_URL } from '@/lib/utils';
 import { TradeData } from '@/providers/trades-provider';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export interface SwapperData {
   address: string;
