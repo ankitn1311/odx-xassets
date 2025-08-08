@@ -1,7 +1,6 @@
+import { BASE_URL } from '@/lib/utils';
 import { LeaderboardEntry } from './columns';
 import axios from 'axios';
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export type LeaderboardApiResponse = {
   leaderboard: LeaderboardEntry[];

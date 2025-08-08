@@ -9,6 +9,7 @@ import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-sto
 import axios, { AxiosError } from 'axios';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from 'usehooks-ts';
+import { BASE_URL } from '@/lib/utils';
 interface SigData {
   user_address: string;
   token: string;
@@ -45,8 +46,6 @@ const CHAIN_PERMIT2_CONFIG = {
   64165: BASE_PERMIT2, // Sonic testnet
   57054: BASE_PERMIT2, // Sonic testnet
 } as const;
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const ERROR_STATES = [
   'VALIDATION_FAILED',
@@ -294,7 +293,6 @@ export const useXAssetSignature = () => {
       exclusiveFiller: BASE_REACTOR,
       exclusivityOverrideBps: inputAmount,
       inputOverride: inputAmount,
-      // outputOverrides: [minimumOutputAmount],
       outputOverrides: [outputAmount],
     };
 
@@ -313,18 +311,13 @@ export const useXAssetSignature = () => {
       })
       .output({
         token: data.output_token,
-        // startAmount: minimumOutputAmount, // Minimum amount (worst case with slippage)
-        // endAmount: maximumOutputAmount, // Maximum amount (best case, can be higher than expected)
         startAmount: outputAmount,
         endAmount: outputAmount,
-        // .mul(90)
-        // .div(100),
         recipient: data.user_address,
       })
       .cosignerData(cosignerData)
       .inputOverride(inputAmount)
       .outputOverrides([outputAmount]);
-    // .outputOverrides([minimumOutputAmount]);
 
     let order = v2Builder.build();
     console.log('Initial order built:', order);

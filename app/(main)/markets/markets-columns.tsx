@@ -33,19 +33,30 @@ export function useMarketsColumns(): ColumnDef<any>[] {
       accessorKey: 'priceChart',
       header: 'Chart',
       cell: ({ row }: { row: Row<any> }) => (
-        <SmallPriceChart tokenName={row.original.tokenSymbol} />
+        <SmallPriceChart
+          key={`${row.original.tokenSymbol}-price-chart`}
+          tokenName={row.original.tokenSymbol}
+        />
       ),
     },
     {
       accessorKey: 'price',
       header: 'Price',
-      cell: ({ row }: { row: Row<any> }) => <PriceDisplay tokenSymbol={row.original.tokenSymbol} />,
+      cell: ({ row }: { row: Row<any> }) => (
+        <PriceDisplay
+          key={`${row.original.tokenSymbol}-price-display`}
+          tokenSymbol={row.original.tokenSymbol}
+        />
+      ),
     },
     {
       accessorKey: 'priceChange',
       header: 'Daily Change',
       cell: ({ row }: { row: Row<any> }) => (
-        <PriceChangeDisplay tokenSymbol={row.original.tokenSymbol} />
+        <PriceChangeDisplay
+          key={`${row.original.tokenSymbol}-price-change-display`}
+          tokenSymbol={row.original.tokenSymbol}
+        />
       ),
     },
     {

@@ -29,6 +29,8 @@ export const convertXUSDT = (symbol: string) => {
 
 export const WHOLE_NUMBER_TOKENS = ['x1XRP', 'x1ADA', 'x1DOGE', 'x1PEPE', 'x1SUI'];
 
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 export const removeTrailingZeros = (value: string) => {
   const numValue = Number(value);
 
