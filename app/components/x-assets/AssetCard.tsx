@@ -41,7 +41,7 @@ export function AssetCard({
     >
       <div className="flex items-start gap-3">
         <div className="relative h-8 w-8">
-          <Image src={icon} alt={`${name} icon`} fill className="rounded-full object-cover" />
+          <Image src={icon} alt={`${name} icon`} fill className="object-cover" />
           <div className="absolute -bottom-1 -right-1 rounded-full border border-border bg-background p-0.5">
             <div className="h-3 w-3 rounded-full bg-gradient-to-r from-white to-black" />
           </div>

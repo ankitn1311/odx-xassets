@@ -39,12 +39,18 @@ export function SwapScreens() {
   useEffect(() => {
     // Initialize the debounced function
     debouncedGetQuoteRef.current = debounce(
-      async (inputToken: TokenInfo, outputToken: TokenInfo, inputAmount: string) => {
+      async (
+        inputToken: TokenInfo,
+        outputToken: TokenInfo,
+        inputAmount: string,
+        isBuy: boolean
+      ) => {
         try {
           const quote = await getQuote({
             inputToken,
             outputToken,
             inputAmount,
+            type: isBuy ? 'buy' : 'sell',
           });
           if (quote) {
             setValue('outputAmount', quote.toString());

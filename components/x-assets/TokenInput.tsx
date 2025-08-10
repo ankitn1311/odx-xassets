@@ -47,6 +47,7 @@ export function TokenInput({
   const { allTokens, activeTab } = useTokenSwapStore();
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
+  const isBuy = activeTab === TabState.BUY;
 
   const token = !isOutput ? inputToken : outputToken;
   const isUSDT = token?.Name === 'USDC';
@@ -93,12 +94,18 @@ export function TokenInput({
   useEffect(() => {
     // Initialize the debounced function
     debouncedGetQuoteRef.current = debounce(
-      async (inputToken: TokenInfo, outputToken: TokenInfo, inputAmount: string) => {
+      async (
+        inputToken: TokenInfo,
+        outputToken: TokenInfo,
+        inputAmount: string,
+        isBuy: boolean
+      ) => {
         try {
           const quote = await getQuote({
             inputToken: inputToken,
             outputToken: outputToken,
             inputAmount,
+            type: isBuy ? 'buy' : 'sell',
           });
           if (quote) {
             setValue('outputAmount', quote.toString());
@@ -139,10 +146,10 @@ export function TokenInput({
       setValue('amount', formattedValue);
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
-        debouncedGetQuoteRef.current(inputToken, outputToken, formattedValue);
+        debouncedGetQuoteRef.current(inputToken, outputToken, formattedValue, isBuy);
       }
     },
-    [inputToken, outputToken, setValue]
+    [inputToken, outputToken, setValue, isBuy]
   );
 
   return (
@@ -179,7 +186,6 @@ export function TokenInput({
                 alt={token?.Name}
                 width={24}
                 height={24}
-                className="rounded-full"
               />
               <span className="font-medium">{convertXUSDT(token?.Name)}</span>
             </div>
@@ -215,7 +221,6 @@ export function TokenInput({
                             alt={token.Name}
                             width={24}
                             height={24}
-                            className="rounded-full"
                           />
                           <span>{convertXUSDT(token.Name)}</span>
                         </div>

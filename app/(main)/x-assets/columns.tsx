@@ -9,7 +9,7 @@ const TokenName = ({ name, symbol, image }: { name: string; symbol: string; imag
         width="40"
         height="40"
         loading="lazy"
-        className="h-10 w-10 rounded-full"
+        className="h-10 w-10"
       />
       <div className="flex flex-col">
         <div className="text-base">{name}</div>

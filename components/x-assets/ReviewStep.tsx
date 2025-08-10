@@ -46,7 +46,12 @@ export function ReviewStep() {
     // Set up polling
     pollingIntervalRef.current = setInterval(async () => {
       try {
-        const quote = await getQuote({ inputToken, outputToken, inputAmount: amount });
+        const quote = await getQuote({
+          inputToken,
+          outputToken,
+          inputAmount: amount,
+          type: activeTab === TabState.BUY ? 'buy' : 'sell',
+        });
         if (quote !== undefined && quote !== null) {
           form.setValue('outputAmount', quote.toString());
         }
@@ -60,7 +65,7 @@ export function ReviewStep() {
         clearInterval(pollingIntervalRef.current);
       }
     };
-  }, [inputToken, outputToken, amount, getQuote, form, tradeState]);
+  }, [inputToken, outputToken, amount, getQuote, form, tradeState, activeTab]);
 
   const addTokenToWallet = async (token: TokenInfo) => {
     setTokenToAdd(token);
@@ -148,7 +153,6 @@ export function ReviewStep() {
               alt={outputToken?.Name ?? ''}
               width={32}
               height={32}
-              className="rounded-full"
             />
           </div>
           <Button
