@@ -183,6 +183,9 @@ export function TokenSwapForm() {
       if (tradeState === TradeState.REVIEW) {
         setTradeState(TradeState.PROCESSING);
         if (activeTab === TabState.BUY) {
+          setTradeState(TradeState.INITIAL);
+          resetForm();
+          return toast.info('Only selling is enabled due to liqudity rebalancing.');
           await submitSignature({
             user_address: address ?? '',
             token: outputToken?.Address ?? '',
