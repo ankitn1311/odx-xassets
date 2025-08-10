@@ -15,6 +15,7 @@ export interface TradeData {
   usdAmount: number;
   side: string;
   tradeId: string;
+  orderId?: string;
 }
 
 export interface WebSocketMessage {
@@ -28,6 +29,7 @@ export interface WebSocketMessage {
   time: string;
   side: string;
   tradeId: string;
+  orderId?: string;
 }
 
 type TradesContextType = {
@@ -43,7 +45,7 @@ interface TradesProviderProps {
 
 const TradesContext = createContext<TradesContextType | null>(null);
 
-const WEB_SOCKET_URL = 'wss://ashwin-ap-northeast-1.broadcastservice.api.devo.backend.odx.so/devo';
+const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WSS_BASE_URL as string;
 export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
   const { address } = useAccount();
   const queryClient = useQueryClient();
