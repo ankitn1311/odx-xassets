@@ -3,12 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 const TOKEN_SYMBOL_MAP: Record<string, string> = {
-  x1XRP: 'XRP_USD',
-  x1SOL: 'SOL_USD',
-  x1ADA: 'ADA_USD',
-  x1DOGE: 'DOGE_USD',
-  x1PEPE: 'PEPE_USD',
-  x1SUI: 'SUI_USD',
+  x2XRP: 'XRP_USD',
+  x2SOL: 'SOL_USD',
+  x2ADA: 'ADA_USD',
+  x2DOGE: 'DOGE_USD',
+  x2PEPE: 'PEPE_USD',
+  x2SUI: 'SUI_USD',
   // Add more mappings as needed
 };
 

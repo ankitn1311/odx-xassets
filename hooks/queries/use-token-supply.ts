@@ -26,7 +26,12 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
   const { data: wallet } = useWalletClient();
 
   return useQuery({
-    queryKey: ['token-supply', inputToken?.Address, outputToken?.Address, wallet?.account.address],
+    queryKey: [
+      'token-supply',
+      inputToken?.Address,
+      outputToken?.V1Address,
+      wallet?.account.address,
+    ],
     queryFn: async () => {
       if (!inputToken || !outputToken) {
         return {
@@ -34,9 +39,9 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
           totalSupplyUSD: '0',
         };
       }
-      const supply = await getTokenSupply(outputToken.Address, outputToken.Decimals, wallet);
+      const supply = await getTokenSupply(outputToken.V1Address, outputToken.Decimals, wallet);
 
-      if (outputToken.Address) {
+      if (outputToken.V1Address) {
         const quote = await getQuote({
           outputToken: inputToken,
           inputToken: outputToken,
@@ -59,7 +64,7 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
         totalSupplyUSD: '0',
       };
     },
-    enabled: !!outputToken?.Address && !!inputToken?.Address,
+    enabled: !!outputToken?.V1Address && !!inputToken?.Address,
     staleTime: 1000 * 60 * 10,
   });
 };

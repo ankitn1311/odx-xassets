@@ -22,16 +22,20 @@ export const tokenConvert = {
   x1DOGE: 'DOGE',
   x1PEPE: 'PEPE',
   x1SUI: 'SUI',
+  x2SOL: 'SOL',
+  x2XRP: 'XRP',
+  x2ADA: 'ADA',
+  x2SUI: 'SUI',
 };
 
 export const tokenConvertReverse = {
   USD: 'USDC',
-  SOL: 'x1SOL',
-  XRP: 'x1XRP',
-  ADA: 'x1ADA',
-  DOGE: 'x1DOGE',
-  PEPE: 'x1PEPE',
-  SUI: 'x1SUI',
+  SOL: 'x2SOL',
+  XRP: 'x2XRP',
+  ADA: 'x2ADA',
+  DOGE: 'x2DOGE',
+  PEPE: 'x2PEPE',
+  SUI: 'x2SUI',
 };
 
 export const tokenConvertForUI = {
