@@ -17,12 +17,12 @@ export function ReservesTable() {
   const { allTokens } = useTokenSwapStore();
   const isMobile = useIsMobile();
   const { isConnected } = useAccount();
-  const solToken = allTokens.find(token => token.TokenB.Name === 'x1SOL');
-  const xrpToken = allTokens.find(token => token.TokenB.Name === 'x1XRP');
-  const adaToken = allTokens.find(token => token.TokenB.Name === 'x1ADA');
-  const dogeToken = allTokens.find(token => token.TokenB.Name === 'x1DOGE');
-  const pepeToken = allTokens.find(token => token.TokenB.Name === 'x1PEPE');
-  const suiToken = allTokens.find(token => token.TokenB.Name === 'x1SUI');
+  const solToken = allTokens.find(token => token.TokenB.Name === 'x2SOL');
+  const xrpToken = allTokens.find(token => token.TokenB.Name === 'x2XRP');
+  const adaToken = allTokens.find(token => token.TokenB.Name === 'x2ADA');
+  // const dogeToken = allTokens.find(token => token.TokenB.Name === 'x1DOGE');
+  // const pepeToken = allTokens.find(token => token.TokenB.Name === 'x1PEPE');
+  const suiToken = allTokens.find(token => token.TokenB.Name === 'x2SUI');
 
   const { data: tokenSupplyData, isLoading: isSupplyLoading } = useTokenSupply(
     solToken?.TokenA,
@@ -36,14 +36,14 @@ export function ReservesTable() {
     adaToken?.TokenA,
     adaToken?.TokenB
   );
-  const { data: dogeTokenSupplyData, isLoading: isDogeSupplyLoading } = useTokenSupply(
-    dogeToken?.TokenA,
-    dogeToken?.TokenB
-  );
-  const { data: pepeTokenSupplyData, isLoading: isPepeSupplyLoading } = useTokenSupply(
-    pepeToken?.TokenA,
-    pepeToken?.TokenB
-  );
+  // const { data: dogeTokenSupplyData, isLoading: isDogeSupplyLoading } = useTokenSupply(
+  //   dogeToken?.TokenA,
+  //   dogeToken?.TokenB
+  // );
+  // const { data: pepeTokenSupplyData, isLoading: isPepeSupplyLoading } = useTokenSupply(
+  //   pepeToken?.TokenA,
+  //   pepeToken?.TokenB
+  // );
   const { data: suiTokenSupplyData, isLoading: isSuiSupplyLoading } = useTokenSupply(
     suiToken?.TokenA,
     suiToken?.TokenB
@@ -90,32 +90,32 @@ export function ReservesTable() {
           marketCap: 0,
           image: `/images/tokens/${adaToken?.TokenB.Name}.png`,
         },
-        {
-          tokenName: xTokenToToken[dogeToken?.TokenB.Name as keyof typeof xTokenToToken],
-          tokenSymbol: dogeToken?.TokenB.Name || '',
-          totalSupply: dogeTokenSupplyData?.totalSupply || '0',
-          totalSupplyUSD: dogeTokenSupplyData?.totalSupplyUSD || '0',
-          unitsInReserve: dogeTokenSupplyData?.totalSupply || '0',
-          unitsInReserveUSD: dogeTokenSupplyData?.totalSupplyUSD || '0',
-          ratio: '100%',
-          price: 0,
-          priceChange: 0,
-          marketCap: 0,
-          image: `/images/tokens/${dogeToken?.TokenB.Name}.png`,
-        },
-        {
-          tokenName: xTokenToToken[pepeToken?.TokenB.Name as keyof typeof xTokenToToken],
-          tokenSymbol: pepeToken?.TokenB.Name || '',
-          totalSupply: pepeTokenSupplyData?.totalSupply || '0',
-          totalSupplyUSD: pepeTokenSupplyData?.totalSupplyUSD || '0',
-          unitsInReserve: pepeTokenSupplyData?.totalSupply || '0',
-          unitsInReserveUSD: pepeTokenSupplyData?.totalSupplyUSD || '0',
-          ratio: '100%',
-          price: 0,
-          priceChange: 0,
-          marketCap: 0,
-          image: `/images/tokens/${pepeToken?.TokenB.Name}.png`,
-        },
+        // {
+        //   tokenName: xTokenToToken[dogeToken?.TokenB.Name as keyof typeof xTokenToToken],
+        //   tokenSymbol: dogeToken?.TokenB.Name || '',
+        //   totalSupply: dogeTokenSupplyData?.totalSupply || '0',
+        //   totalSupplyUSD: dogeTokenSupplyData?.totalSupplyUSD || '0',
+        //   unitsInReserve: dogeTokenSupplyData?.totalSupply || '0',
+        //   unitsInReserveUSD: dogeTokenSupplyData?.totalSupplyUSD || '0',
+        //   ratio: '100%',
+        //   price: 0,
+        //   priceChange: 0,
+        //   marketCap: 0,
+        //   image: `/images/tokens/${dogeToken?.TokenB.Name}.png`,
+        // },
+        // {
+        //   tokenName: xTokenToToken[pepeToken?.TokenB.Name as keyof typeof xTokenToToken],
+        //   tokenSymbol: pepeToken?.TokenB.Name || '',
+        //   totalSupply: pepeTokenSupplyData?.totalSupply || '0',
+        //   totalSupplyUSD: pepeTokenSupplyData?.totalSupplyUSD || '0',
+        //   unitsInReserve: pepeTokenSupplyData?.totalSupply || '0',
+        //   unitsInReserveUSD: pepeTokenSupplyData?.totalSupplyUSD || '0',
+        //   ratio: '100%',
+        //   price: 0,
+        //   priceChange: 0,
+        //   marketCap: 0,
+        //   image: `/images/tokens/${pepeToken?.TokenB.Name}.png`,
+        // },
         {
           tokenName: xTokenToToken[suiToken?.TokenB.Name as keyof typeof xTokenToToken],
           tokenSymbol: suiToken?.TokenB.Name || '',
@@ -136,8 +136,8 @@ export function ReservesTable() {
     isSupplyLoading ||
     isXrpSupplyLoading ||
     isAdaSupplyLoading ||
-    isDogeSupplyLoading ||
-    isPepeSupplyLoading ||
+    // isDogeSupplyLoading ||
+    // isPepeSupplyLoading ||
     isSuiSupplyLoading
   ) {
     if (isMobile) {

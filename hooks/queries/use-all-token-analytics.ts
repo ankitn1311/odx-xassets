@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTokenSupply } from './use-token-supply';
 import { useRecentTrades } from './useRecentTrades';
-import { ALL_TOKEN_PAIRS, TokenPair } from './use-all-tokens';
+import { ALL_V2_TOKEN_PAIRS, TokenPair } from './use-all-tokens';
 
 // Helper to get 24h ago timestamp
 const get24hAgo = () => Date.now() - 24 * 60 * 60 * 1000;
@@ -9,7 +9,7 @@ const get24hAgo = () => Date.now() - 24 * 60 * 60 * 1000;
 export function useAllTokenAnalytics() {
   // For each token pair, get TVL and 24h volume
   // We'll use the TokenB (xAsset) as the main token
-  const analytics = ALL_TOKEN_PAIRS.map(pair => {
+  const analytics = ALL_V2_TOKEN_PAIRS.map(pair => {
     // TVL
     const { data: supplyData, isLoading: isSupplyLoading } = useTokenSupply(
       pair.TokenA,

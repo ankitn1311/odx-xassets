@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ALL_TOKEN_PAIRS, TokenInfo, TokenPair } from '@/hooks/queries/use-all-tokens';
+import { ALL_V2_TOKEN_PAIRS, TokenInfo, TokenPair } from '@/hooks/queries/use-all-tokens';
 import { persist } from 'zustand/middleware';
 
 export enum TradeState {
@@ -48,7 +48,7 @@ interface TokenSwapActions {
 export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
   // persist<TokenSwapState & TokenSwapActions>(
   set => ({
-    allTokens: ALL_TOKEN_PAIRS,
+    allTokens: ALL_V2_TOKEN_PAIRS,
     numericBalance: 0,
     inputToken: null,
     outputToken: null,

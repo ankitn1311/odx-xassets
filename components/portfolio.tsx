@@ -227,7 +227,7 @@ export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }
         <p className="text-base text-foreground">
           {isUsdx
             ? usdxBalance.data
-            : removeTrailingZeros(truncateToFixed(Number(tokenBalanceData.data), 6))}
+            : removeTrailingZeros(truncateToFixed(Number(tokenBalanceData.data || 0), 6))}
         </p>
       </div>
     </div>
