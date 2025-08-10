@@ -46,6 +46,7 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
           outputToken: inputToken,
           inputToken: outputToken,
           inputAmount: '1',
+          type: 'mark',
         });
 
         const reverseQuote = quote;

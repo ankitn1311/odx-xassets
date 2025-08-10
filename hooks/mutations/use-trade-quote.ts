@@ -9,7 +9,7 @@ interface QuoteParams {
   inputToken: TokenInfo;
   outputToken: TokenInfo;
   inputAmount: string;
-  type: 'buy' | 'sell';
+  type: 'buy' | 'sell' | 'mark';
 }
 
 // const CRYPTO_API_BASE = 'https://api.crypto.com/exchange/v1/public';
