@@ -94,6 +94,7 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
         userAddress: message.swapper,
         timestamp: Number(message.time),
         tradeId: message.tradeId,
+        orderId: message.orderId,
       };
 
       // Add to local ref for immediate access
