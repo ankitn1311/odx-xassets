@@ -38,6 +38,16 @@ export const tokenConvertReverse = {
   SUI: 'x2SUI',
 };
 
+export const tokenConvertReverseV1 = {
+  USD: 'USDC',
+  SOL: 'x1SOL',
+  XRP: 'x1XRP',
+  ADA: 'x1ADA',
+  DOGE: 'x1DOGE',
+  PEPE: 'x1PEPE',
+  SUI: 'x1SUI',
+};
+
 export const tokenConvertForUI = {
   USDC: 'USD',
   USDT: 'USD',

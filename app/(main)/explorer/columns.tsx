@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
 import { ExternalLink } from 'lucide-react';
 import { TradeData } from '@/providers/trades-provider';
-import { tokenConvertReverse } from '@/hooks/mutations/use-trade-quote';
+import { tokenConvertReverse, tokenConvertReverseV1 } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
 import { removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 
@@ -19,6 +19,8 @@ const formatTimestamp = (timestamp: string | number) => {
   });
 };
 
+const V2_LAUNCH_DATE = 1754831928367;
+
 export const tradeColumns: ColumnDef<TradeData>[] = [
   {
     accessorKey: 'currency',
@@ -33,7 +35,11 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
     ),
     cell: ({ row }) => {
       const currency = row.getValue('currency') as string;
-      const tokenName = tokenConvertReverse[currency as keyof typeof tokenConvertReverse];
+      const timestamp = row.getValue('timestamp') as string | number;
+      const isV1 = Number(new Date(timestamp)) < V2_LAUNCH_DATE;
+      const tokenName = isV1
+        ? tokenConvertReverseV1[currency as keyof typeof tokenConvertReverse]
+        : tokenConvertReverse[currency as keyof typeof tokenConvertReverse];
       return (
         <div className="flex items-center gap-2">
           <Image src={`/images/tokens/${tokenName}.png`} alt={tokenName} width={24} height={24} />
@@ -100,10 +106,14 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
     ),
     cell: ({ row }) => {
       const quantity = row.getValue('quantity') as string;
+      const timestamp = row.getValue('timestamp') as string | number;
+      const isV1 = Number(new Date(timestamp)) < V2_LAUNCH_DATE;
+      const tokenName = isV1
+        ? tokenConvertReverseV1[row.original.currency as keyof typeof tokenConvertReverse]
+        : tokenConvertReverse[row.original.currency as keyof typeof tokenConvertReverse];
       return (
         <span className="text-md font-mono text-muted-foreground">
-          {removeTrailingZeros(truncateToFixed(Number(quantity), 6))}{' '}
-          {tokenConvertReverse[row.original.currency as keyof typeof tokenConvertReverse]}
+          {removeTrailingZeros(truncateToFixed(Number(quantity), 6))} {tokenName}
         </span>
       );
     },
