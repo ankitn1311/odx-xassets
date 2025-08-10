@@ -140,8 +140,12 @@ export const TokenSwapCard = () => {
       <BackgroundGradient>
         <div className="flex h-full w-full flex-col">
           <Card className="h-full bg-card">
-            <div className="px-8 pb-8 pt-6">
-              <Tabs value={activeTab} onValueChange={value => setActiveTab(value as TabState)}>
+            <div className="h-full px-8 pb-8 pt-6">
+              <Tabs
+                className="flex h-full flex-col"
+                value={activeTab}
+                onValueChange={value => setActiveTab(value as TabState)}
+              >
                 <TabsList className="grid w-full grid-cols-2" variant="underline">
                   <TabsTrigger
                     variant="underline"
@@ -177,11 +181,11 @@ export const TokenSwapCard = () => {
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value={TabState.BUY} className="mt-6">
+                <TabsContent value={TabState.BUY} className="mt-6 flex-1">
                   <TokenSwapForm />
                 </TabsContent>
 
-                <TabsContent value={TabState.SELL} className="mt-6">
+                <TabsContent value={TabState.SELL} className="mt-6 flex-1">
                   <TokenSwapForm />
                 </TabsContent>
               </Tabs>
