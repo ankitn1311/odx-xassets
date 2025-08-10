@@ -21,9 +21,11 @@ const POLLING_INTERVAL = 5000; // 5 seconds
 export function InitialStep() {
   const { tradeState, activeTab } = useTokenSwapStore();
   const { setValue, watch } = useFormContext<SwapFormValues>();
+
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
   const { slippage } = useAppStore();
+  const isBuy = activeTab === TabState.BUY;
 
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -34,7 +36,12 @@ export function InitialStep() {
   useEffect(() => {
     // Initialize the debounced function
     debouncedGetQuoteRef.current = debounce(
-      async (inputToken: TokenInfo, outputToken: TokenInfo, inputAmount: string) => {
+      async (
+        inputToken: TokenInfo,
+        outputToken: TokenInfo,
+        inputAmount: string,
+        isBuy: boolean
+      ) => {
         try {
           if (inputAmount === '0') {
             setValue('outputAmount', '0');
@@ -46,6 +53,7 @@ export function InitialStep() {
             inputToken,
             outputToken,
             inputAmount,
+            type: isBuy ? 'buy' : 'sell',
           });
           if (quote) {
             setValue('outputAmount', quote.toString());
@@ -84,7 +92,7 @@ export function InitialStep() {
       // Set up new polling interval
       pollingIntervalRef.current = setInterval(() => {
         if (debouncedGetQuoteRef.current) {
-          debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount);
+          debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount, isBuy);
         }
       }, POLLING_INTERVAL);
     }
@@ -95,7 +103,13 @@ export function InitialStep() {
         clearInterval(pollingIntervalRef.current);
       }
     };
-  }, [inputAmount, inputToken, outputToken, setValue]);
+  }, [inputAmount, inputToken, outputToken, setValue, isBuy]);
+
+  useEffect(() => {
+    if (inputToken && outputToken && debouncedGetQuoteRef.current && inputAmount) {
+      debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount, isBuy);
+    }
+  }, [isBuy, inputToken, outputToken, inputAmount, debouncedGetQuoteRef]);
 
   const handleAmountChange = useCallback(
     async (value: string) => {
@@ -103,7 +117,7 @@ export function InitialStep() {
         setValue('amount', '');
         setValue('outputAmount', '');
         setValue('percentage', 0);
-        debouncedGetQuoteRef?.current?.(inputToken, outputToken, 0);
+        debouncedGetQuoteRef?.current?.(inputToken, outputToken, 0, isBuy);
         return;
       }
 
@@ -119,15 +133,15 @@ export function InitialStep() {
         setValue('outputAmount', '0');
         setValue('amount', /^0\.0*$/.test(formattedValue) ? formattedValue : '0');
         setValue('percentage', 0);
-        debouncedGetQuoteRef?.current?.(inputToken, outputToken, 0);
+        debouncedGetQuoteRef?.current?.(inputToken, outputToken, 0, isBuy);
         return;
       }
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
-        debouncedGetQuoteRef.current(inputToken, outputToken, numValue.toString());
+        debouncedGetQuoteRef.current(inputToken, outputToken, numValue.toString(), isBuy);
       }
     },
-    [inputToken, outputToken, setValue]
+    [inputToken, outputToken, setValue, isBuy]
   );
 
   return (

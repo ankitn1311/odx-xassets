@@ -1,11 +1,12 @@
-import { shortenAddress } from '@/utils/crypto';
+import { shortenAddress, shortenAddressWithLength } from '@/utils/crypto';
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
+import { ArrowUpDown, TrendingUp, TrendingDown, Copy } from 'lucide-react';
 import { ExternalLink } from 'lucide-react';
 import { TradeData } from '@/providers/trades-provider';
 import { tokenConvertReverse, tokenConvertReverseV1 } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
 import { removeTrailingZeros, truncateToFixed } from '@/lib/utils';
+import { toast } from 'sonner';
 
 // Helper function to format timestamp
 const formatTimestamp = (timestamp: string | number) => {
@@ -159,6 +160,41 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
             <ExternalLink className="h-3 w-3 text-muted-foreground transition-colors hover:text-primary" />
           </a>
         </span>
+      );
+    },
+  },
+  {
+    accessorKey: 'orderId',
+    header: ({ column }) => (
+      <div
+        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        <p className="select-none text-sm font-semibold">Order Id</p>
+        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
+      </div>
+    ),
+    cell: ({ row }) => {
+      const orderId = row.getValue('orderId') as string;
+      const handleCopy = async () => {
+        try {
+          await navigator.clipboard.writeText(orderId);
+          toast.success('Order ID copied to clipboard');
+        } catch (err) {
+          console.error('Failed to copy order ID:', err);
+        }
+      };
+      return (
+        <div
+          className="flex cursor-pointer items-center gap-2 transition-colors hover:text-primary"
+          onClick={handleCopy}
+          title="Click to copy order ID"
+        >
+          <span className="text-md font-mono text-muted-foreground">
+            {shortenAddressWithLength(orderId, 3)}
+          </span>
+          <Copy className="h-3 w-3 text-muted-foreground transition-colors hover:text-primary" />
+        </div>
       );
     },
   },

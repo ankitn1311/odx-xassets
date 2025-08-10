@@ -9,6 +9,7 @@ interface QuoteParams {
   inputToken: TokenInfo;
   outputToken: TokenInfo;
   inputAmount: string;
+  type: 'buy' | 'sell' | 'mark';
 }
 
 // const CRYPTO_API_BASE = 'https://api.crypto.com/exchange/v1/public';
@@ -63,6 +64,12 @@ export const tokenConvertForUI = {
 const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
   const inputToken = params.inputToken.Name;
   const outputToken = params.outputToken.Name;
+  const isBuy = params.type === 'buy';
+  const isSell = params.type === 'sell';
+
+  if (Number(params.inputAmount) === 0) {
+    return 0;
+  }
 
   const response = await axios.get(`${BASE_URL}/cdc/get-valuations`, {
     params: {
@@ -72,10 +79,17 @@ const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
     },
   });
 
+  const buyPrice = parseFloat(response.data.result.data[0].buy_price);
+  const sellPrice = parseFloat(response.data.result.data[0].sell_price);
   const currentPrice = parseFloat(response.data.result.data[0].v);
   const inputAmount = parseFloat(params.inputAmount);
-
-  return inputAmount * currentPrice;
+  if (isBuy) {
+    return inputAmount * buyPrice;
+  } else if (isSell) {
+    return inputAmount * sellPrice;
+  } else {
+    return inputAmount * currentPrice;
+  }
 };
 
 const getTokenPrice = async (tokenSymbol: string) => {

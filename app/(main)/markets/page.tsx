@@ -50,7 +50,7 @@ export default function MarketsPage() {
                   <Image
                     src={row.image}
                     alt={row.tokenSymbol}
-                    className="h-10 w-10 rounded-full"
+                    className="h-10 w-10"
                     width={40}
                     height={40}
                   />
