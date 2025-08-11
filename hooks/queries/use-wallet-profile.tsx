@@ -13,6 +13,15 @@ export interface SwapperData {
   lastRankUpdate?: number;
   userTrades: TradeData[];
   recentTrades: TradeData[];
+  volumeData: VolumeData[];
+}
+
+export interface VolumeData {
+  tradeCount: number;
+  lastUpdated: string;
+  totalVolumeUSD: number;
+  id: string;
+  symbol: string;
 }
 
 const fetchWalletProfile = async (address: string): Promise<SwapperData> => {

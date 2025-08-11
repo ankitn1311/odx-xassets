@@ -3,13 +3,19 @@ import { useTotalAnalytics } from '@/hooks/queries/use-all-token-analytics';
 import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAccount } from 'wagmi';
+import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
 
 export function AnalyticsCard() {
+  const { address } = useAccount();
   const [tvlDuration, setTvlDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
   const [volumeDuration, setVolumeDuration] = useState<'7D' | '30D' | '90D' | '180D'>('30D');
   const { totalTVL, isLoading } = useTotalAnalytics(tvlDuration);
+  const { data: walletProfile, isLoading: isWalletProfileLoading } = useWalletProfile(address);
 
-  const totalVolume24h: number = 0;
+  const volumeData = walletProfile?.volumeData.find(v => v.id === 'PROTOCOL_TOTAL')?.totalVolumeUSD;
+
+  const totalVolume = (volumeData ?? 0) * 2;
+
   const { isConnected } = useAccount();
 
   return (
@@ -45,12 +51,12 @@ export function AnalyticsCard() {
                 <span className="text-xs text-muted-foreground">Volume ({volumeDuration})</span>
                 {isConnected ? (
                   <span className="font-mono text-3xl font-semibold">
-                    {isLoading ? (
+                    {isWalletProfileLoading ? (
                       <Skeleton className="h-9 w-32" />
-                    ) : totalVolume24h === 0 ? (
+                    ) : totalVolume === 0 ? (
                       '-'
                     ) : (
-                      `$${totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                      `$${totalVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                     )}
                   </span>
                 ) : (
