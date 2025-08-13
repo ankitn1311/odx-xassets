@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { TokenInfo } from '../queries/use-all-tokens';
 import { useState, useEffect } from 'react';
-import { BASE_URL } from '@/lib/utils';
+import { getCurrentBaseUrl } from '@/lib/utils';
 
 interface QuoteParams {
   inputToken: TokenInfo;
@@ -71,7 +71,7 @@ const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
     return 0;
   }
 
-  const response = await axios.get(`${BASE_URL}/cdc/get-valuations`, {
+  const response = await axios.get(`${getCurrentBaseUrl()}/cdc/get-valuations`, {
     params: {
       instrument_name: `${tokenConvert[inputToken as keyof typeof tokenConvert]}_${tokenConvert[outputToken as keyof typeof tokenConvert]}`,
       valuation_type: 'mark_price',
@@ -93,7 +93,7 @@ const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
 };
 
 const getTokenPrice = async (tokenSymbol: string) => {
-  const response = await axios.get(`${BASE_URL}/cdc/get-valuations`, {
+  const response = await axios.get(`${getCurrentBaseUrl()}/cdc/get-valuations`, {
     params: {
       instrument_name: `${tokenConvert[tokenSymbol as keyof typeof tokenConvert]}_USD`,
       valuation_type: 'mark_price',
@@ -206,7 +206,7 @@ export const useTokenPriceChange = (tokenSymbol: string) => {
 };
 
 const getTokenPriceChange = async (tokenSymbol: string) => {
-  const response = await axios.get(`${BASE_URL}/cdc/get-tickers`, {
+  const response = await axios.get(`${getCurrentBaseUrl()}/cdc/get-tickers`, {
     params: {
       instrument_name: `${tokenConvert[tokenSymbol as keyof typeof tokenConvert]}_USD`,
     },

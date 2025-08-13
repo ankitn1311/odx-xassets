@@ -9,7 +9,8 @@ import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-sto
 import axios, { AxiosError } from 'axios';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from 'usehooks-ts';
-import { BASE_URL } from '@/lib/utils';
+import { getCurrentBaseUrl } from '@/lib/utils';
+
 interface SigData {
   user_address: string;
   token: string;
@@ -149,18 +150,10 @@ export const useXAssetSignature = () => {
 
   const signatureMutation = useMutation({
     mutationFn: async (data: SigDataWithSignature) => {
-      const response = await axios.post(`${BASE_URL}/`, {
+      const response = await axios.post(`${getCurrentBaseUrl()}/`, {
         order: data.serialized_order,
         signature: data.signature,
       });
-      // const response = await api.AXIOS(
-      //   {
-      //     url: '/order/v1/signature',
-      //     method: 'POST',
-      //     data,
-      //   },
-      //   'pricefeed'
-      // );
 
       return response.data;
     },
@@ -168,18 +161,9 @@ export const useXAssetSignature = () => {
 
   const cosignatureMutation = useMutation({
     mutationFn: async (data: CosignatureData) => {
-      const response = await axios.post(`${BASE_URL}/cosign`, {
+      const response = await axios.post(`${getCurrentBaseUrl()}/cosign`, {
         cosignHash: data.cosign_hash,
       });
-
-      // const response = await api.AXIOS(
-      //   {
-      //     url: '/order/v1/cosign',
-      //     method: 'POST',
-      //     data,
-      //   },
-      //   'pricefeed'
-      // );
 
       return response.data;
     },
@@ -187,7 +171,9 @@ export const useXAssetSignature = () => {
 
   const checkOrderStatus = async (orderId: string): Promise<OrderStatusResponse> => {
     try {
-      const response = await axios.get(`${BASE_URL}/status/${orderId}`);
+      const response = await axios.get<OrderStatusResponse>(
+        `${getCurrentBaseUrl()}/status/${orderId}`
+      );
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {

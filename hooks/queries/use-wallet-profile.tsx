@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/lib/utils';
+import { getCurrentBaseUrl } from '@/lib/utils';
 import { TradeData } from '@/providers/trades-provider';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -26,7 +26,7 @@ export interface VolumeData {
 
 const fetchWalletProfile = async (address: string): Promise<SwapperData> => {
   if (!address) throw new Error('Wallet address is required');
-  const response = await axios.get(`${BASE_URL}/swapper/${address}`);
+  const response = await axios.get<SwapperData>(`${getCurrentBaseUrl()}/swapper/${address}`);
   return response.data;
 };
 

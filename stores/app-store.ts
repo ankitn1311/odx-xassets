@@ -9,6 +9,8 @@ export type AppState = {
   sessionExpiry?: number;
   isBannerVisible?: boolean;
   slippage: number;
+  customBaseUrl?: string;
+  customWebSocketUrl?: string;
 };
 
 export type AppActions = {
@@ -19,6 +21,10 @@ export type AppActions = {
   setSessionExpiry: (sessionExpiry: number) => void;
   setIsBannerVisible: (isBannerVisible: boolean) => void;
   setSlippage: (slippage: number) => void;
+  setCustomBaseUrl: (url: string) => void;
+  setCustomWebSocketUrl: (url: string) => void;
+  clearCustomBaseUrl: () => void;
+  clearCustomWebSocketUrl: () => void;
 };
 
 export type AppStore = AppState & AppActions;
@@ -29,6 +35,8 @@ export const defaultInitState: AppState = {
   imported_addresses: [],
   isBannerVisible: false,
   slippage: 0.2,
+  customBaseUrl: '',
+  customWebSocketUrl: '',
 };
 
 export const useAppStore = create(
@@ -49,6 +57,10 @@ export const useAppStore = create(
       setIsBannerVisible: (isBannerVisible: boolean) =>
         set(() => ({ isBannerVisible: isBannerVisible })),
       setSlippage: (slippage: number) => set(() => ({ slippage: slippage })),
+      setCustomBaseUrl: (customBaseUrl: string) => set(() => ({ customBaseUrl })),
+      clearCustomBaseUrl: () => set(() => ({ customBaseUrl: '' })),
+      setCustomWebSocketUrl: (customWebSocketUrl: string) => set(() => ({ customWebSocketUrl })),
+      clearCustomWebSocketUrl: () => set(() => ({ customWebSocketUrl: '' })),
     }),
     {
       name: 'app-odx',

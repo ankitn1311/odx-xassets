@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useAppStore } from '@/stores/app-store';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -29,7 +30,29 @@ export const convertXUSDT = (symbol: string) => {
 
 export const WHOLE_NUMBER_TOKENS = ['x1XRP', 'x1ADA', 'x1DOGE', 'x1PEPE', 'x1SUI'];
 
-export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+export const getCurrentBaseUrl = (): string => {
+  const { customBaseUrl } = useAppStore.getState();
+
+  const env = process.env.NEXT_PUBLIC_ENV || 'development';
+
+  if (env === 'staging' && customBaseUrl) {
+    return customBaseUrl;
+  }
+
+  return process.env.NEXT_PUBLIC_BASE_URL || '';
+};
+
+export const getCurrentWebSocketUrl = (): string => {
+  const env = process.env.NEXT_PUBLIC_ENV || 'development';
+
+  const { customWebSocketUrl } = useAppStore.getState();
+
+  if (env === 'staging' && customWebSocketUrl) {
+    return customWebSocketUrl;
+  }
+
+  return process.env.NEXT_PUBLIC_WSS_BASE_URL || '';
+};
 
 export const removeTrailingZeros = (value: string) => {
   const numValue = Number(value);

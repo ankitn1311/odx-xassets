@@ -1,6 +1,6 @@
-import { BASE_URL } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { getCurrentBaseUrl } from '@/lib/utils';
 
 const TOKEN_SYMBOL_MAP: Record<string, string> = {
   x2XRP: 'XRP_USD',
@@ -31,11 +31,10 @@ function getMockChartData(limit: number, price: number = 1): ChartPoint[] {
     price: Math.random() * 10,
   }));
 }
-
 async function fetchCryptoChartData(token: string, duration: string): Promise<ChartPoint[]> {
   const symbol = TOKEN_SYMBOL_MAP[token] || 'XRP_USD';
   const { interval, limit } = DURATION_MAP[duration] || DURATION_MAP['1D'];
-  const url = `${BASE_URL}/cdc/get-candlestick?instrument_name=${symbol}&timeframe=${interval}`;
+  const url = `${getCurrentBaseUrl()}/cdc/get-candlestick?instrument_name=${symbol}&timeframe=${interval}`;
   try {
     const res = await axios.get(url);
     const json = res.data;
