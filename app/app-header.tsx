@@ -36,7 +36,7 @@ const AppHeaderLeft = () => {
     <div className="flex basis-1/2 items-center gap-2 lg:gap-4">
       <div
         onClick={() => {
-          router.push('/x-assets');
+          router.push('/markets');
         }}
         className="flex cursor-pointer flex-row gap-2"
       >
