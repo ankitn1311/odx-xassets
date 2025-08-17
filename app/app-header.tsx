@@ -15,7 +15,7 @@ import { ModeToggle } from '@/components/theme-toggle';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import ConnectWallet from '@/components/common/connect-wallet';
-import { BaseUrlSettings } from '@/components/ui/base-url-settings';
+import { StagingSettings } from '@/components/ui/base-url-settings';
 
 const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
 
@@ -56,7 +56,7 @@ const AppHeaderLeft = () => {
 const AppHeaderRight = () => {
   return (
     <div className="flex basis-1/2 items-center justify-end gap-2">
-      {isStaging && <BaseUrlSettings />}
+      {isStaging && <StagingSettings />}
       <ModeToggle />
       {/* {isConnecting || isReconnecting ? (
         <Skeleton className="h-8 w-[8.6rem] rounded-full" />

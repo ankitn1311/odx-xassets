@@ -1,17 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Info } from 'lucide-react';
+import { Settings, Info, Network } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useAppStore } from '@/stores/app-store';
-import { cn } from '@/lib/utils';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useSwitchChain, useAccount } from 'wagmi';
+import { sonic } from 'viem/chains';
+import { useQueryClient } from '@tanstack/react-query';
 
 const baseUrlSchema = z.object({
   baseUrl: z
@@ -24,11 +33,12 @@ const baseUrlSchema = z.object({
 
 type BaseUrlSchema = z.infer<typeof baseUrlSchema>;
 
-interface BaseUrlSettingsProps {
-  className?: string;
-}
+const CHAINS = [
+  { id: sonic.id, name: 'Sonic Mainnet', label: 'Sonic Mainnet' },
+  { id: 57054, name: 'Sonic Testnet', label: 'Sonic Testnet' },
+];
 
-export function BaseUrlSettings({ className }: BaseUrlSettingsProps) {
+export function StagingSettings() {
   const {
     customBaseUrl,
     setCustomBaseUrl,
@@ -38,7 +48,10 @@ export function BaseUrlSettings({ className }: BaseUrlSettingsProps) {
     clearCustomWebSocketUrl,
   } = useAppStore();
   const [isOpen, setIsOpen] = useState(false);
+  const { chainId } = useAccount();
   const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
+  const { switchChainAsync, isPending: isSwitching } = useSwitchChain();
+  const queryClient = useQueryClient();
 
   const {
     handleSubmit,
@@ -58,6 +71,24 @@ export function BaseUrlSettings({ className }: BaseUrlSettingsProps) {
     setValue('baseUrl', customBaseUrl || '');
     setValue('webSocketUrl', customWebSocketUrl || '');
   }, [customBaseUrl, customWebSocketUrl, setValue]);
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['token-balance'] }),
+      queryClient.invalidateQueries({ queryKey: ['sonic-balance'] }),
+    ]);
+  };
+
+  const handleChainSwitch = async (newChainId: number) => {
+    try {
+      console.log('switching to', newChainId);
+      await switchChainAsync({ chainId: newChainId });
+      await handleRefresh();
+      toast.success(`Switched to ${CHAINS.find(c => c.id === newChainId)?.label}`);
+    } catch (error) {
+      toast.error('Failed to switch chain');
+    }
+  };
 
   const onSubmit = (data: BaseUrlSchema) => {
     setCustomBaseUrl(data.baseUrl);
@@ -104,11 +135,45 @@ export function BaseUrlSettings({ className }: BaseUrlSettingsProps) {
           <div className="flex items-center gap-2">
             <Info className="h-4 w-4 text-blue-500" />
             <div>
-              <h3 className="text-sm font-medium text-foreground">Base URL Configuration</h3>
+              <h3 className="text-sm font-medium text-foreground">Staging Configuration</h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                Configure custom API endpoint for staging environment
+                Configure custom API endpoint and chain for staging environment
               </p>
             </div>
+          </div>
+
+          {/* Chain Selector */}
+          <div className="space-y-2">
+            <Label className="text-xs font-medium">Network</Label>
+            <Select
+              value={chainId?.toString() || ''}
+              onValueChange={value => {
+                const newChainId = parseInt(value);
+                handleChainSwitch(newChainId);
+              }}
+              disabled={isSwitching}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={chainId ? 'Select network' : 'Connect wallet first'} />
+              </SelectTrigger>
+              <SelectContent>
+                {CHAINS.map(chain => (
+                  <SelectItem key={chain.id} value={chain.id.toString()}>
+                    <div className="flex items-center gap-2">
+                      <Network className="h-3 w-3" />
+                      {chain.label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {isSwitching && <p className="text-xs text-muted-foreground">Switching network...</p>}
+            {chainId && (
+              <p className="text-xs text-muted-foreground">
+                Currently connected to:{' '}
+                {CHAINS.find(c => c.id === chainId)?.label || 'Unknown network'}
+              </p>
+            )}
           </div>
 
           {customBaseUrl && (
@@ -200,6 +265,7 @@ export function BaseUrlSettings({ className }: BaseUrlSettingsProps) {
             <p>• This setting only applies in staging environment</p>
             <p>• Changes are persisted locally</p>
             <p>• Leave empty to use default environment URL</p>
+            <p>• Network switching affects the connected blockchain</p>
           </div>
         </div>
       </PopoverContent>

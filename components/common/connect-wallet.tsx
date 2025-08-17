@@ -3,18 +3,18 @@ import { Button } from '@/components/ui/button';
 import { shortenAddressWithLength } from '@/utils/crypto';
 import { AlertTriangle, Wallet } from 'lucide-react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Portfolio } from '../portfolio';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const CHAIN_ID = 146;
+const TESTNET_CHAIN_ID = 57054;
 
 const ConnectWallet = () => {
   const { openConnectModal } = useConnectModal();
   const { address, chainId, isConnected } = useAccount();
-  const { disconnect } = useDisconnect();
 
   const connectWalletHandler = () => {
     if (isConnected) {
@@ -33,14 +33,24 @@ const ConnectWallet = () => {
               <Popover>
                 <PopoverTrigger asChild>
                   <TooltipTrigger asChild>
-                    <Button variant={chainId !== CHAIN_ID ? 'warning' : 'outline'}>
+                    <Button
+                      variant={
+                        chainId && [CHAIN_ID, TESTNET_CHAIN_ID].includes(chainId)
+                          ? 'outline'
+                          : 'warning'
+                      }
+                    >
                       <div className="flex items-center gap-2">
                         <Wallet
-                          className={`h-4 w-4 ${chainId !== CHAIN_ID ? 'text-warning-foreground' : 'text-foreground'}`}
+                          className={`h-4 w-4 ${
+                            chainId && [CHAIN_ID, TESTNET_CHAIN_ID].includes(chainId)
+                              ? 'text-foreground'
+                              : 'text-warning-foreground'
+                          }`}
                         />
                         <p className="font-mono text-xs">{shortenAddressWithLength(address, 3)}</p>
                         {/* Remove this for mainnet */}
-                        {chainId !== CHAIN_ID && (
+                        {![CHAIN_ID, TESTNET_CHAIN_ID].includes(chainId || 0) && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger>

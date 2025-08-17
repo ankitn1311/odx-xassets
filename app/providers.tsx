@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { getQueryClient } from '@/app/get-query-client';
 import { RainbowKitProvider, darkTheme, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { sonic } from 'viem/chains';
+import { sonic, sonicTestnet } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
 import { Toaster } from 'sonner';
 import { TradesProvider } from '@/providers/trades-provider';
@@ -16,8 +16,7 @@ import { useEffect } from 'react';
 const config = getDefaultConfig({
   appName: 'Ordinox',
   projectId: '19012e6bbba81176ee306427e8b07d5e',
-  // chains: [{ ...sonicTestnet, id: 57054 }],
-  chains: [sonic],
+  chains: [sonic, { ...sonicTestnet, id: 57054 }],
   ssr: true,
 });
 
