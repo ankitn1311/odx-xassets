@@ -26,11 +26,11 @@ export const useTradesData = (type?: 'user' | 'explorer') => {
 
   return useQuery<TradeData[]>({
     queryKey: ['trades', type],
-    queryFn: () => getTradesData(type, address || ''),
+    queryFn: () => getTradesData(type, address || '0x0000000000000000000000000000000000000000'),
     // staleTime: 0, // Always consider data stale to get real-time updates
     staleTime: Infinity,
     refetchInterval: false, // Don't refetch automatically
-    enabled: !!address,
+    // enabled: !!address,
     refetchOnMount: 'always',
   });
 };

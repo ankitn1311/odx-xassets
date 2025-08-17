@@ -18,6 +18,7 @@ export const tokenConvert = {
   USDC: 'USD',
   USDT: 'USD',
   x1SOL: 'SOL',
+  x1BTC: 'BTC',
   x1XRP: 'XRP',
   x1ADA: 'ADA',
   x1DOGE: 'DOGE',
@@ -27,6 +28,7 @@ export const tokenConvert = {
   x2XRP: 'XRP',
   x2ADA: 'ADA',
   x2SUI: 'SUI',
+  x2BTC: 'BTC',
 };
 
 export const tokenConvertReverse = {
@@ -37,6 +39,7 @@ export const tokenConvertReverse = {
   DOGE: 'x2DOGE',
   PEPE: 'x2PEPE',
   SUI: 'x2SUI',
+  BTC: 'x2BTC',
 };
 
 export const tokenConvertReverseV1 = {
@@ -47,6 +50,7 @@ export const tokenConvertReverseV1 = {
   DOGE: 'x1DOGE',
   PEPE: 'x1PEPE',
   SUI: 'x1SUI',
+  BTC: 'x1BTC',
 };
 
 export const tokenConvertForUI = {
@@ -59,6 +63,7 @@ export const tokenConvertForUI = {
   DOGE: 'Dogecoin',
   PEPE: 'Pepe',
   SUI: 'Sui',
+  BTC: 'Bitcoin',
 };
 
 const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {

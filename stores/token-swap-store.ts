@@ -43,6 +43,7 @@ interface TokenSwapActions {
   setLatestTradeHash: (hash: string) => void;
   setQuoteLoading: (loading: boolean) => void;
   setActiveTab: (tab: TabState) => void;
+  setAllTokens: (tokens: TokenPair[]) => void;
 }
 
 export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
@@ -73,6 +74,7 @@ export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
     setLatestTradeHash: (hash: string) => set({ latestTradeHash: hash }),
     setQuoteLoading: (loading: boolean) => set({ quoteLoading: loading }),
     setActiveTab: (tab: TabState) => set({ activeTab: tab }),
+    setAllTokens: (tokens: TokenPair[]) => set({ allTokens: tokens }),
     //   {
     //     name: 'token-swap-store',
     //   }

@@ -9,6 +9,9 @@ import { sonic } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
 import { Toaster } from 'sonner';
 import { TradesProvider } from '@/providers/trades-provider';
+import { useAllTokens } from '@/hooks/queries/use-all-tokens';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
+import { useEffect } from 'react';
 
 const config = getDefaultConfig({
   appName: 'Ordinox',
@@ -18,6 +21,21 @@ const config = getDefaultConfig({
   ssr: true,
 });
 
+// Provider component to manage global token state
+function TokenProvider({ children }: { children: React.ReactNode }) {
+  const { data: tokens } = useAllTokens();
+  const { setAllTokens } = useTokenSwapStore();
+
+  // Update store when tokens change
+  useEffect(() => {
+    if (tokens && tokens.length > 0) {
+      setAllTokens(tokens);
+    }
+  }, [tokens, setAllTokens]);
+
+  return <>{children}</>;
+}
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
@@ -26,9 +44,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <WagmiProvider config={config} reconnectOnMount>
         <RainbowKitProvider theme={darkTheme()} key="ODX">
           <TradesProvider>
-            {children}
-            <ReactQueryDevtools />
-            <Toaster richColors />
+            <TokenProvider>
+              {children}
+              <ReactQueryDevtools />
+              <Toaster richColors />
+            </TokenProvider>
           </TradesProvider>
         </RainbowKitProvider>
       </WagmiProvider>
