@@ -12,6 +12,7 @@ import { useCopyToClipboard } from 'usehooks-ts';
 import { getCurrentBaseUrl } from '@/lib/utils';
 import { getBalance } from '@/utils/chain-client/txs/create_trade';
 import { delay } from '@/utils/helper';
+import crypto from 'crypto';
 
 interface SigData {
   user_address: string;
@@ -35,6 +36,14 @@ interface CosignatureData {
 }
 
 const POLL_INTERVAL = 2000; // 2 seconds
+
+// Enhanced Nonce Generation Strategy:
+// 1. Base nonce from NonceManager or blockchain
+// 2. Multiple entropy sources: Math.random(), microtime, user address hash, timestamp
+// 3. Cryptographically secure random bytes (crypto.randomBytes)
+// 4. Ultra-random collision resolution with 64-bit entropy + high-resolution time
+// 5. Collision detection and automatic regeneration
+// This makes nonces virtually impossible to predict or replicate
 
 // Add Base chain configuration
 // EXECUTOR
@@ -235,12 +244,66 @@ export const useXAssetSignature = () => {
       uniqueNonce = baseNonce.add(1);
     }
 
-    // Strategy 3: Add timestamp-based offset for additional uniqueness
+    // Strategy 3: Add multiple layers of randomness for enhanced security
     const timestamp = Math.floor(Date.now() / 1000);
-    const timestampOffset = ethersV5.BigNumber.from(timestamp % 1000); // Use last 3 digits of timestamp
-    uniqueNonce = uniqueNonce.add(timestampOffset);
+    const randomOffset = Math.floor(Math.random() * 1000000); // Random number between 0-999999
+    const microtimeOffset = Math.floor((Date.now() % 1000) * 1000); // Microsecond precision
+    const userAddressHash = ethersV5.utils.keccak256(signerAccount).slice(2, 8); // First 6 chars of address hash
+    const addressOffset = parseInt(userAddressHash, 16) % 100000; // Convert to number and mod
+
+    // Add cryptographically secure random bytes for maximum entropy
+    const cryptoRandomBytes = crypto.randomBytes(4); // 4 bytes = 32 bits
+    const cryptoRandomOffset = cryptoRandomBytes.readUInt32BE(0); // Convert to 32-bit integer
+
+    // Combine multiple random factors with crypto randomness
+    const totalOffset = ethersV5.BigNumber.from(randomOffset)
+      .add(microtimeOffset)
+      .add(addressOffset)
+      .add(timestamp % 10000) // Use last 4 digits of timestamp
+      .add(cryptoRandomOffset); // Add cryptographically secure random offset
+
+    uniqueNonce = uniqueNonce.add(totalOffset);
 
     console.log(`Generated unique nonce: ${uniqueNonce.toString()}`);
+    console.log(
+      `Random factors - Random: ${randomOffset}, Microtime: ${microtimeOffset}, Address: ${addressOffset}, Timestamp: ${timestamp % 10000}, Crypto: ${cryptoRandomOffset}`
+    );
+    return uniqueNonce;
+  };
+
+  // Function to generate an ultra-random nonce for collision resolution
+  const generateUltraRandomNonce = async (
+    provider: ethersV5.providers.Web3Provider,
+    signerAccount: string,
+    nonceMgr: NonceManager
+  ): Promise<ethersV5.BigNumber> => {
+    // Get base nonce
+    const baseNonce = await nonceMgr.useNonce(signerAccount);
+    const blockchainNonce = await provider.getTransactionCount(signerAccount, 'pending');
+    const blockchainNonceBN = ethersV5.BigNumber.from(blockchainNonce);
+
+    // Use the higher of the two as base
+    let uniqueNonce = baseNonce.gt(blockchainNonceBN) ? baseNonce : blockchainNonceBN;
+
+    // Add massive random offset for collision resolution
+    const cryptoRandomBytes = crypto.randomBytes(8); // 8 bytes = 64 bits
+    const cryptoRandomOffset = cryptoRandomBytes.readBigUInt64BE(); // Convert to 64-bit BigInt
+
+    // Add additional entropy sources
+    const timestamp = Date.now();
+    const microtime = process.hrtime.bigint(); // High-resolution time
+    const addressEntropy = ethersV5.utils.keccak256(signerAccount + timestamp.toString());
+    const addressOffset = ethersV5.BigNumber.from('0x' + addressEntropy.slice(2, 18)); // First 8 bytes
+
+    // Combine all entropy sources
+    const totalOffset = ethersV5.BigNumber.from(cryptoRandomOffset.toString())
+      .add(ethersV5.BigNumber.from(timestamp))
+      .add(ethersV5.BigNumber.from(microtime.toString()))
+      .add(addressOffset);
+
+    uniqueNonce = uniqueNonce.add(totalOffset);
+
+    console.log(`Generated ultra-random nonce: ${uniqueNonce.toString()}`);
     return uniqueNonce;
   };
 
@@ -253,15 +316,19 @@ export const useXAssetSignature = () => {
     // Generate a unique nonce that's less likely to collide
     let nonce = await generateUniqueNonce(provider, signerAccount, nonceMgr);
     let attempts = 0;
-    const maxAttempts = 10; // Increased attempts for better collision resolution
+    const maxAttempts = 15; // Increased attempts for better collision resolution
 
     console.log(`Initial unique nonce generated: ${nonce.toString()}`);
 
     while ((await checkNonceInUse(provider, signerAccount, nonce)) && attempts < maxAttempts) {
       console.warn(`Nonce ${nonce.toString()} is already in use, generating new unique nonce`);
 
-      // Generate a completely new unique nonce instead of just incrementing
-      nonce = await generateUniqueNonce(provider, signerAccount, nonceMgr);
+      // Use ultra-random nonce for collision resolution after first few attempts
+      if (attempts < 5) {
+        nonce = await generateUniqueNonce(provider, signerAccount, nonceMgr);
+      } else {
+        nonce = await generateUltraRandomNonce(provider, signerAccount, nonceMgr);
+      }
       attempts++;
       console.log(`Attempt ${attempts}: generated new nonce ${nonce.toString()}`);
     }
