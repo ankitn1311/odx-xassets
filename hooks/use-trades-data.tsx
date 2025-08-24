@@ -3,11 +3,11 @@ import { TradeData } from '@/providers/trades-provider';
 import axios from 'axios';
 import { useAccount } from 'wagmi';
 import { SwapperData } from './queries/use-wallet-profile';
-import { BASE_URL } from '@/lib/utils';
+import { getCurrentBaseUrl } from '@/lib/utils';
 
 export const getTradesData = async (type?: 'user' | 'explorer', address?: string) => {
   if (!address) throw new Error('Wallet address is required');
-  const response = await axios.get<SwapperData>(`${BASE_URL}/swapper/${address}`);
+  const response = await axios.get<SwapperData>(`${getCurrentBaseUrl()}/swapper/${address}`);
 
   if (type === 'user') {
     return response.data.userTrades.map(trade => ({
@@ -26,11 +26,11 @@ export const useTradesData = (type?: 'user' | 'explorer') => {
 
   return useQuery<TradeData[]>({
     queryKey: ['trades', type],
-    queryFn: () => getTradesData(type, address || ''),
+    queryFn: () => getTradesData(type, address || '0x0000000000000000000000000000000000000000'),
     // staleTime: 0, // Always consider data stale to get real-time updates
     staleTime: Infinity,
     refetchInterval: false, // Don't refetch automatically
-    enabled: !!address,
+    // enabled: !!address,
     refetchOnMount: 'always',
   });
 };

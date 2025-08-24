@@ -7,11 +7,12 @@ import { useTokenSwapStore, TradeState, TabState } from '@/stores/token-swap-sto
 import { useEffect } from 'react';
 import { ethers } from 'ethers';
 import { erc20Abi } from 'viem';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useAccount, useChainId, useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
 import { truncateToFixed } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
+import { sonic } from 'viem/chains';
 
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
@@ -20,6 +21,8 @@ export function TokenSwapForm() {
   const { slippage } = useAppStore();
   const { address } = useAccount();
   const form = useFormContext<SwapFormValues>();
+  const chainId = useChainId();
+  const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
 
   const { watch } = form;
   const formValues = watch();
@@ -132,6 +135,7 @@ export function TokenSwapForm() {
     // );
 
     if (!address) return toast.error('Please connect your wallet');
+    if (!isStaging && sonic.id !== chainId) return toast.error('Please switch to Sonic Mainnet');
     // if (isInsufficientBalance) return toast.error('Insufficient balance');
     if (!isValidAmount) return toast.error('Amount must be greater than 0');
 

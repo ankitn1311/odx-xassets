@@ -72,6 +72,7 @@ export const xChainToChainMapping = {
   SOL1: 'SOL',
   BERA1: 'BERA',
   MANTLE1: 'MANTLE',
+  BTC1: 'BTC',
 };
 
 export const ODXDEX_ADDRESS = '0x6DC4093B5FBEf8Ea951957A0ECEE97Afae17A66d';

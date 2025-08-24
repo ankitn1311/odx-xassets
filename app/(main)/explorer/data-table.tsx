@@ -71,9 +71,6 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'timestamp', desc: true }]);
 
   const { data: tableData = [], isLoading: tradesDataLoading } = useTradesData(type);
-  const { isConnected, isReconnecting, isConnecting } = useAccount();
-
-  const walletConnecting = isReconnecting || isConnecting;
 
   // Use trades from provider as the main data source
 
@@ -96,7 +93,7 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
     },
   });
 
-  if (tradesDataLoading || walletConnecting) {
+  if (tradesDataLoading) {
     return (
       <>
         <Card className="hidden py-4 md:block">
@@ -131,18 +128,6 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
           </div>
         </Card>
       </>
-    );
-  }
-
-  if (!isConnected) {
-    return (
-      <Card className="flex w-full flex-col gap-6 p-8 text-center">
-        <h2 className="text-2xl font-bold">Connect Wallet</h2>
-        <p className="text-base text-muted-foreground">Connect your wallet to view live trades.</p>
-        <div className="flex w-full justify-center">
-          <ConnectWallet />
-        </div>
-      </Card>
     );
   }
 

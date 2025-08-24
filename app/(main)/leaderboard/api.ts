@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/lib/utils';
+import { getCurrentBaseUrl } from '@/lib/utils';
 import { LeaderboardEntry } from './columns';
 import axios from 'axios';
 
@@ -17,7 +17,7 @@ export async function fetchLeaderboardPage({
   const startRank = (page - 1) * pageSize + 1;
   const limit = pageSize;
 
-  const response = await axios.get(`${BASE_URL}/rankings/leaderboard`, {
+  const response = await axios.get(`${getCurrentBaseUrl()}/rankings/leaderboard`, {
     params: {
       limit,
       startRank,

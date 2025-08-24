@@ -1,7 +1,8 @@
-import { BASE_URL } from '@/lib/utils';
+import { getCurrentBaseUrl } from '@/lib/utils';
 import { TradeData } from '@/providers/trades-provider';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { TokenPair } from './use-all-tokens';
 
 export interface SwapperData {
   address: string;
@@ -14,6 +15,7 @@ export interface SwapperData {
   userTrades: TradeData[];
   recentTrades: TradeData[];
   volumeData: VolumeData[];
+  assets: TokenPair[];
 }
 
 export interface VolumeData {
@@ -26,11 +28,13 @@ export interface VolumeData {
 
 const fetchWalletProfile = async (address: string): Promise<SwapperData> => {
   if (!address) throw new Error('Wallet address is required');
-  const response = await axios.get(`${BASE_URL}/swapper/${address}`);
+  const response = await axios.get<SwapperData>(`${getCurrentBaseUrl()}/swapper/${address}`);
   return response.data;
 };
 
-export const useWalletProfile = (address: string | undefined | null) => {
+export const useWalletProfile = (
+  address: string = '0x0000000000000000000000000000000000000000'
+) => {
   return useQuery<SwapperData>({
     queryKey: ['wallet-profile', address],
     queryFn: () => fetchWalletProfile(address!),

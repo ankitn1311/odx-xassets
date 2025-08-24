@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useCallback, useMemo, useR
 import { useQueryClient } from '@tanstack/react-query';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useAccount } from 'wagmi';
+import { getCurrentWebSocketUrl } from '@/lib/utils';
 
 export interface TradeData {
   quantity: string;
@@ -45,16 +46,16 @@ interface TradesProviderProps {
 
 const TradesContext = createContext<TradesContextType | null>(null);
 
-const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WSS_BASE_URL as string;
 export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const connectionIdRef = useRef<string>(crypto.randomUUID());
   const tradesRef = useRef<TradeData[]>([]);
+  const webSocketUrl = getCurrentWebSocketUrl();
 
   // WebSocket configuration
   const { readyState, sendJsonMessage, lastJsonMessage, getWebSocket } = useWebSocket(
-    WEB_SOCKET_URL,
+    webSocketUrl,
     {
       reconnectAttempts: 5,
       reconnectInterval: 1000,
@@ -71,7 +72,7 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
       },
       onError: error => {
         console.error('ws trades error', error);
-        console.error('WebSocket URL:', WEB_SOCKET_URL);
+        console.error('WebSocket URL:', webSocketUrl);
         console.error('Connection ID:', connectionIdRef.current);
       },
       onClose: () => {

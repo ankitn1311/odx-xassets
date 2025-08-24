@@ -1,7 +1,7 @@
 import { TokenPair } from '@/hooks/queries/use-all-tokens';
 import { Skeleton } from './ui/skeleton';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import { Ban, Copy, Power, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Copy, Power, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { toast } from 'sonner';
 import { Separator } from './ui/separator';
@@ -12,12 +12,13 @@ import { Button } from './ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
-import { useQuote } from '@/hooks/queries/use-quote';
 import { convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
+import { sonic } from 'viem/chains';
 
-const CHAIN_ID = 146;
+const CHAIN_ID = sonic.id; // Sonic mainnet
+const TESTNET_CHAIN_ID = 57054; // Sonic testnet
 
 // Skeleton component for portfolio items
 const PortfolioItemSkeleton = () => {
@@ -71,6 +72,8 @@ export const Portfolio = () => {
     }
   };
 
+  const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 px-4 pb-4">
@@ -82,6 +85,11 @@ export const Portfolio = () => {
               <div className="flex items-center gap-1 rounded-md bg-green-500/10 px-2 py-1 text-green-600">
                 <div className="h-2 w-2 rounded-full bg-green-500"></div>
                 <p className="text-xs font-medium">Sonic</p>
+              </div>
+            ) : isStaging && chainId === TESTNET_CHAIN_ID ? (
+              <div className="flex items-center gap-1 rounded-md bg-blue-500/10 px-2 py-1 text-blue-600">
+                <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                <p className="text-xs font-medium">Sonic Testnet</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
