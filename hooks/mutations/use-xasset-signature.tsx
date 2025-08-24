@@ -5,11 +5,13 @@ import { CosignerData, NonceManager, V2DutchOrderBuilder } from '@uniswap/uniswa
 import { ethers as ethersV5 } from 'ethers';
 import { useWalletClient, useAccount } from 'wagmi';
 import { WalletClient, createWalletClient, custom } from 'viem';
-import { TabState, TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
+import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import axios, { AxiosError } from 'axios';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { getCurrentBaseUrl } from '@/lib/utils';
+import { getBalance } from '@/utils/chain-client/txs/create_trade';
+import { delay } from '@/utils/helper';
 
 interface SigData {
   user_address: string;
@@ -93,9 +95,46 @@ interface OrderStatusResponse {
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
   const { address } = useAccount();
-  const { setTradeState, setLatestTradeHash, activeTab } = useTokenSwapStore();
   const queryClient = useQueryClient();
+  const { setTradeState, setLatestTradeHash } = useTokenSwapStore();
   const [, copyToClipboard] = useCopyToClipboard();
+
+  // Function to update balances by polling until they change
+  const updateBalancesAfterTransaction = async (
+    data: SigData,
+    initialInputBalance: string,
+    initialOutputBalance: string
+  ) => {
+    if (!wallet) return;
+
+    // Poll for balance changes
+    let attempts = 0;
+    const maxAttempts = 30; // Maximum 30 attempts (30 seconds)
+
+    while (attempts < maxAttempts) {
+      await delay(1000); // Wait 1 second between checks
+
+      const newInputBalance = await getBalance(wallet, data.token, data.input_decimals);
+      const newOutputBalance = await getBalance(wallet, data.output_token, data.output_decimals);
+
+      // Check if either balance has changed
+      if (newInputBalance !== initialInputBalance || newOutputBalance !== initialOutputBalance) {
+        // Update the query cache with new balances
+        queryClient.setQueryData(
+          ['token-balance', data.token, data.input_decimals],
+          newInputBalance
+        );
+        queryClient.setQueryData(
+          ['token-balance', data.output_token, data.output_decimals],
+          newOutputBalance
+        );
+
+        return;
+      }
+
+      attempts++;
+    }
+  };
 
   const sigDataMutation = useMutation({
     mutationFn: async (data: SigData) => {
@@ -112,40 +151,126 @@ export const useXAssetSignature = () => {
     },
   });
 
-  const updateTokenBalancesManually = async (data: SigData) => {
-    const { token, output_token, amount, output_amount, input_decimals, output_decimals } = data;
+  // Function to check if a nonce is already in use
+  const checkNonceInUse = async (
+    provider: ethersV5.providers.Web3Provider,
+    signerAccount: string,
+    nonce: ethersV5.BigNumber
+  ): Promise<boolean> => {
+    try {
+      // Get the current transaction count (nonce) from the blockchain
+      const currentNonce = await provider.getTransactionCount(signerAccount, 'pending');
+      // Convert to BigNumber for consistent comparison with the nonce parameter
+      const currentNonceBN = ethersV5.BigNumber.from(currentNonce);
+      console.log(`Current pending nonce: ${currentNonce}, checking nonce: ${nonce.toString()}`);
 
-    const currentInputBalance = queryClient.getQueryData<string>([
-      'token-balance',
-      token,
-      input_decimals,
-    ]);
+      // If the nonce we want to use is less than the current nonce, it's already been used
+      if (nonce.lt(currentNonceBN)) {
+        console.log(
+          `Nonce ${nonce.toString()} is already used (current pending nonce: ${currentNonce})`
+        );
+        return true;
+      }
 
-    const currentOutputBalance = queryClient.getQueryData<string>([
-      'token-balance',
-      output_token,
-      output_decimals,
-    ]);
+      // Check if there are any pending transactions with this nonce
+      // This is a more thorough check but may not be available on all networks
+      try {
+        const latestNonce = await provider.getTransactionCount(signerAccount, 'latest');
+        // Convert to BigNumber for consistent comparison
+        const latestNonceBN = ethersV5.BigNumber.from(latestNonce);
+        console.log(`Latest confirmed nonce: ${latestNonce}`);
 
-    if (activeTab === TabState.BUY) {
-      // update input token balance
-      const balance = Number(currentInputBalance) - Number(amount);
-      queryClient.setQueryData(['token-balance', token, input_decimals], balance.toString());
-      const newBalance = Number(currentOutputBalance) + Number(output_amount);
-      queryClient.setQueryData(
-        ['token-balance', output_token, output_decimals],
-        newBalance.toString()
-      );
-    } else {
-      // update output token balance
-      const balance = Number(currentOutputBalance) + Number(output_amount);
-      queryClient.setQueryData(
-        ['token-balance', output_token, output_decimals],
-        balance.toString()
-      );
-      const newBalance = Number(currentInputBalance) - Number(amount);
-      queryClient.setQueryData(['token-balance', token, input_decimals], newBalance.toString());
+        if (nonce.lt(latestNonceBN)) {
+          console.log(
+            `Nonce ${nonce.toString()} is already confirmed (latest nonce: ${latestNonce})`
+          );
+          return true;
+        }
+      } catch (error) {
+        // If we can't get the latest nonce, fall back to the pending check
+        console.warn('Could not check latest nonce, using pending nonce only:', error);
+      }
+
+      console.log(`Nonce ${nonce.toString()} appears to be safe to use`);
+      return false;
+    } catch (error) {
+      console.error('Error checking nonce status:', error);
+      // If we can't check, assume it's safe to use but log the warning
+      console.warn('Assuming nonce is safe due to error in checking');
+      return false;
     }
+  };
+
+  // Function to generate a unique nonce for concurrent users
+  const generateUniqueNonce = async (
+    provider: ethersV5.providers.Web3Provider,
+    signerAccount: string,
+    nonceMgr: NonceManager
+  ): Promise<ethersV5.BigNumber> => {
+    // Get the base nonce from NonceManager
+    const baseNonce = await nonceMgr.useNonce(signerAccount);
+
+    // Get current blockchain nonce for this user
+    const blockchainNonce = await provider.getTransactionCount(signerAccount, 'pending');
+    const blockchainNonceBN = ethersV5.BigNumber.from(blockchainNonce);
+
+    console.log(`Base nonce from NonceManager: ${baseNonce.toString()}`);
+    console.log(`Current blockchain nonce for user: ${blockchainNonce}`);
+
+    // Strategy 1: Use blockchain nonce + offset to ensure uniqueness
+    let uniqueNonce = blockchainNonceBN.add(1); // Start with next available blockchain nonce
+
+    // Strategy 2: If NonceManager nonce is higher, use that with additional offset
+    if (baseNonce.gt(blockchainNonceBN)) {
+      // Use the higher of the two, but add a small offset for safety
+      uniqueNonce = baseNonce.add(1);
+    }
+
+    // Strategy 3: Add timestamp-based offset for additional uniqueness
+    const timestamp = Math.floor(Date.now() / 1000);
+    const timestampOffset = ethersV5.BigNumber.from(timestamp % 1000); // Use last 3 digits of timestamp
+    uniqueNonce = uniqueNonce.add(timestampOffset);
+
+    console.log(`Generated unique nonce: ${uniqueNonce.toString()}`);
+    return uniqueNonce;
+  };
+
+  // Function to get a safe nonce with collision detection
+  const getSafeNonce = async (
+    provider: ethersV5.providers.Web3Provider,
+    signerAccount: string,
+    nonceMgr: NonceManager
+  ): Promise<ethersV5.BigNumber> => {
+    // Generate a unique nonce that's less likely to collide
+    let nonce = await generateUniqueNonce(provider, signerAccount, nonceMgr);
+    let attempts = 0;
+    const maxAttempts = 10; // Increased attempts for better collision resolution
+
+    console.log(`Initial unique nonce generated: ${nonce.toString()}`);
+
+    while ((await checkNonceInUse(provider, signerAccount, nonce)) && attempts < maxAttempts) {
+      console.warn(`Nonce ${nonce.toString()} is already in use, generating new unique nonce`);
+
+      // Generate a completely new unique nonce instead of just incrementing
+      nonce = await generateUniqueNonce(provider, signerAccount, nonceMgr);
+      attempts++;
+      console.log(`Attempt ${attempts}: generated new nonce ${nonce.toString()}`);
+    }
+
+    if (attempts >= maxAttempts) {
+      console.error('Failed to find a safe nonce after multiple attempts');
+      throw new Error(
+        'Unable to find a safe nonce for transaction after multiple attempts. Please try again.'
+      );
+    }
+
+    if (attempts > 0) {
+      console.log(`Found safe nonce after ${attempts} attempts: ${nonce.toString()}`);
+    } else {
+      console.log(`Using initial unique nonce: ${nonce.toString()}`);
+    }
+
+    return nonce;
   };
 
   const signatureMutation = useMutation({
@@ -237,8 +362,8 @@ export const useXAssetSignature = () => {
 
     // Use the provider for NonceManager with permit2 configuration
     const nonceMgr = new NonceManager(provider, chainId, BASE_PERMIT2);
-
-    const nonce = await nonceMgr.useNonce(signerAccount);
+    // Get a safe nonce that's not already in use (returns BigNumber)
+    const nonce = await getSafeNonce(provider, signerAccount, nonceMgr);
 
     // const builder = new DutchOrderBuilder(chainId, BASE_REACTOR, BASE_PERMIT2);
     const v2Builder = new V2DutchOrderBuilder(chainId, BASE_REACTOR, BASE_PERMIT2);
@@ -338,6 +463,29 @@ export const useXAssetSignature = () => {
         throw new Error('Wallet not connected. Please connect your wallet first.');
       }
 
+      // Store initial balances before the transaction starts
+      // Get input balance from query cache
+      const cachedInputBalance = queryClient.getQueryData([
+        'token-balance',
+        data.token,
+        data.input_decimals,
+      ]);
+      const initialInputBalance =
+        cachedInputBalance && typeof cachedInputBalance === 'string'
+          ? cachedInputBalance
+          : await getBalance(wallet, data.token, data.input_decimals);
+
+      // Get output balance from query cache
+      const cachedOutputBalance = queryClient.getQueryData([
+        'token-balance',
+        data.output_token,
+        data.output_decimals,
+      ]);
+      const initialOutputBalance =
+        cachedOutputBalance && typeof cachedOutputBalance === 'string'
+          ? cachedOutputBalance
+          : await getBalance(wallet, data.output_token, data.output_decimals);
+
       // const sigData = await sigDataMutation.mutateAsync(data);
       const signatureAndSerializedOrder = await getSignatureAndSerializedOrderV2(data, wallet);
       const result = await signatureMutation.mutateAsync({
@@ -368,6 +516,16 @@ export const useXAssetSignature = () => {
           setTradeState(TradeState.FAILED);
           throw new Error(`FAILED_${orderStatus.executionName}`);
         }
+        // Wait for transaction confirmation before invalidating queries
+        // if (txHash) {
+        //   try {
+        //     // Wait for a few block confirmations
+        //     await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
+        //   } catch (error) {
+        //     console.warn('Error waiting for confirmation:', error);
+        //   }
+        // }
+
         toast.success('Transaction successful', {
           description: (
             <a href={`https://sonicscan.org/tx/${txHash}`} target="_blank">
@@ -375,9 +533,11 @@ export const useXAssetSignature = () => {
             </a>
           ),
         });
-        updateTokenBalancesManually(data);
         setTradeState(TradeState.SUCCESS);
         setLatestTradeHash(txHash);
+
+        // Start updating balances after successful transaction
+        updateBalancesAfterTransaction(data, initialInputBalance, initialOutputBalance);
       } else if (ERROR_STATES.includes(orderStatus.status as ErrorStatus)) {
         if (
           orderStatus.status === 'VALIDATION_FAILED' &&
