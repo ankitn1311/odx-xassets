@@ -96,7 +96,7 @@ export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
   const { address } = useAccount();
   const queryClient = useQueryClient();
-  const { setTradeState, setLatestTradeHash } = useTokenSwapStore();
+  const { setTradeState, setLatestTradeHash, setIsBalanceUpdating } = useTokenSwapStore();
   const [, copyToClipboard] = useCopyToClipboard();
 
   // Function to update balances by polling until they change
@@ -106,6 +106,9 @@ export const useXAssetSignature = () => {
     initialOutputBalance: string
   ) => {
     if (!wallet) return;
+
+    // Set global state to indicate balances are updating
+    setIsBalanceUpdating(true);
 
     // Poll for balance changes
     let attempts = 0;
@@ -129,11 +132,17 @@ export const useXAssetSignature = () => {
           newOutputBalance
         );
 
+        // Reset balance updating state
+        setIsBalanceUpdating(false);
         return;
       }
 
       attempts++;
     }
+
+    // Reset balance updating state on timeout
+    setIsBalanceUpdating(false);
+    console.warn('Balance update polling timed out after', maxAttempts, 'attempts');
   };
 
   const sigDataMutation = useMutation({

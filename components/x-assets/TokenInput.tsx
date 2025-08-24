@@ -16,7 +16,7 @@ import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import { convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
+import { cn, convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { useRouter } from 'nextjs-toploader/app';
 import { Skeleton } from '../ui/skeleton';
@@ -44,7 +44,7 @@ export function TokenInput({
   const router = useRouter();
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
 
-  const { allTokens, activeTab } = useTokenSwapStore();
+  const { allTokens, activeTab, isBalanceUpdating } = useTokenSwapStore();
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
   const isBuy = activeTab === TabState.BUY;
@@ -239,7 +239,7 @@ export function TokenInput({
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="text-muted-foreground"
+              className={cn('text-muted-foreground', isBalanceUpdating && 'animate-pulse')}
             >
               <path
                 d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"
@@ -254,7 +254,12 @@ export function TokenInput({
                 strokeLinejoin="round"
               />
             </svg>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <div
+              className={cn(
+                'flex items-center gap-1 text-xs text-muted-foreground',
+                isBalanceUpdating && 'animate-pulse'
+              )}
+            >
               <span>Balance: </span>
               {isBalanceLoading ? (
                 <Skeleton className="h-4 w-20" />

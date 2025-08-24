@@ -29,6 +29,7 @@ interface TokenSwapState {
   isApproved: boolean;
   quoteLoading: boolean;
   activeTab: TabState;
+  isBalanceUpdating: boolean;
 }
 
 interface TokenSwapActions {
@@ -44,6 +45,7 @@ interface TokenSwapActions {
   setQuoteLoading: (loading: boolean) => void;
   setActiveTab: (tab: TabState) => void;
   setAllTokens: (tokens: TokenPair[]) => void;
+  setIsBalanceUpdating: (updating: boolean) => void;
 }
 
 export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
@@ -59,6 +61,7 @@ export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
     quoteLoading: false,
     latestTradeHash: '',
     activeTab: TabState.BUY,
+    isBalanceUpdating: false,
     setNumericBalance: (balance: number) => set({ numericBalance: balance }),
     setInputToken: (token: TokenSwapState['inputToken']) => set({ inputToken: token }),
     setOutputToken: (token: TokenSwapState['outputToken']) => set({ outputToken: token }),
@@ -75,6 +78,7 @@ export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
     setQuoteLoading: (loading: boolean) => set({ quoteLoading: loading }),
     setActiveTab: (tab: TabState) => set({ activeTab: tab }),
     setAllTokens: (tokens: TokenPair[]) => set({ allTokens: tokens }),
+    setIsBalanceUpdating: (updating: boolean) => set({ isBalanceUpdating: updating }),
     //   {
     //     name: 'token-swap-store',
     //   }
