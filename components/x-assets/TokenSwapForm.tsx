@@ -16,8 +16,15 @@ import { sonic } from 'viem/chains';
 
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
-  const { tradeState, setTradeState, isApproved, setIsApproved, setLatestTradeHash, activeTab } =
-    useTokenSwapStore();
+  const {
+    tradeState,
+    setTradeState,
+    isApproved,
+    setIsApproved,
+    setLatestTradeHash,
+    activeTab,
+    isBalanceUpdating,
+  } = useTokenSwapStore();
   const { slippage } = useAppStore();
   const { address } = useAccount();
   const form = useFormContext<SwapFormValues>();
@@ -138,6 +145,7 @@ export function TokenSwapForm() {
     if (!isStaging && sonic.id !== chainId) return toast.error('Please switch to Sonic Mainnet');
     // if (isInsufficientBalance) return toast.error('Insufficient balance');
     if (!isValidAmount) return toast.error('Amount must be greater than 0');
+    // if (isBalanceUpdating) return toast.info('Please wait for the balance to update');
 
     try {
       if (tradeState === TradeState.APPROVAL) {
@@ -174,12 +182,14 @@ export function TokenSwapForm() {
 
       if (tradeState === TradeState.INITIAL) {
         // roundOutputAndAdjustInput(values);
+        if (isBalanceUpdating) return toast.info('Please wait for the balance to update');
         setTradeState(TradeState.REVIEW);
         return;
       }
 
       if (tradeState === TradeState.APPROVED) {
         // roundOutputAndAdjustInput(values);
+        if (isBalanceUpdating) return toast.info('Please wait for the balance to update');
         setTradeState(TradeState.REVIEW);
         return;
       }
