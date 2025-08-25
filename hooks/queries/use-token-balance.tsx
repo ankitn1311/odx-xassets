@@ -5,6 +5,7 @@ import { getBalance, getBalanceWithProvider } from '@/utils/chain-client/txs/cre
 import { nativeAddressToXAssetAddressMapping } from '@/utils/chain-client/txs/constants';
 import { useAccount, useWalletClient } from 'wagmi';
 import { formatUnits } from 'ethers/lib/utils';
+import { useAppStore } from '@/stores/app-store';
 //
 // export const useTokenBalance = (address: string) => {
 //   const { data: allBalances, isLoading: allBalancesLoading } = useBalances();
@@ -39,19 +40,31 @@ import { formatUnits } from 'ethers/lib/utils';
 //     isLoading: allBalancesLoading || selectedTokenLoading,
 //   };
 // };
+//
+const TESTNET_CHAIN_ID = 57054;
 
 export const useTokenBalance = (address: string, decimals: number = 18) => {
-  const { address: userAddress } = useAccount();
+  const { address: userAddress, chainId } = useAccount();
+
+  const { data: wallet } = useWalletClient();
+
+  const isTestnet = chainId === TESTNET_CHAIN_ID;
 
   // const xAddress =
   //   nativeAddressToXAssetAddressMapping[
   //     address as keyof typeof nativeAddressToXAssetAddressMapping
   //   ];
+  //
+
+  const queryEnabled = isTestnet ? !!wallet && !!address : !!userAddress && !!address;
 
   const { data, isLoading, isRefetching } = useQuery({
     queryKey: ['token-balance', address, decimals],
-    queryFn: () => getBalanceWithProvider(address, userAddress!, decimals),
-    enabled: !!address && !!userAddress,
+    queryFn: () =>
+      isTestnet
+        ? getBalance(wallet, address, decimals)
+        : getBalanceWithProvider(address, userAddress!, decimals),
+    enabled: queryEnabled,
   });
 
   if (!address) return { data: 0, isLoading: false };
