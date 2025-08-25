@@ -13,7 +13,6 @@ import { SwapFormValues } from './TokenSwapCard';
 import { truncateToFixed } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
 import { sonic } from 'viem/chains';
-import { sonicProvider, SONIC_RPC_URL } from '@/utils/chain-client/common/provider';
 
 export function TokenSwapForm() {
   const { submitSignature } = useXAssetSignature();
@@ -53,21 +52,22 @@ export function TokenSwapForm() {
   useEffect(() => {
     const checkApproval = async () => {
       try {
-        if (!address) return;
+        if (!wallet) return;
         if (Number(amount) === 0 || isNaN(Number(amount))) return;
         if (tradeState !== TradeState.INITIAL) return;
         setTradeState(TradeState.CHECKING_APPROVAL);
-
+        const provider = new ethers.providers.Web3Provider(wallet as any);
         const isBuy = activeTab === TabState.BUY;
-        const tokenAddress = isBuy ? outputToken?.Address : inputToken?.Address;
-        const tokenDecimals = isBuy ? outputToken?.Decimals : inputToken?.Decimals;
-
-        if (!tokenAddress || !tokenDecimals) return;
-
-        // Use JSON RPC provider for read operations
-        const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, sonicProvider);
-        const currentAllowance = await tokenContract.allowance(address, PERMIT_TESTNET_ADDRESS);
-        const requiredAmount = ethers.utils.parseUnits(amount, tokenDecimals);
+        const xUSDTContract = new ethers.Contract(
+          isBuy ? outputToken?.Address : (inputToken?.Address ?? ''),
+          erc20Abi,
+          provider
+        );
+        const currentAllowance = await xUSDTContract.allowance(address, PERMIT_TESTNET_ADDRESS);
+        const requiredAmount = ethers.utils.parseUnits(
+          amount,
+          isBuy ? outputToken?.Decimals : inputToken?.Decimals
+        );
         const approved = Number(currentAllowance.toString()) >= Number(requiredAmount.toString());
         setIsApproved(approved);
         if (approved) {
@@ -85,6 +85,7 @@ export function TokenSwapForm() {
     checkApproval();
   }, [
     inputToken,
+    wallet,
     address,
     setIsApproved,
     setTradeState,
@@ -98,13 +99,8 @@ export function TokenSwapForm() {
 
   const maxApprovalForInputToken = async () => {
     try {
-      if (!wallet) {
-        toast.error('Wallet not connected');
-        return;
-      }
-
       setTradeState(TradeState.CHECKING_APPROVAL);
-      const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
+      const provider = new ethers.providers.Web3Provider(wallet as any);
       const signer = provider.getSigner();
       if (activeTab === TabState.BUY) {
         const xUSDTContract = new ethers.Contract(outputToken?.Address ?? '', erc20Abi, signer);
