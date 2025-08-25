@@ -5,13 +5,14 @@ import { useWalletClient } from 'wagmi';
 import SwapAbi from '@/utils/chain-client/abis/SwapAbi.json';
 import { DEX_ADDRESS } from '@/lib/constants';
 import { useSearchParams } from 'next/navigation';
+import { SONIC_RPC_URL } from '@/utils/chain-client/common/provider';
 
 const fetchRecentTrades = async (
   walletClient: WalletClient,
   tokenAddress: string | null,
   type: 'token' | 'user'
 ) => {
-  const provider = new ethers.providers.Web3Provider(walletClient.transport);
+  const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
   const odxDexContract = new ethers.Contract(DEX_ADDRESS, SwapAbi, provider);
 
   const userAddress = walletClient?.account?.address;
