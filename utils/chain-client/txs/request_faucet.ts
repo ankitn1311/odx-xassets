@@ -63,7 +63,7 @@ import { assetFactoryAddress, targetRouterAddress, xUSDTAddress } from './consta
 //   const turnkeySigner = await getTurnkeyWallet(authIframeClient, wallet, 'evm');
 
 //   // Create a provider (using Infura as an example)
-//   const provider = new ethers.providers.Web3Provider(wallet as any);
+//   const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
 
 //   const connectedSigner = (turnkeySigner as any).connect(provider);
 

@@ -4,12 +4,13 @@ import { erc20Abi } from 'viem';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { useWalletClient } from 'wagmi';
 import { TokenInfo } from './use-all-tokens';
+import { SONIC_RPC_URL } from '@/utils/chain-client/common/provider';
 
 const getTokenSupply = async (tokenAddress: string | undefined, decimals: number, wallet: any) => {
   if (!tokenAddress) return '0';
 
   try {
-    const provider = new ethers.providers.Web3Provider(wallet as any);
+    const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
     const totalSupply = await tokenContract.totalSupply();
     return ethers.utils.formatUnits(totalSupply, decimals);

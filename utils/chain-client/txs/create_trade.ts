@@ -5,8 +5,10 @@ import { createWalletClient, custom, erc20Abi } from 'viem';
 import SwapAbi from '@/utils/chain-client/abis/SwapAbi.json';
 import { formatUnits } from 'ethers/lib/utils';
 import { removeTrailingZeros, truncateToFixed } from '@/lib/utils';
+import { SONIC_RPC_URL, sonicProvider } from '@/utils/chain-client/common/provider';
+
 /**
- * Buy a token using the user's  wallet
+ * Buy a token using the user's wallet
  * @param wallet - The wallet to use
  * @param assetOut - The asset to buy
  * @param amount - The amount to buy
@@ -18,7 +20,7 @@ export const buyTokenEvm = async ({
   assetOut,
   amount,
 }: BuyTokenType) => {
-  const provider = new ethers.providers.Web3Provider(wallet.transport);
+  const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
   const account = await wallet.getAddresses();
   const connectedSigner = provider.getSigner(account[0]);
 
@@ -61,7 +63,7 @@ export const sellTokenEvm = async ({
   assetOut, // the asset to buy
   amount,
 }: SellTokenType) => {
-  const provider = new ethers.providers.Web3Provider(wallet.transport);
+  const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
   const account = await wallet.getAddresses();
   const connectedSigner = provider.getSigner(account[0]);
 
@@ -112,8 +114,8 @@ export const getQuote = async ({
   amount: number;
 }) => {
   try {
-    const provider = new ethers.providers.Web3Provider(wallet.transport);
-    const dexContract = new ethers.Contract(DEX_ADDRESS, SwapAbi, provider);
+    // Use the JSON RPC provider instead of wallet-based provider for read operations
+    const dexContract = new ethers.Contract(DEX_ADDRESS, SwapAbi, sonicProvider);
     const formattedAmount = ethers.utils.parseUnits(amount.toString(), 18);
     const quote = await dexContract.getQuote(assetIn, assetOut, formattedAmount);
     return quote;
@@ -133,7 +135,7 @@ export const getBalance = async (wallet: any, tokenAddress: string, decimals: nu
   const walletClient = createWalletClient({
     transport: custom(wallet.transport),
   });
-  const provider = new ethers.providers.Web3Provider(walletClient.transport);
+  const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
 
   const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
 
@@ -143,8 +145,48 @@ export const getBalance = async (wallet: any, tokenAddress: string, decimals: nu
   return removeTrailingZeros(balance);
 };
 
+/**
+ * Get the balance of a token using the JSON RPC provider (no wallet required)
+ * @param tokenAddress - The token contract address
+ * @param userAddress - The user's wallet address
+ * @param decimals - The token decimals
+ * @returns The balance of the token
+ */
+export const getBalanceWithProvider = async (
+  tokenAddress: string,
+  userAddress: string,
+  decimals: number
+) => {
+  try {
+    const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, sonicProvider);
+    const balances = await tokenContract.balanceOf(userAddress);
+    const balance = balances
+      ? truncateToFixed(parseFloat(formatUnits(balances, decimals)), 6)
+      : '0';
+    return removeTrailingZeros(balance);
+  } catch (error) {
+    console.error('Error getting balance with provider:', error);
+    return '0';
+  }
+};
+
 export const sonicBalance = async (wallet: any) => {
-  const provider = new ethers.providers.Web3Provider(wallet as any);
+  const provider = new ethers.providers.JsonRpcProvider(SONIC_RPC_URL);
   const balance = await provider.getBalance(wallet.account.address);
   return balance;
+};
+
+/**
+ * Get Sonic balance using the JSON RPC provider (no wallet required)
+ * @param userAddress - The user's wallet address
+ * @returns The Sonic balance
+ */
+export const getSonicBalanceWithProvider = async (userAddress: string) => {
+  try {
+    const balance = await sonicProvider.getBalance(userAddress);
+    return balance;
+  } catch (error) {
+    console.error('Error getting Sonic balance with provider:', error);
+    return ethers.BigNumber.from(0);
+  }
 };

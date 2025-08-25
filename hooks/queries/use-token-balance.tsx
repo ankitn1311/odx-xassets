@@ -1,9 +1,9 @@
 import { Wallet } from 'ethers';
 import { useSingleToken } from './use-single-token';
 import { useQuery } from '@tanstack/react-query';
-import { getBalance } from '@/utils/chain-client/txs/create_trade';
+import { getBalance, getBalanceWithProvider } from '@/utils/chain-client/txs/create_trade';
 import { nativeAddressToXAssetAddressMapping } from '@/utils/chain-client/txs/constants';
-import { useWalletClient } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { formatUnits } from 'ethers/lib/utils';
 //
 // export const useTokenBalance = (address: string) => {
@@ -41,7 +41,7 @@ import { formatUnits } from 'ethers/lib/utils';
 // };
 
 export const useTokenBalance = (address: string, decimals: number = 18) => {
-  const { data: wallet } = useWalletClient();
+  const { address: userAddress } = useAccount();
 
   // const xAddress =
   //   nativeAddressToXAssetAddressMapping[
@@ -50,8 +50,8 @@ export const useTokenBalance = (address: string, decimals: number = 18) => {
 
   const { data, isLoading, isRefetching } = useQuery({
     queryKey: ['token-balance', address, decimals],
-    queryFn: () => getBalance(wallet as unknown as Wallet, address, decimals),
-    enabled: !!address && !!wallet,
+    queryFn: () => getBalanceWithProvider(address, userAddress!, decimals),
+    enabled: !!address && !!userAddress,
   });
 
   if (!address) return { data: 0, isLoading: false };

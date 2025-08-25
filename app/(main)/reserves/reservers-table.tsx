@@ -8,15 +8,12 @@ import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Image from 'next/image';
 import { removeTrailingZeros } from '@/lib/utils';
-import { useAccount } from 'wagmi';
-import ConnectWallet from '@/components/common/connect-wallet';
 
 const xTokenToToken = tokenConvert;
 
 export function ReservesTable() {
   const { allTokens } = useTokenSwapStore();
   const isMobile = useIsMobile();
-  const { isConnected } = useAccount();
   const solToken = allTokens.find(token => token.TokenB.Name === 'x2SOL');
   const xrpToken = allTokens.find(token => token.TokenB.Name === 'x2XRP');
   const adaToken = allTokens.find(token => token.TokenB.Name === 'x2ADA');
@@ -185,18 +182,6 @@ export function ReservesTable() {
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
-        </div>
-      </Card>
-    );
-  }
-
-  if (!isConnected) {
-    return (
-      <Card className="flex w-full flex-col gap-6 p-8 text-center">
-        <h2 className="text-2xl font-bold">Connect Wallet</h2>
-        <p className="text-base text-muted-foreground">Connect your wallet to view live trades.</p>
-        <div className="flex w-full justify-center">
-          <ConnectWallet />
         </div>
       </Card>
     );

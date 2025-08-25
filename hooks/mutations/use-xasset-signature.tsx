@@ -10,7 +10,7 @@ import axios, { AxiosError } from 'axios';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { getCurrentBaseUrl } from '@/lib/utils';
-import { getBalance } from '@/utils/chain-client/txs/create_trade';
+import { getBalanceWithProvider } from '@/utils/chain-client/txs/create_trade';
 import { delay } from '@/utils/helper';
 import crypto from 'crypto';
 
@@ -114,7 +114,7 @@ export const useXAssetSignature = () => {
     initialInputBalance: string,
     initialOutputBalance: string
   ) => {
-    if (!wallet) return;
+    if (!address) return;
 
     // Set global state to indicate balances are updating
     setIsBalanceUpdating(true);
@@ -125,9 +125,17 @@ export const useXAssetSignature = () => {
 
     while (attempts < maxAttempts) {
       await delay(1000); // Wait 1 second between checks
-
-      const newInputBalance = await getBalance(wallet, data.token, data.input_decimals);
-      const newOutputBalance = await getBalance(wallet, data.output_token, data.output_decimals);
+      // Use the JSON RPC provider instead of wallet for balance checks
+      const newInputBalance = await getBalanceWithProvider(
+        data.token,
+        address,
+        data.input_decimals
+      );
+      const newOutputBalance = await getBalanceWithProvider(
+        data.output_token,
+        address,
+        data.output_decimals
+      );
 
       // Check if either balance has changed
       if (newInputBalance !== initialInputBalance || newOutputBalance !== initialOutputBalance) {
@@ -141,6 +149,7 @@ export const useXAssetSignature = () => {
           newOutputBalance
         );
 
+        await delay(1000); // Wait 1 second between checks
         // Reset balance updating state
         setIsBalanceUpdating(false);
         return;
@@ -549,7 +558,7 @@ export const useXAssetSignature = () => {
       const initialInputBalance =
         cachedInputBalance && typeof cachedInputBalance === 'string'
           ? cachedInputBalance
-          : await getBalance(wallet, data.token, data.input_decimals);
+          : await getBalanceWithProvider(data.token, address!, data.input_decimals);
 
       // Get output balance from query cache
       const cachedOutputBalance = queryClient.getQueryData([
@@ -560,7 +569,7 @@ export const useXAssetSignature = () => {
       const initialOutputBalance =
         cachedOutputBalance && typeof cachedOutputBalance === 'string'
           ? cachedOutputBalance
-          : await getBalance(wallet, data.output_token, data.output_decimals);
+          : await getBalanceWithProvider(data.output_token, address!, data.output_decimals);
 
       // const sigData = await sigDataMutation.mutateAsync(data);
       const signatureAndSerializedOrder = await getSignatureAndSerializedOrderV2(data, wallet);
@@ -594,8 +603,8 @@ export const useXAssetSignature = () => {
         }
         // Wait for transaction confirmation before invalidating queries
         // if (txHash) {
-        //   try {
         //     // Wait for a few block confirmations
+        //   try {
         //     await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
         //   } catch (error) {
         //     console.warn('Error waiting for confirmation:', error);
