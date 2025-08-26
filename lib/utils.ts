@@ -54,6 +54,42 @@ export const getCurrentWebSocketUrl = (): string => {
   return process.env.NEXT_PUBLIC_WSS_BASE_URL || '';
 };
 
+export const getCurrentPermit2Address = (): string => {
+  const env = process.env.NEXT_PUBLIC_ENV || 'development';
+
+  const { customPermit2Address } = useAppStore.getState();
+
+  if (env === 'staging' && customPermit2Address) {
+    return customPermit2Address;
+  }
+
+  return process.env.NEXT_PUBLIC_PERMIT2 || '';
+};
+
+export const getCurrentReactorAddress = (): string => {
+  const env = process.env.NEXT_PUBLIC_ENV || 'development';
+
+  const { customReactorAddress } = useAppStore.getState();
+
+  if (env === 'staging' && customReactorAddress) {
+    return customReactorAddress;
+  }
+
+  return process.env.NEXT_PUBLIC_REACTOR || '';
+};
+
+export const getCurrentCosignerAddress = (): string => {
+  const env = process.env.NEXT_PUBLIC_ENV || 'development';
+
+  const { customCosignerAddress } = useAppStore.getState();
+
+  if (env === 'staging' && customCosignerAddress) {
+    return customCosignerAddress;
+  }
+
+  return process.env.NEXT_PUBLIC_COSIGNER || '';
+};
+
 export const removeTrailingZeros = (value: string) => {
   const numValue = Number(value);
 

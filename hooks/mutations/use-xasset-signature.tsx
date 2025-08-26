@@ -13,6 +13,11 @@ import { getCurrentBaseUrl } from '@/lib/utils';
 import { getBalanceWithProvider } from '@/utils/chain-client/txs/create_trade';
 import { delay } from '@/utils/helper';
 import crypto from 'crypto';
+import {
+  REACTOR_ADDRESS,
+  PERMIT2_ADDRESS,
+  COSIGNER_ADDRESS,
+} from '@/utils/chain-client/txs/constants';
 
 interface SigData {
   user_address: string;
@@ -44,20 +49,6 @@ const POLL_INTERVAL = 2000; // 2 seconds
 // 4. Ultra-random collision resolution with 64-bit entropy + high-resolution time
 // 5. Collision detection and automatic regeneration
 // This makes nonces virtually impossible to predict or replicate
-
-// Add Base chain configuration
-// EXECUTOR
-const BASE_REACTOR = '0x0369e0ED08aabE340e7A77f1D39198BB986233e0'; // Replace with actual reactor address
-const BASE_PERMIT2 = '0x000000000022D473030F116dDEE9F6B43aC78BA3'; // Base chain Permit2 address
-const COSIGNER_ADDRESS = '0x3343dB95afe77eA40Cd1333b627A70E16c285ad9';
-
-// Configure Permit2 addresses for different chains
-const CHAIN_PERMIT2_CONFIG = {
-  8453: BASE_PERMIT2, // Base
-  84531: BASE_PERMIT2, // Base Sepolia
-  64165: BASE_PERMIT2, // Sonic testnet
-  57054: BASE_PERMIT2, // Sonic testnet
-} as const;
 
 const ERROR_STATES = [
   'VALIDATION_FAILED',
@@ -446,12 +437,12 @@ export const useXAssetSignature = () => {
     }
 
     // Use the provider for NonceManager with permit2 configuration
-    const nonceMgr = new NonceManager(provider, chainId, BASE_PERMIT2);
+    const nonceMgr = new NonceManager(provider, chainId, PERMIT2_ADDRESS);
     // Get a safe nonce that's not already in use (returns BigNumber)
     const nonce = await getSafeNonce(provider, signerAccount, nonceMgr);
 
     // const builder = new DutchOrderBuilder(chainId, BASE_REACTOR, BASE_PERMIT2);
-    const v2Builder = new V2DutchOrderBuilder(chainId, BASE_REACTOR, BASE_PERMIT2);
+    const v2Builder = new V2DutchOrderBuilder(chainId, REACTOR_ADDRESS, PERMIT2_ADDRESS);
 
     // Set deadline to 20 minutes from now (in seconds)
     // const deadline = Math.floor(Date.now() / 1000) + 1000;
@@ -486,7 +477,7 @@ export const useXAssetSignature = () => {
     const cosignerData: CosignerData = {
       decayStartTime: startTime,
       decayEndTime: endTime,
-      exclusiveFiller: BASE_REACTOR,
+      exclusiveFiller: REACTOR_ADDRESS,
       exclusivityOverrideBps: inputAmount,
       inputOverride: inputAmount,
       outputOverrides: [outputAmount],
