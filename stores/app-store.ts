@@ -44,11 +44,11 @@ export const defaultInitState: AppState = {
   imported_addresses: [],
   isBannerVisible: false,
   slippage: 0.2,
-  customBaseUrl: '',
-  customWebSocketUrl: '',
-  customPermit2Address: '',
-  customReactorAddress: '',
-  customCosignerAddress: '',
+  customBaseUrl: process.env.NEXT_PUBLIC_BASE_URL || '',
+  customWebSocketUrl: process.env.NEXT_PUBLIC_WSS_BASE_URL || '',
+  customPermit2Address: process.env.NEXT_PUBLIC_PERMIT2 || '',
+  customReactorAddress: process.env.NEXT_PUBLIC_REACTOR || '',
+  customCosignerAddress: process.env.NEXT_PUBLIC_COSIGNER || '',
 };
 
 export const useAppStore = create(

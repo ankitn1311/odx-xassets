@@ -74,8 +74,8 @@ export function StagingSettings() {
   } = useForm<BaseUrlSchema>({
     resolver: zodResolver(baseUrlSchema),
     defaultValues: {
-      baseUrl: customBaseUrl || '',
-      webSocketUrl: customWebSocketUrl || '',
+      baseUrl: customBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || '',
+      webSocketUrl: customWebSocketUrl || process.env.NEXT_PUBLIC_WSS_BASE_URL || '',
       permit2Address: customPermit2Address || process.env.NEXT_PUBLIC_PERMIT2 || '',
       reactorAddress: customReactorAddress || process.env.NEXT_PUBLIC_REACTOR || '',
       cosignerAddress: customCosignerAddress || process.env.NEXT_PUBLIC_COSIGNER || '',
@@ -83,8 +83,8 @@ export function StagingSettings() {
   });
 
   useEffect(() => {
-    setValue('baseUrl', customBaseUrl || '');
-    setValue('webSocketUrl', customWebSocketUrl || '');
+    setValue('baseUrl', customBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || '');
+    setValue('webSocketUrl', customWebSocketUrl || process.env.NEXT_PUBLIC_WSS_BASE_URL || '');
     setValue('permit2Address', customPermit2Address || process.env.NEXT_PUBLIC_PERMIT2 || '');
     setValue('reactorAddress', customReactorAddress || process.env.NEXT_PUBLIC_REACTOR || '');
     setValue('cosignerAddress', customCosignerAddress || process.env.NEXT_PUBLIC_COSIGNER || '');
@@ -144,8 +144,8 @@ export function StagingSettings() {
 
   const handleCancel = () => {
     reset({
-      baseUrl: customBaseUrl || '',
-      webSocketUrl: customWebSocketUrl || '',
+      baseUrl: customBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || '',
+      webSocketUrl: customWebSocketUrl || process.env.NEXT_PUBLIC_WSS_BASE_URL || '',
       permit2Address: customPermit2Address || process.env.NEXT_PUBLIC_PERMIT2 || '',
       reactorAddress: customReactorAddress || process.env.NEXT_PUBLIC_REACTOR || '',
       cosignerAddress: customCosignerAddress || process.env.NEXT_PUBLIC_COSIGNER || '',
