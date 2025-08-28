@@ -11,6 +11,9 @@ export type AppState = {
   slippage: number;
   customBaseUrl?: string;
   customWebSocketUrl?: string;
+  customPermit2Address?: string;
+  customReactorAddress?: string;
+  customCosignerAddress?: string;
 };
 
 export type AppActions = {
@@ -25,6 +28,12 @@ export type AppActions = {
   setCustomWebSocketUrl: (url: string) => void;
   clearCustomBaseUrl: () => void;
   clearCustomWebSocketUrl: () => void;
+  setCustomPermit2Address: (address: string) => void;
+  setCustomReactorAddress: (address: string) => void;
+  setCustomCosignerAddress: (address: string) => void;
+  clearCustomPermit2Address: () => void;
+  clearCustomReactorAddress: () => void;
+  clearCustomCosignerAddress: () => void;
 };
 
 export type AppStore = AppState & AppActions;
@@ -35,8 +44,11 @@ export const defaultInitState: AppState = {
   imported_addresses: [],
   isBannerVisible: false,
   slippage: 0.2,
-  customBaseUrl: '',
-  customWebSocketUrl: '',
+  customBaseUrl: process.env.NEXT_PUBLIC_BASE_URL || '',
+  customWebSocketUrl: process.env.NEXT_PUBLIC_WSS_BASE_URL || '',
+  customPermit2Address: process.env.NEXT_PUBLIC_PERMIT2 || '',
+  customReactorAddress: process.env.NEXT_PUBLIC_REACTOR || '',
+  customCosignerAddress: process.env.NEXT_PUBLIC_COSIGNER || '',
 };
 
 export const useAppStore = create(
@@ -61,6 +73,15 @@ export const useAppStore = create(
       clearCustomBaseUrl: () => set(() => ({ customBaseUrl: '' })),
       setCustomWebSocketUrl: (customWebSocketUrl: string) => set(() => ({ customWebSocketUrl })),
       clearCustomWebSocketUrl: () => set(() => ({ customWebSocketUrl: '' })),
+      setCustomPermit2Address: (customPermit2Address: string) =>
+        set(() => ({ customPermit2Address })),
+      setCustomReactorAddress: (customReactorAddress: string) =>
+        set(() => ({ customReactorAddress })),
+      setCustomCosignerAddress: (customCosignerAddress: string) =>
+        set(() => ({ customCosignerAddress })),
+      clearCustomPermit2Address: () => set(() => ({ customPermit2Address: '' })),
+      clearCustomReactorAddress: () => set(() => ({ customReactorAddress: '' })),
+      clearCustomCosignerAddress: () => set(() => ({ customCosignerAddress: '' })),
     }),
     {
       name: 'app-odx',

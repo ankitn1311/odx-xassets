@@ -1,3 +1,9 @@
+import {
+  getCurrentPermit2Address,
+  getCurrentReactorAddress,
+  getCurrentCosignerAddress,
+} from '@/lib/utils';
+
 export const targetRouterAddress = '0x09D1f7743834cf9f784F94b799609f0Ac77e0b4E';
 // export const xUSDTAddress = '0x2d4b1eDa9514675a9F8CB13b3f3a7475ebb81024';
 export const xUSDTAddress = '0x5A91D3042b71A92f6757Fa937763D03Cc65ED8BC';
@@ -75,9 +81,14 @@ export const xChainToChainMapping = {
   BTC1: 'BTC',
 };
 
-export const ODXDEX_ADDRESS = '0x6DC4093B5FBEf8Ea951957A0ECEE97Afae17A66d';
-// TODO: change to the correct address for the chain on mainnet
-export const PERMIT_TESTNET_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
+export const PERMIT2_ADDRESS =
+  getCurrentPermit2Address() || '0x000000000022D473030F116dDEE9F6B43aC78BA3';
+
+export const REACTOR_ADDRESS =
+  getCurrentReactorAddress() || '0x0369e0ED08aabE340e7A77f1D39198BB986233e0';
+
+export const COSIGNER_ADDRESS =
+  getCurrentCosignerAddress() || '0x3343dB95afe77eA40Cd1333b627A70E16c285ad9';
 
 // ODXDEX ABI - only including what we need for swapping
 export const ODXDEX_ABI = [

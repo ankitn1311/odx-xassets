@@ -29,6 +29,9 @@ const baseUrlSchema = z.object({
     .url({ message: 'Must be a valid URL' })
     .refine(val => val.startsWith('http'), { message: 'URL must start with http:// or https://' }),
   webSocketUrl: z.string(),
+  permit2Address: z.string().min(1, { message: 'PERMIT2 address is required' }),
+  reactorAddress: z.string().min(1, { message: 'REACTOR address is required' }),
+  cosignerAddress: z.string().min(1, { message: 'COSIGNER address is required' }),
 });
 
 type BaseUrlSchema = z.infer<typeof baseUrlSchema>;
@@ -46,6 +49,15 @@ export function StagingSettings() {
     customWebSocketUrl,
     setCustomWebSocketUrl,
     clearCustomWebSocketUrl,
+    customPermit2Address,
+    setCustomPermit2Address,
+    clearCustomPermit2Address,
+    customReactorAddress,
+    setCustomReactorAddress,
+    clearCustomReactorAddress,
+    customCosignerAddress,
+    setCustomCosignerAddress,
+    clearCustomCosignerAddress,
   } = useAppStore();
   const [isOpen, setIsOpen] = useState(false);
   const { chainId } = useAccount();
@@ -62,15 +74,28 @@ export function StagingSettings() {
   } = useForm<BaseUrlSchema>({
     resolver: zodResolver(baseUrlSchema),
     defaultValues: {
-      baseUrl: customBaseUrl || '',
-      webSocketUrl: customWebSocketUrl || '',
+      baseUrl: customBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || '',
+      webSocketUrl: customWebSocketUrl || process.env.NEXT_PUBLIC_WSS_BASE_URL || '',
+      permit2Address: customPermit2Address || process.env.NEXT_PUBLIC_PERMIT2 || '',
+      reactorAddress: customReactorAddress || process.env.NEXT_PUBLIC_REACTOR || '',
+      cosignerAddress: customCosignerAddress || process.env.NEXT_PUBLIC_COSIGNER || '',
     },
   });
 
   useEffect(() => {
-    setValue('baseUrl', customBaseUrl || '');
-    setValue('webSocketUrl', customWebSocketUrl || '');
-  }, [customBaseUrl, customWebSocketUrl, setValue]);
+    setValue('baseUrl', customBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || '');
+    setValue('webSocketUrl', customWebSocketUrl || process.env.NEXT_PUBLIC_WSS_BASE_URL || '');
+    setValue('permit2Address', customPermit2Address || process.env.NEXT_PUBLIC_PERMIT2 || '');
+    setValue('reactorAddress', customReactorAddress || process.env.NEXT_PUBLIC_REACTOR || '');
+    setValue('cosignerAddress', customCosignerAddress || process.env.NEXT_PUBLIC_COSIGNER || '');
+  }, [
+    customBaseUrl,
+    customWebSocketUrl,
+    customPermit2Address,
+    customReactorAddress,
+    customCosignerAddress,
+    setValue,
+  ]);
 
   const handleRefresh = async () => {
     await Promise.all([
@@ -93,20 +118,38 @@ export function StagingSettings() {
   const onSubmit = (data: BaseUrlSchema) => {
     setCustomBaseUrl(data.baseUrl);
     setCustomWebSocketUrl(data.webSocketUrl);
+    setCustomPermit2Address(data.permit2Address);
+    setCustomReactorAddress(data.reactorAddress);
+    setCustomCosignerAddress(data.cosignerAddress);
     setIsOpen(false);
-    toast.success('Base URL updated successfully');
+    toast.success('Configuration updated successfully');
   };
 
   const handleClear = () => {
     clearCustomBaseUrl();
     clearCustomWebSocketUrl();
-    reset({ baseUrl: '', webSocketUrl: '' });
+    clearCustomPermit2Address();
+    clearCustomReactorAddress();
+    clearCustomCosignerAddress();
+    reset({
+      baseUrl: '',
+      webSocketUrl: '',
+      permit2Address: '',
+      reactorAddress: '',
+      cosignerAddress: '',
+    });
     setIsOpen(false);
-    toast.success('Custom Base URL cleared');
+    toast.success('Custom configuration cleared');
   };
 
   const handleCancel = () => {
-    reset({ baseUrl: customBaseUrl || '', webSocketUrl: customWebSocketUrl || '' });
+    reset({
+      baseUrl: customBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || '',
+      webSocketUrl: customWebSocketUrl || process.env.NEXT_PUBLIC_WSS_BASE_URL || '',
+      permit2Address: customPermit2Address || process.env.NEXT_PUBLIC_PERMIT2 || '',
+      reactorAddress: customReactorAddress || process.env.NEXT_PUBLIC_REACTOR || '',
+      cosignerAddress: customCosignerAddress || process.env.NEXT_PUBLIC_COSIGNER || '',
+    });
     setIsOpen(false);
   };
 
@@ -198,6 +241,39 @@ export function StagingSettings() {
             </div>
           )}
 
+          {customPermit2Address && (
+            <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-950/20">
+              <p className="flex flex-col gap-1 text-xs text-blue-700 dark:text-blue-300">
+                <span>PERMIT2 Address:</span>
+                <code className="rounded bg-blue-100 px-1 py-0.5 dark:bg-blue-900">
+                  {customPermit2Address}
+                </code>
+              </p>
+            </div>
+          )}
+
+          {customReactorAddress && (
+            <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-950/20">
+              <p className="flex flex-col gap-1 text-xs text-blue-700 dark:text-blue-300">
+                <span>REACTOR Address:</span>
+                <code className="rounded bg-blue-100 px-1 py-0.5 dark:bg-blue-900">
+                  {customReactorAddress}
+                </code>
+              </p>
+            </div>
+          )}
+
+          {customCosignerAddress && (
+            <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-950/20">
+              <p className="flex flex-col gap-1 text-xs text-blue-700 dark:text-blue-300">
+                <span>COSIGNER Address:</span>
+                <code className="rounded bg-blue-100 px-1 py-0.5 dark:bg-blue-900">
+                  {customCosignerAddress}
+                </code>
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div>
               <Label htmlFor="base-url-input" className="text-xs font-medium">
@@ -246,9 +322,78 @@ export function StagingSettings() {
               )}
             </div>
 
+            <div>
+              <Label htmlFor="permit2-address-input" className="text-xs font-medium">
+                PERMIT2 Address
+              </Label>
+              <Controller
+                control={control}
+                name="permit2Address"
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="permit2-address-input"
+                    type="text"
+                    placeholder="0x..."
+                    className="font-mono text-sm"
+                    onKeyDown={handleKeyDown}
+                  />
+                )}
+              />
+              {errors.permit2Address && (
+                <p className="mt-1 text-xs text-red-500">{errors.permit2Address.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="reactor-address-input" className="text-xs font-medium">
+                REACTOR Address
+              </Label>
+              <Controller
+                control={control}
+                name="reactorAddress"
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="reactor-address-input"
+                    type="text"
+                    placeholder="0x..."
+                    className="font-mono text-sm"
+                    onKeyDown={handleKeyDown}
+                  />
+                )}
+              />
+              {errors.reactorAddress && (
+                <p className="mt-1 text-xs text-red-500">{errors.reactorAddress.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="cosigner-address-input" className="text-xs font-medium">
+                COSIGNER Address
+              </Label>
+              <Controller
+                control={control}
+                name="cosignerAddress"
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="cosigner-address-input"
+                    type="text"
+                    placeholder="0x..."
+                    className="font-mono text-sm"
+                    onKeyDown={handleKeyDown}
+                  />
+                )}
+              />
+              {errors.cosignerAddress && (
+                <p className="mt-1 text-xs text-red-500">{errors.cosignerAddress.message}</p>
+              )}
+            </div>
+
             <div className="flex gap-2">
               <Button type="submit" size="sm" className="flex-1" disabled={isSubmitting}>
-                {customBaseUrl ? 'Update' : 'Set'} Base URL
+                {customBaseUrl ? 'Update' : 'Set'} Configuration
               </Button>
               {customBaseUrl && (
                 <Button type="button" onClick={handleClear} variant="destructive" size="sm">
@@ -264,8 +409,9 @@ export function StagingSettings() {
           <div className="space-y-1 text-xs text-muted-foreground">
             <p>• This setting only applies in staging environment</p>
             <p>• Changes are persisted locally</p>
-            <p>• Leave empty to use default environment URL</p>
+            <p>• Leave empty to use default environment values</p>
             <p>• Network switching affects the connected blockchain</p>
+            <p>• Contract addresses are loaded from environment variables by default</p>
           </div>
         </div>
       </PopoverContent>

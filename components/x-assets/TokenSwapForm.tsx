@@ -2,7 +2,7 @@ import { useFormContext } from 'react-hook-form';
 
 import { useXAssetSignature } from '@/hooks/mutations/use-xasset-signature';
 import { toast } from 'sonner';
-import { PERMIT_TESTNET_ADDRESS } from '@/utils/chain-client/txs/constants';
+import { PERMIT2_ADDRESS } from '@/utils/chain-client/txs/constants';
 import { useTokenSwapStore, TradeState, TabState } from '@/stores/token-swap-store';
 import { useEffect } from 'react';
 import { ethers } from 'ethers';
@@ -63,7 +63,7 @@ export function TokenSwapForm() {
           erc20Abi,
           provider
         );
-        const currentAllowance = await xUSDTContract.allowance(address, PERMIT_TESTNET_ADDRESS);
+        const currentAllowance = await xUSDTContract.allowance(address, PERMIT2_ADDRESS);
         const requiredAmount = ethers.utils.parseUnits(
           amount,
           isBuy ? outputToken?.Decimals : inputToken?.Decimals
@@ -104,10 +104,10 @@ export function TokenSwapForm() {
       const signer = provider.getSigner();
       if (activeTab === TabState.BUY) {
         const xUSDTContract = new ethers.Contract(outputToken?.Address ?? '', erc20Abi, signer);
-        await xUSDTContract.approve(PERMIT_TESTNET_ADDRESS, ethers.constants.MaxUint256);
+        await xUSDTContract.approve(PERMIT2_ADDRESS, ethers.constants.MaxUint256);
       } else if (activeTab === TabState.SELL) {
         const xUSDTContract = new ethers.Contract(inputToken?.Address ?? '', erc20Abi, signer);
-        await xUSDTContract.approve(PERMIT_TESTNET_ADDRESS, ethers.constants.MaxUint256);
+        await xUSDTContract.approve(PERMIT2_ADDRESS, ethers.constants.MaxUint256);
       }
       setTradeState(TradeState.REVIEW);
       setIsApproved(true);
