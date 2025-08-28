@@ -623,6 +623,22 @@ export const useXAssetSignature = () => {
           setTradeState(TradeState.FAILED);
           throw new Error('Address used to trade is not whitelisted');
         }
+        if (
+          orderStatus.status === 'VALIDATION_FAILED' &&
+          orderStatus.errorMessage &&
+          orderStatus.errorMessage.includes('Invalid USDC Output Amount')
+        ) {
+          setTradeState(TradeState.FAILED);
+          throw new Error('Invalid USDC amount, must be between 5 and 10 USDC');
+        }
+        if (
+          orderStatus.status === 'VALIDATION_FAILED' &&
+          orderStatus.errorMessage &&
+          orderStatus.errorMessage.includes('outside slippage boundaries')
+        ) {
+          setTradeState(TradeState.FAILED);
+          throw new Error('Price moved more than slippage, please try again');
+        }
         setTradeState(TradeState.FAILED);
         throw new Error(`FAILED_${orderStatus.executionName}`);
       } else if (PENDING_STATES.includes(orderStatus.status as PendingStatus)) {
