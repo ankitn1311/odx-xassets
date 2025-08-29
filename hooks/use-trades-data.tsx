@@ -21,12 +21,13 @@ export const getTradesData = async (type?: 'user' | 'explorer', address?: string
   }));
 };
 
-export const useTradesData = (type?: 'user' | 'explorer') => {
-  const { address } = useAccount();
-
+export const useTradesData = (
+  type?: 'user' | 'explorer',
+  address: string = '0x0000000000000000000000000000000000000000'
+) => {
   return useQuery<TradeData[]>({
     queryKey: ['trades', type],
-    queryFn: () => getTradesData(type, address || '0x0000000000000000000000000000000000000000'),
+    queryFn: () => getTradesData(type, address),
     // staleTime: 0, // Always consider data stale to get real-time updates
     staleTime: Infinity,
     refetchInterval: false, // Don't refetch automatically

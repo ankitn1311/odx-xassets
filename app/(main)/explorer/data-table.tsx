@@ -69,8 +69,9 @@ function MobileSkeletonRow() {
 
 export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'timestamp', desc: true }]);
+  const { address } = useAccount();
 
-  const { data: tableData = [], isLoading: tradesDataLoading } = useTradesData(type);
+  const { data: tableData = [], isLoading: tradesDataLoading } = useTradesData(type, address);
 
   // Use trades from provider as the main data source
 
