@@ -100,3 +100,17 @@ export const truncateToFixed = (num: number, decimals: number) => {
   const factor = Math.pow(10, decimals);
   return (Math.floor(num * factor) / factor).toFixed(decimals);
 };
+
+export function getWeekNumber(date: Date): number {
+  const tempDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = tempDate.getUTCDay() || 7;
+  tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
+  return Math.ceil(((tempDate.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
+export function getWeekId(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const week = getWeekNumber(date);
+  return `${year}_W${week.toString().padStart(2, '0')}`;
+}
