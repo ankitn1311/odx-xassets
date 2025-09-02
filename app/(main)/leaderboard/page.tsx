@@ -14,8 +14,8 @@ export default function LeaderboardPage() {
           </p>
         </section>
       </Card>
-      <Tabs defaultValue="overall" className="w-full">
-        <TabsList variant="default" className="mb-2">
+      <Tabs defaultValue="overall" className="">
+        <TabsList variant="default" className="mb-2 flex flex-row justify-center">
           <TabsTrigger value="overall">Overall Leaderboard</TabsTrigger>
           <TabsTrigger value="weekly">Weekly Leaderboard</TabsTrigger>
         </TabsList>
