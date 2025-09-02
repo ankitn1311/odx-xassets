@@ -1,6 +1,7 @@
 'use client';
 import { Card } from '@/components/ui/card';
-import { LeaderboardTable } from './data-table';
+import { LeaderboardTable, WeeklyLeaderboardTable } from './data-table';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export default function LeaderboardPage() {
   return (
@@ -13,7 +14,18 @@ export default function LeaderboardPage() {
           </p>
         </section>
       </Card>
-      <LeaderboardTable />
+      <Tabs defaultValue="overall" className="w-full">
+        <TabsList variant="default" className="mb-2">
+          <TabsTrigger value="overall">Overall Leaderboard</TabsTrigger>
+          <TabsTrigger value="weekly">Weekly Leaderboard</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overall">
+          <LeaderboardTable />
+        </TabsContent>
+        <TabsContent value="weekly">
+          <WeeklyLeaderboardTable />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

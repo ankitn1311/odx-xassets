@@ -16,6 +16,8 @@ export interface SwapperData {
   recentTrades: TradeData[];
   volumeData: VolumeData[];
   assets: TokenPair[];
+  weeklyPoints: number;
+  [key: string]: any;
 }
 
 export interface VolumeData {
