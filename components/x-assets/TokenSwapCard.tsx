@@ -45,14 +45,19 @@ const swapFormSchema = z
   // )
   .refine(
     data => {
-      if (Number(data.outputAmount) < 5 || Number(data.outputAmount) > 10) {
+      // For Buy tab: amount is USDC, outputAmount is xAsset
+      // For Sell tab: amount is xAsset, outputAmount is USDC
+      // We need to validate the USDC amount regardless of which field it's in
+      const usdcAmount =
+        data.inputToken?.Name === 'USDC' ? Number(data.amount) : Number(data.outputAmount);
+      if (usdcAmount < 5 || usdcAmount > 10) {
         return false;
       }
       return true;
     },
     {
       message: 'USDC amount must be between 5 and 10, during the alpha',
-      path: ['outputAmount'],
+      path: ['amount'], // This will show the error on the USDC input field
     }
   );
 // .refine(
@@ -90,7 +95,7 @@ const swapFormSchema = z
 export type SwapFormValues = z.infer<typeof swapFormSchema>;
 
 export const TokenSwapCard = () => {
-  const { allTokens, tradeState } = useTokenSwapStore();
+  const { allTokens, tradeState, activeTab, setActiveTab, resetTradeState } = useTokenSwapStore();
   const [firstToken] = allTokens;
   const { TokenA, TokenB } = firstToken;
   const searchParams = useSearchParams();
@@ -101,8 +106,8 @@ export const TokenSwapCard = () => {
       amount: '0',
       outputAmount: '0',
       percentage: 25,
-      inputToken: TokenB,
-      outputToken: TokenA,
+      inputToken: TokenA, // USDC for Buy tab
+      outputToken: TokenB, // xAsset for Buy tab
     },
     mode: 'onBlur',
   });
@@ -112,15 +117,43 @@ export const TokenSwapCard = () => {
     if (selectedTokenAddress && allTokens.length > 0) {
       const found = allTokens.find(t => t.TokenB.Address === selectedTokenAddress);
       if (found) {
-        form.setValue('inputToken', found.TokenB);
-        form.setValue('outputToken', found.TokenA);
+        // For Buy tab: inputToken = USDC (TokenA), outputToken = xAsset (TokenB)
+        // For Sell tab: inputToken = xAsset (TokenB), outputToken = USDC (TokenA)
+        if (activeTab === TabState.BUY) {
+          form.setValue('inputToken', found.TokenA); // USDC
+          form.setValue('outputToken', found.TokenB); // xAsset
+        } else {
+          form.setValue('inputToken', found.TokenB); // xAsset
+          form.setValue('outputToken', found.TokenA); // USDC
+        }
       }
     }
     // Only run on mount or when allTokens changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTokenAddress, allTokens]);
+  }, [selectedTokenAddress, allTokens, activeTab]);
 
-  const { activeTab, setActiveTab, resetTradeState } = useTokenSwapStore();
+  // Handle token swapping when switching between Buy and Sell tabs
+  useEffect(() => {
+    if (allTokens.length > 0) {
+      const [firstToken] = allTokens;
+      const { TokenA, TokenB } = firstToken;
+
+      // For Buy tab: inputToken = USDC (TokenA), outputToken = xAsset (TokenB)
+      // For Sell tab: inputToken = xAsset (TokenB), outputToken = USDC (TokenA)
+      if (activeTab === TabState.BUY) {
+        form.setValue('inputToken', TokenA); // USDC
+        form.setValue('outputToken', TokenB); // xAsset
+      } else {
+        form.setValue('inputToken', TokenB); // xAsset
+        form.setValue('outputToken', TokenA); // USDC
+      }
+
+      // Reset amounts when switching tabs
+      form.setValue('amount', '0');
+      form.setValue('outputAmount', '0');
+      form.setValue('percentage', 0);
+    }
+  }, [activeTab, allTokens, form]);
 
   const isBuyDisabled = ![
     TradeState.INITIAL,

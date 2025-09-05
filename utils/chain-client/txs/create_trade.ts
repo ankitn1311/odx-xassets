@@ -140,7 +140,7 @@ export const getBalance = async (wallet: any, tokenAddress: string, decimals: nu
   const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
 
   const balances = await tokenContract.balanceOf(wallet.account.address);
-  const balance = balances ? truncateToFixed(parseFloat(formatUnits(balances, decimals)), 6) : '0';
+  const balance = balances ? parseFloat(formatUnits(balances, decimals)).toString() : '0';
 
   return removeTrailingZeros(balance);
 };
@@ -160,10 +160,19 @@ export const getBalanceWithProvider = async (
   try {
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, sonicProvider);
     const balances = await tokenContract.balanceOf(userAddress);
-    const balance = balances
-      ? truncateToFixed(parseFloat(formatUnits(balances, decimals)), 6)
-      : '0';
-    return removeTrailingZeros(balance);
+    // convert test balance to BigNumber
+    let balance = '0';
+
+    if (balances) {
+      const formatted = formatUnits(balances, decimals);
+      const parsed = parseFloat(formatted);
+      const removedTrailingZeros = removeTrailingZeros(parsed.toString());
+      balance = removedTrailingZeros;
+
+      console.log('balance', { balance, formatted, parsed, removedTrailingZeros });
+    }
+
+    return balance;
   } catch (error) {
     console.error('Error getting balance with provider:', error);
     return '0';

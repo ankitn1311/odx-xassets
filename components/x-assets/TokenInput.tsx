@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useFormContext } from 'react-hook-form';
-import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
+import { useTokenSwapStore } from '@/stores/token-swap-store';
 import {
   Select,
   SelectContent,
@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Image from 'next/image';
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
@@ -20,7 +20,6 @@ import { cn, convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/ut
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { useRouter } from 'nextjs-toploader/app';
 import { Skeleton } from '../ui/skeleton';
-const MAX_DECIMALS = 2;
 
 interface TokenInputProps {
   label: string;
@@ -30,7 +29,7 @@ interface TokenInputProps {
   showPercentageButtons?: boolean;
 }
 
-const PERCENTAGE_OPTIONS = [25, 50, 75, 100];
+const PERCENTAGE_OPTIONS = [50, 100];
 
 export function TokenInput({
   label,
@@ -44,10 +43,9 @@ export function TokenInput({
   const router = useRouter();
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
 
-  const { allTokens, activeTab, isBalanceUpdating } = useTokenSwapStore();
+  const { allTokens, isBalanceUpdating } = useTokenSwapStore();
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
-  const isBuy = activeTab === TabState.BUY;
 
   const token = !isOutput ? inputToken : outputToken;
   const isUSDT = token?.Name === 'USDC';
@@ -70,7 +68,11 @@ export function TokenInput({
     setValue('percentage', percentage);
     // use the balance of the token
     // setValue('amount', ((Number(balance) * percentage) / 100).toFixed(2));
-    onAmountChange(truncateToFixed((Number(balance) * percentage) / 100, 3));
+    if (percentage === 100) {
+      onAmountChange(balance.toString());
+    } else {
+      onAmountChange(((Number(balance) * percentage) / 100).toString());
+    }
   };
 
   const handleTokenSelect = (tokenName: string) => {
@@ -83,7 +85,10 @@ export function TokenInput({
     } else {
       // setInputToken(selectedToken);
       setValue('inputToken', selectedToken);
-      router.push(`/x-assets?selected-token=${selectedToken.Address}`);
+      // Only push to router if it's an xAsset (not USDC)
+      if (selectedToken.Name !== 'USDC') {
+        router.push(`/x-assets?selected-token=${selectedToken.Address}`);
+      }
     }
     clearErrors();
     setValue('amount', '');
@@ -125,32 +130,6 @@ export function TokenInput({
       }
     };
   }, [getQuote, setValue]);
-
-  const handleAmountChange = useCallback(
-    async (value: string) => {
-      if (!value) {
-        setValue('amount', '');
-        setValue('outputAmount', '');
-        setValue('percentage', 0);
-        return;
-      }
-
-      const cleanValue = value.replace(/[^0-9.]/g, '');
-      const parts = cleanValue.split('.');
-      const formattedValue =
-        parts[0] + (parts.length > 1 ? '.' + parts[1].slice(0, MAX_DECIMALS) : '');
-
-      const numValue = Number(formattedValue);
-      if (isNaN(numValue)) return;
-
-      setValue('amount', formattedValue);
-
-      if (inputToken && outputToken && debouncedGetQuoteRef.current) {
-        debouncedGetQuoteRef.current(inputToken, outputToken, formattedValue, isBuy);
-      }
-    },
-    [inputToken, outputToken, setValue, isBuy]
-  );
 
   return (
     <div className="relative">
@@ -264,11 +243,11 @@ export function TokenInput({
               {isBalanceLoading ? (
                 <Skeleton className="h-4 w-20" />
               ) : (
-                removeTrailingZeros(truncateToFixed(Number(balance), 5))
+                removeTrailingZeros(Number(balance).toString())
               )}
             </div>
           </div>
-          {activeTab === TabState.SELL && showPercentageButtons && (
+          {!isOutput && showPercentageButtons && (
             <div className="flex items-center gap-1.5">
               {PERCENTAGE_OPTIONS.map(percentage => (
                 <Button
@@ -284,7 +263,7 @@ export function TokenInput({
               ))}
             </div>
           )}
-          {activeTab === TabState.BUY && showPercentageButtons && <div className="invisible h-6" />}
+          {isOutput && showPercentageButtons && <div className="invisible h-6" />}
         </div>
       </div>
     </div>

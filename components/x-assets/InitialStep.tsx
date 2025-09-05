@@ -147,7 +147,7 @@ export function InitialStep() {
   return (
     <>
       <TokenInput
-        label={activeTab === TabState.BUY ? 'You Get' : 'You Sell'}
+        label={activeTab === TabState.BUY ? 'You Pay' : 'You Sell'}
         onAmountChange={handleAmountChange}
         showPercentageButtons={
           tradeState === TradeState.INITIAL ||
@@ -198,7 +198,7 @@ export function InitialStep() {
 
       <div className="mt-2">
         <TokenInput
-          label={activeTab === TabState.BUY ? 'You Pay' : 'You Get'}
+          label={activeTab === TabState.BUY ? 'You Get' : 'You Get'}
           isOutput
           onAmountChange={handleAmountChange}
           // onOutputAmountChange={handleOutputAmountChange}
