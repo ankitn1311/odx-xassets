@@ -15,7 +15,7 @@ import { useTheme } from 'next-themes';
 import { SlippageSettings } from './SlippageSettings';
 import { useAppStore } from '@/stores/app-store';
 
-const MAX_DECIMALS = 6;
+const MAX_DECIMALS = 8;
 const POLLING_INTERVAL = 5000; // 5 seconds
 
 export function InitialStep() {

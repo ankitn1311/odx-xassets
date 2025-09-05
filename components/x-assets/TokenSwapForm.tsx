@@ -27,15 +27,14 @@ export function TokenSwapForm() {
   const { slippage } = useAppStore();
   const { address } = useAccount();
   const form = useFormContext<SwapFormValues>();
+  const { watch } = form;
+  const amount = watch('amount');
+  const inputToken = watch('inputToken');
+  const outputToken = watch('outputToken');
   const chainId = useChainId();
   const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
 
-  const { watch } = form;
-  const formValues = watch();
-  const amount = formValues.amount;
   const { data: wallet } = useWalletClient();
-  const inputToken = formValues.inputToken;
-  const outputToken = formValues.outputToken;
 
   const resetForm = () => {
     form.reset({
@@ -56,12 +55,23 @@ export function TokenSwapForm() {
         if (tradeState !== TradeState.INITIAL) return;
         setTradeState(TradeState.CHECKING_APPROVAL);
         const provider = new ethers.providers.Web3Provider(wallet as any);
-        const isBuy = activeTab === TabState.BUY;
-        // For Buy: inputToken is USDC, for Sell: inputToken is xAsset, but we always need USDC approval
-        const usdcToken = isBuy ? inputToken : outputToken;
-        const xUSDTContract = new ethers.Contract(usdcToken?.Address ?? '', erc20Abi, provider);
-        const currentAllowance = await xUSDTContract.allowance(address, PERMIT2_ADDRESS);
-        const requiredAmount = ethers.utils.parseUnits(amount, usdcToken?.Decimals ?? 6);
+        // Always approve the input token (the token being spent)
+        const inputTokenContract = new ethers.Contract(
+          inputToken?.Address ?? '',
+          erc20Abi,
+          provider
+        );
+        const currentAllowance = await inputTokenContract.allowance(address, PERMIT2_ADDRESS);
+        // Always use the input amount (the amount being spent)
+        const inputAmount = amount;
+        // Truncate to prevent rounding issues
+        const truncatedAmount =
+          Math.floor(Number(inputAmount) * Math.pow(10, inputToken?.Decimals ?? 6)) /
+          Math.pow(10, inputToken?.Decimals ?? 6);
+        const requiredAmount = ethers.utils.parseUnits(
+          truncatedAmount.toString(),
+          inputToken?.Decimals ?? 6
+        );
         const approved = Number(currentAllowance.toString()) >= Number(requiredAmount.toString());
         setIsApproved(approved);
         if (approved) {
@@ -77,17 +87,7 @@ export function TokenSwapForm() {
     };
 
     checkApproval();
-  }, [
-    inputToken,
-    wallet,
-    address,
-    setIsApproved,
-    setTradeState,
-    tradeState,
-    amount,
-    activeTab,
-    outputToken,
-  ]);
+  }, [inputToken, wallet, address, setIsApproved, setTradeState, tradeState, amount, activeTab]);
 
   const isValidAmount = amount && Number(amount) > 0;
 
@@ -96,11 +96,9 @@ export function TokenSwapForm() {
       setTradeState(TradeState.CHECKING_APPROVAL);
       const provider = new ethers.providers.Web3Provider(wallet as any);
       const signer = provider.getSigner();
-      const isBuy = activeTab === TabState.BUY;
-      // For Buy: inputToken is USDC, for Sell: outputToken is USDC, but we always need USDC approval
-      const usdcToken = isBuy ? inputToken : outputToken;
-      const xUSDTContract = new ethers.Contract(usdcToken?.Address ?? '', erc20Abi, signer);
-      await xUSDTContract.approve(PERMIT2_ADDRESS, ethers.constants.MaxUint256);
+      // Always approve the input token (the token being spent)
+      const inputTokenContract = new ethers.Contract(inputToken?.Address ?? '', erc20Abi, signer);
+      await inputTokenContract.approve(PERMIT2_ADDRESS, ethers.constants.MaxUint256);
       setTradeState(TradeState.REVIEW);
       setIsApproved(true);
     } catch (error) {

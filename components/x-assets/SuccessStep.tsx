@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useWatchAsset } from 'wagmi';
 import { toast } from 'sonner';
 import { shortenAddress } from '@/utils/crypto';
-import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
+import { removeTrailingZeros } from '@/lib/utils';
 import { SwapFormValues } from './TokenSwapCard';
 
 export function SuccessStep() {
@@ -52,7 +52,7 @@ export function SuccessStep() {
         <div className="flex w-full justify-between border-b border-border pb-4">
           <div className="flex flex-col items-start">
             <p className="mb-2 text-sm text-muted-foreground">
-              {activeTab === TabState.BUY ? 'Bought' : 'Sold'}
+              {activeTab === TabState.BUY ? 'Paid' : 'Sold'}
             </p>
             <div className="flex items-center gap-2">
               <Image
@@ -64,9 +64,6 @@ export function SuccessStep() {
               <div className="flex flex-col">
                 <p className="font-mono text-base font-medium">{removeTrailingZeros(amount)}</p>
                 <p className="text-sm text-muted-foreground">{inputToken?.Name}</p>
-                {/* <p className="text-sm text-muted-foreground">
-                  ${(Number(amount) * 2.056).toFixed(2)}
-                </p> */}
               </div>
             </div>
             <Button
@@ -86,7 +83,7 @@ export function SuccessStep() {
 
           <div className="flex flex-col items-end">
             <p className="mb-2 text-sm text-muted-foreground">
-              {activeTab === TabState.BUY ? 'Sold' : 'Bought'}
+              {activeTab === TabState.BUY ? 'Received' : 'Received'}
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
@@ -94,7 +91,6 @@ export function SuccessStep() {
                   {removeTrailingZeros(outputAmount)}
                 </p>
                 <p className="text-sm text-muted-foreground">{outputToken?.Name}</p>
-                {/* <p className="text-sm text-muted-foreground">${Number(outputAmount).toFixed(2)}</p> */}
               </div>
               <Image
                 src={`/images/tokens/${outputToken?.Name}.png`}

@@ -12,7 +12,7 @@ import { Button } from './ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
-import { convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
+import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
 import { sonic } from 'viem/chains';
@@ -235,7 +235,7 @@ export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }
         <p className="text-base text-foreground">
           {isUsdx
             ? usdxBalance.data
-            : removeTrailingZeros(truncateToFixed(Number(tokenBalanceData.data || 0), 6))}
+            : removeTrailingZeros(tokenBalanceData.data?.toString() || '0')}
         </p>
       </div>
     </div>

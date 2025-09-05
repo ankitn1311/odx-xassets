@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useFormContext } from 'react-hook-form';
-import { useTokenSwapStore } from '@/stores/token-swap-store';
+import { useTokenSwapStore, TabState } from '@/stores/token-swap-store';
 import {
   Select,
   SelectContent,
@@ -16,9 +16,8 @@ import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import { cn, convertXUSDT, removeTrailingZeros, truncateToFixed } from '@/lib/utils';
+import { cn, convertXUSDT, removeTrailingZeros } from '@/lib/utils';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
-import { useRouter } from 'nextjs-toploader/app';
 import { Skeleton } from '../ui/skeleton';
 
 interface TokenInputProps {
@@ -40,10 +39,9 @@ export function TokenInput({
   const form = useFormContext();
   const { watch, setValue, clearErrors } = form;
   const fieldName = isOutput ? 'outputAmount' : 'amount';
-  const router = useRouter();
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
 
-  const { allTokens, isBalanceUpdating } = useTokenSwapStore();
+  const { allTokens, isBalanceUpdating, activeTab, setSelectedXAsset } = useTokenSwapStore();
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
 
@@ -67,7 +65,6 @@ export function TokenInput({
   const handlePercentageClick = (percentage: number) => {
     setValue('percentage', percentage);
     // use the balance of the token
-    // setValue('amount', ((Number(balance) * percentage) / 100).toFixed(2));
     if (percentage === 100) {
       onAmountChange(balance.toString());
     } else {
@@ -80,19 +77,31 @@ export function TokenInput({
     if (!selectedToken) return;
 
     if (isOutput) {
-      // setOutputToken(selectedToken);
       setValue('outputToken', selectedToken);
     } else {
-      // setInputToken(selectedToken);
       setValue('inputToken', selectedToken);
-      // Only push to router if it's an xAsset (not USDC)
-      if (selectedToken.Name !== 'USDC') {
-        router.push(`/x-assets?selected-token=${selectedToken.Address}`);
-      }
+    }
+
+    // Always update store and URL if it's an xAsset (regardless of input/output)
+    if (selectedToken.Name !== 'USDC') {
+      // Update the selected xAsset in the store
+      setSelectedXAsset(selectedToken);
+      // Update URL
+      const newUrl = `/x-assets?selected-token=${selectedToken.Address}`;
+      window.history.pushState({}, '', newUrl);
     }
     clearErrors();
-    setValue('amount', '');
-    setValue('outputAmount', '');
+
+    // For Buy tab: when changing xAsset, keep the USDC amount
+    // For Sell tab: when changing xAsset, clear the amount
+    if (activeTab === TabState.BUY && selectedToken.Name !== 'USDC') {
+      // Keep the USDC amount when changing xAsset on Buy tab
+      setValue('outputAmount', '');
+    } else {
+      // Clear amounts for other cases
+      setValue('amount', '');
+      setValue('outputAmount', '');
+    }
     setValue('percentage', 0);
   };
 

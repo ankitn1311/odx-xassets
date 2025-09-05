@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import { SwapFormValues } from './TokenSwapCard';
 import { TabState, useTokenSwapStore } from '@/stores/token-swap-store';
-import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
+import { removeTrailingZeros } from '@/lib/utils';
 
 export function PendingStep() {
   const form = useFormContext<SwapFormValues>();
@@ -27,7 +27,7 @@ export function PendingStep() {
         <div className="flex w-full justify-between border-b border-border pb-4">
           <div className="flex flex-col items-start">
             <p className="mb-2 text-sm text-muted-foreground">
-              {activeTab === TabState.BUY ? 'Attempted to Sell' : 'Attempted to Buy'}
+              {activeTab === TabState.BUY ? 'Attempting to Pay' : 'Attempting to Sell'}
             </p>
             <div className="flex items-center gap-2">
               <Image
@@ -45,7 +45,7 @@ export function PendingStep() {
 
           <div className="flex flex-col items-end">
             <p className="mb-2 text-sm text-muted-foreground">
-              {activeTab === TabState.BUY ? 'Would Receive' : 'Would Sell'}
+              {activeTab === TabState.BUY ? 'Would Receive' : 'Would Receive'}
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">

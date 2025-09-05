@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { createWalletClient, custom, erc20Abi } from 'viem';
 import SwapAbi from '@/utils/chain-client/abis/SwapAbi.json';
 import { formatUnits } from 'ethers/lib/utils';
-import { removeTrailingZeros, truncateToFixed } from '@/lib/utils';
+import { removeTrailingZeros } from '@/lib/utils';
 import { SONIC_RPC_URL, sonicProvider } from '@/utils/chain-client/common/provider';
 
 /**
@@ -167,7 +167,7 @@ export const getBalanceWithProvider = async (
       const formatted = formatUnits(balances, decimals);
       const parsed = parseFloat(formatted);
       const removedTrailingZeros = removeTrailingZeros(parsed.toString());
-      balance = removedTrailingZeros;
+      balance = removedTrailingZeros !== '' ? removedTrailingZeros : '0';
 
       console.log('balance', { balance, formatted, parsed, removedTrailingZeros });
     }

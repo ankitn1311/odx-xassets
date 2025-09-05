@@ -95,7 +95,15 @@ const swapFormSchema = z
 export type SwapFormValues = z.infer<typeof swapFormSchema>;
 
 export const TokenSwapCard = () => {
-  const { allTokens, tradeState, activeTab, setActiveTab, resetTradeState } = useTokenSwapStore();
+  const {
+    allTokens,
+    tradeState,
+    activeTab,
+    setActiveTab,
+    resetTradeState,
+    selectedXAsset,
+    setSelectedXAsset,
+  } = useTokenSwapStore();
   const [firstToken] = allTokens;
   const { TokenA, TokenB } = firstToken;
   const searchParams = useSearchParams();
@@ -112,48 +120,125 @@ export const TokenSwapCard = () => {
     mode: 'onBlur',
   });
 
-  // Set the inputToken to the selected token if present in the query param
+  // Set the selected xAsset from query param (only on mount)
   useEffect(() => {
     if (selectedTokenAddress && allTokens.length > 0) {
       const found = allTokens.find(t => t.TokenB.Address === selectedTokenAddress);
       if (found) {
-        // For Buy tab: inputToken = USDC (TokenA), outputToken = xAsset (TokenB)
-        // For Sell tab: inputToken = xAsset (TokenB), outputToken = USDC (TokenA)
-        if (activeTab === TabState.BUY) {
-          form.setValue('inputToken', found.TokenA); // USDC
-          form.setValue('outputToken', found.TokenB); // xAsset
-        } else {
-          form.setValue('inputToken', found.TokenB); // xAsset
-          form.setValue('outputToken', found.TokenA); // USDC
-        }
+        setSelectedXAsset(found.TokenB); // Store in global state
       }
     }
     // Only run on mount or when allTokens changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTokenAddress, allTokens, activeTab]);
+  }, [selectedTokenAddress, allTokens]);
+
+  // Initialize selectedXAsset if not set
+  useEffect(() => {
+    if (!selectedXAsset && allTokens.length > 0) {
+      const [firstToken] = allTokens;
+      setSelectedXAsset(firstToken.TokenB);
+    }
+  }, [selectedXAsset, allTokens, setSelectedXAsset]);
+
+  // Update form when selectedXAsset changes from store (disabled to prevent race conditions)
+  // useEffect(() => {
+  //   if (selectedXAsset && allTokens.length > 0) {
+  //     const [firstToken] = allTokens;
+  //     const { TokenA } = firstToken; // USDC is always TokenA
+
+  //     if (activeTab === TabState.BUY) {
+  //       form.setValue('inputToken', TokenA); // USDC
+  //       form.setValue('outputToken', selectedXAsset); // selected xAsset
+  //     } else {
+  //       form.setValue('inputToken', selectedXAsset); // selected xAsset
+  //       form.setValue('outputToken', TokenA); // USDC
+  //     }
+  //   }
+  // }, [selectedXAsset, activeTab, allTokens, form]);
 
   // Handle token swapping when switching between Buy and Sell tabs
   useEffect(() => {
     if (allTokens.length > 0) {
       const [firstToken] = allTokens;
-      const { TokenA, TokenB } = firstToken;
+      const { TokenA } = firstToken; // USDC is always TokenA
 
-      // For Buy tab: inputToken = USDC (TokenA), outputToken = xAsset (TokenB)
-      // For Sell tab: inputToken = xAsset (TokenB), outputToken = USDC (TokenA)
-      if (activeTab === TabState.BUY) {
-        form.setValue('inputToken', TokenA); // USDC
-        form.setValue('outputToken', TokenB); // xAsset
+      // Get current form values BEFORE any updates
+      const currentInputToken = form.getValues('inputToken');
+      const currentOutputToken = form.getValues('outputToken');
+      const currentAmount = form.getValues('amount');
+      const currentOutputAmount = form.getValues('outputAmount');
+
+      // Determine which amount corresponds to which token type based on CURRENT tab
+      let usdcAmount = '0';
+      let xAssetAmount = '0';
+
+      // Check which tab we're currently on to determine token positions
+      const isCurrentlyBuy = currentInputToken?.Name === 'USDC';
+
+      if (isCurrentlyBuy) {
+        // Currently on Buy tab: inputToken = USDC, outputToken = xAsset
+        usdcAmount = currentAmount;
+        xAssetAmount = currentOutputAmount;
       } else {
-        form.setValue('inputToken', TokenB); // xAsset
-        form.setValue('outputToken', TokenA); // USDC
+        // Currently on Sell tab: inputToken = xAsset, outputToken = USDC
+        usdcAmount = currentOutputAmount;
+        xAssetAmount = currentAmount;
       }
 
-      // Reset amounts when switching tabs
-      form.setValue('amount', '0');
-      form.setValue('outputAmount', '0');
+      // Always prioritize the selectedXAsset from store
+      let currentSelectedXAsset = selectedXAsset;
+
+      // If no xAsset in store, try to get from form values as fallback
+      if (!currentSelectedXAsset) {
+        if (currentInputToken?.Name !== 'USDC') {
+          currentSelectedXAsset = currentInputToken;
+        } else if (currentOutputToken?.Name !== 'USDC') {
+          currentSelectedXAsset = currentOutputToken;
+        }
+
+        // If still no xAsset, use the first one as default
+        if (!currentSelectedXAsset) {
+          currentSelectedXAsset = firstToken.TokenB;
+        }
+
+        // Store it for future use
+        setSelectedXAsset(currentSelectedXAsset);
+      }
+
+      // For Buy tab: inputToken = USDC, outputToken = selected xAsset
+      // For Sell tab: inputToken = selected xAsset, outputToken = USDC
+      if (activeTab === TabState.BUY) {
+        form.setValue('inputToken', TokenA); // USDC
+        form.setValue('outputToken', currentSelectedXAsset); // selected xAsset
+        // Use the USDC amount for the input field
+        form.setValue('amount', usdcAmount);
+        form.setValue('outputAmount', '0');
+      } else {
+        form.setValue('inputToken', currentSelectedXAsset); // selected xAsset
+        form.setValue('outputToken', TokenA); // USDC
+        // Use the xAsset amount for the input field
+        form.setValue('amount', xAssetAmount);
+        form.setValue('outputAmount', '0');
+      }
+
       form.setValue('percentage', 0);
+
+      // Reset error state when changing tabs
+      form.clearErrors();
+      if (tradeState === TradeState.FAILED) {
+        resetTradeState();
+      }
     }
-  }, [activeTab, allTokens, form]);
+  }, [
+    activeTab,
+    allTokens,
+    form,
+    selectedXAsset,
+    setSelectedXAsset,
+    firstToken,
+    tradeState,
+    resetTradeState,
+  ]);
 
   const isBuyDisabled = ![
     TradeState.INITIAL,
@@ -161,6 +246,7 @@ export const TokenSwapCard = () => {
     TradeState.APPROVED,
     TradeState.CHECKING_APPROVAL,
   ].includes(tradeState);
+
   const isSellDisabled = ![
     TradeState.INITIAL,
     TradeState.APPROVAL,

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { ALL_V2_TOKEN_PAIRS, TokenInfo, TokenPair } from '@/hooks/queries/use-all-tokens';
-import { persist } from 'zustand/middleware';
 
 export enum TradeState {
   INITIAL = 'INITIAL',
@@ -24,6 +23,7 @@ interface TokenSwapState {
   numericBalance: number;
   inputToken: TokenInfo | null;
   outputToken: TokenInfo | null;
+  selectedXAsset: TokenInfo | null;
   isSwapped: boolean;
   tradeState: TradeState;
   isApproved: boolean;
@@ -36,6 +36,7 @@ interface TokenSwapActions {
   setNumericBalance: (balance: number) => void;
   setInputToken: (token: TokenSwapState['inputToken']) => void;
   setOutputToken: (token: TokenSwapState['outputToken']) => void;
+  setSelectedXAsset: (token: TokenSwapState['selectedXAsset']) => void;
   swapTokens: () => void;
   setTradeState: (state: TradeState) => void;
   setIsApproved: (isApproved: boolean) => void;
@@ -55,6 +56,7 @@ export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
     numericBalance: 0,
     inputToken: null,
     outputToken: null,
+    selectedXAsset: null,
     isSwapped: false,
     tradeState: TradeState.INITIAL,
     isApproved: false,
@@ -65,6 +67,7 @@ export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
     setNumericBalance: (balance: number) => set({ numericBalance: balance }),
     setInputToken: (token: TokenSwapState['inputToken']) => set({ inputToken: token }),
     setOutputToken: (token: TokenSwapState['outputToken']) => set({ outputToken: token }),
+    setSelectedXAsset: (token: TokenSwapState['selectedXAsset']) => set({ selectedXAsset: token }),
     swapTokens: () =>
       set(state => ({
         inputToken: state.outputToken,

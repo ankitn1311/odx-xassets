@@ -27,7 +27,7 @@ export function FailedStep() {
         <div className="flex w-full justify-between border-b border-border pb-4">
           <div className="flex flex-col items-start">
             <p className="mb-2 text-sm text-muted-foreground">
-              {activeTab === TabState.BUY ? 'Attempted to Buy' : 'Attempted to Sell'}
+              {activeTab === TabState.BUY ? 'Attempted to Pay' : 'Attempted to Sell'}
             </p>
             <div className="flex items-center gap-2">
               <Image
@@ -45,7 +45,7 @@ export function FailedStep() {
 
           <div className="flex flex-col items-end">
             <p className="mb-2 text-sm text-muted-foreground">
-              {activeTab === TabState.BUY ? 'Would Have Sold' : 'Would Have Received'}
+              {activeTab === TabState.BUY ? 'Would Have Received' : 'Would Have Received'}
             </p>
             <div className="flex items-center gap-2">
               <div className="flex flex-col items-end">
