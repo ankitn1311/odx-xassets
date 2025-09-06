@@ -16,9 +16,10 @@ import { SlippageSettings } from './SlippageSettings';
 import { useAppStore } from '@/stores/app-store';
 import { Separator } from '../ui/separator';
 import { ArrowUpDown } from 'lucide-react';
+import { useQuoteTimer } from './QuoteTimerContext';
 
 const MAX_DECIMALS = 8;
-const POLLING_INTERVAL = 5000; // 5 seconds
+const POLLING_INTERVAL = 10000; // 10 seconds
 
 export function InitialStep() {
   const { tradeState, activeTab, setActiveTab } = useTokenSwapStore();
@@ -30,10 +31,36 @@ export function InitialStep() {
   const isBuy = activeTab === TabState.BUY;
 
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { setTimeUntilNextQuote, setIsQuoteLoading } = useQuoteTimer();
 
   const { getQuote } = useTradeQuote();
   const inputAmount = watch('amount');
+
+  // Helper function to restart the timer
+  const restartTimer = useCallback(() => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    timerIntervalRef.current = setInterval(() => {
+      setTimeUntilNextQuote(prev => {
+        if (prev <= 0) {
+          // Clear the interval when we reach 0
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+          }
+          // Trigger quote fetch when timer reaches 0
+          if (debouncedGetQuoteRef.current) {
+            debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount, isBuy);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [inputToken, outputToken, inputAmount, isBuy, setTimeUntilNextQuote]);
 
   useEffect(() => {
     // Initialize the debounced function
@@ -49,8 +76,11 @@ export function InitialStep() {
             setValue('outputAmount', '0');
             setValue('amount', '0');
             setValue('percentage', 0);
+            setIsQuoteLoading(false);
             return;
           }
+
+          setIsQuoteLoading(true);
           const quote = await getQuote({
             inputToken,
             outputToken,
@@ -60,9 +90,17 @@ export function InitialStep() {
           if (quote) {
             setValue('outputAmount', quote.toString());
           }
+          setIsQuoteLoading(false);
+          // Reset timer after quote is fetched and restart the interval
+          setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+          restartTimer();
         } catch (error) {
           toast.error('Failed to get quote');
           console.error('Error getting quote:', error);
+          setIsQuoteLoading(false);
+          // Reset timer even on error and restart the interval
+          setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+          restartTimer();
         }
       },
       500
@@ -74,7 +112,7 @@ export function InitialStep() {
         debouncedGetQuoteRef.current.cancel();
       }
     };
-  }, [getQuote, setValue]);
+  }, [getQuote, setValue, setIsQuoteLoading, setTimeUntilNextQuote, restartTimer]);
 
   // Add polling effect
   useEffect(() => {
@@ -82,30 +120,38 @@ export function InitialStep() {
       setValue('outputAmount', '');
       setValue('amount', inputAmount === '0' ? '0' : '');
       setValue('percentage', 0);
+      setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+      setIsQuoteLoading(false);
       return;
     }
 
     if (inputAmount && inputToken && outputToken) {
-      // Clear any existing interval
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
+      // Clear any existing timer interval
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
       }
 
-      // Set up new polling interval
-      pollingIntervalRef.current = setInterval(() => {
-        if (debouncedGetQuoteRef.current) {
-          debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount, isBuy);
-        }
-      }, POLLING_INTERVAL);
+      // Reset timer and start the interval
+      setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+      restartTimer();
     }
 
     // Cleanup function
     return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
       }
     };
-  }, [inputAmount, inputToken, outputToken, setValue, isBuy]);
+  }, [
+    inputAmount,
+    inputToken,
+    outputToken,
+    setValue,
+    isBuy,
+    setTimeUntilNextQuote,
+    setIsQuoteLoading,
+    restartTimer,
+  ]);
 
   useEffect(() => {
     if (inputToken && outputToken && debouncedGetQuoteRef.current && inputAmount) {

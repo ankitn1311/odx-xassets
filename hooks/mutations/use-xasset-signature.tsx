@@ -135,8 +135,8 @@ export const useXAssetSignature = () => {
         data.output_decimals
       );
 
-      // Check if either balance has changed
-      if (newInputBalance !== initialInputBalance || newOutputBalance !== initialOutputBalance) {
+      // Check if both balances have changed
+      if (newInputBalance !== initialInputBalance && newOutputBalance !== initialOutputBalance) {
         // Update the query cache with new balances
         queryClient.setQueryData(
           ['token-balance', data.token, data.input_decimals],

@@ -11,9 +11,11 @@ import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
 import { Loader } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useQuoteTimer } from './QuoteTimerContext';
 
 export function SwapScreens() {
-  const { tradeState, quoteLoading, activeTab } = useTokenSwapStore();
+  const { tradeState, activeTab } = useTokenSwapStore();
+  const { isQuoteLoading, timeUntilNextQuote } = useQuoteTimer();
   const queryClient = useQueryClient();
 
   const {
@@ -70,9 +72,6 @@ export function SwapScreens() {
   }, [getQuote, setValue]);
 
   const getButtonText = () => {
-    if (quoteLoading) {
-      return 'Fetching quote...';
-    }
     if (isTokenBalanceRefetching) {
       return 'Updating balance...';
     }
@@ -142,7 +141,8 @@ export function SwapScreens() {
             size="lg"
             className="mt-4 w-full"
             disabled={
-              quoteLoading ||
+              timeUntilNextQuote === 0 ||
+              isQuoteLoading ||
               isSubmitting ||
               isInsufficientBalance ||
               isInsufficientOutputAmount ||

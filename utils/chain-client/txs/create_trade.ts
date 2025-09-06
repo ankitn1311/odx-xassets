@@ -168,8 +168,6 @@ export const getBalanceWithProvider = async (
       const parsed = parseFloat(formatted);
       const removedTrailingZeros = removeTrailingZeros(parsed.toString());
       balance = removedTrailingZeros !== '' ? removedTrailingZeros : '0';
-
-      console.log('balance', { balance, formatted, parsed, removedTrailingZeros });
     }
 
     return balance;

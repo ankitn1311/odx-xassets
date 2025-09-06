@@ -9,6 +9,9 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Card } from '../ui/card';
 import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+import { useQuoteTimer } from './QuoteTimerContext';
+import { useFormContext } from 'react-hook-form';
 
 const swapFormSchema = z
   .object({
@@ -234,20 +237,24 @@ export const TokenSwapCard = () => {
         <div className="flex h-full w-full flex-col">
           <Card className="h-full bg-card py-4">
             <div className="flex h-full flex-col gap-4">
-              <div className="flex gap-2 px-4">
-                <h2 className="text-lg font-bold">Trade</h2>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span
-                    className={cn(
-                      'rounded-md px-2 py-1 text-xs font-medium',
-                      activeTab === TabState.BUY
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-red-500/20 text-red-400'
-                    )}
-                  >
-                    {activeTab === TabState.BUY ? 'Buy' : 'Sell'}
-                  </span>
+              <div className="flex items-center justify-between px-4">
+                <div className="flex gap-2">
+                  <h2 className="text-lg font-bold">Trade</h2>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span
+                      className={cn(
+                        'rounded-md px-2 py-1 text-xs font-medium',
+                        activeTab === TabState.BUY
+                          ? 'bg-success/20 text-success'
+                          : 'bg-destructive/20 text-destructive'
+                      )}
+                    >
+                      {activeTab === TabState.BUY ? 'Buy' : 'Sell'}
+                    </span>
+                  </div>
                 </div>
+
+                <QuoteTimer />
               </div>
 
               <div className="flex-1">
@@ -260,3 +267,51 @@ export const TokenSwapCard = () => {
     </FormProvider>
   );
 };
+
+// QuoteTimer component
+function QuoteTimer() {
+  const { tradeState } = useTokenSwapStore();
+  const { timeUntilNextQuote, isQuoteLoading } = useQuoteTimer();
+  const form = useFormContext<SwapFormValues>();
+  const inputAmount = form.watch('amount');
+
+  // Only show timer in INITIAL state
+  if (
+    [
+      TradeState.FAILED,
+      TradeState.PENDING,
+      TradeState.SUCCESS,
+      TradeState.REVIEW,
+      TradeState.APPROVAL,
+      TradeState.CHECKING_APPROVAL,
+      TradeState.PROCESSING,
+    ].includes(tradeState)
+  ) {
+    return null;
+  }
+
+  // Don't show timer if there's no input amount or if amount is 0
+  if (!inputAmount || inputAmount === '0' || inputAmount === '') {
+    return null;
+  }
+
+  // Show loader when timer is at 0 or when quote is loading
+  if (timeUntilNextQuote === 0 || isQuoteLoading) {
+    return (
+      <div className="gap2 flex w-8 items-center justify-center text-sm text-muted-foreground">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+  return (
+    <div className="flex h-7 flex-col items-center text-sm text-muted-foreground">
+      <span>{timeUntilNextQuote}s</span>
+      <div className="h-1 w-8 overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-1 bg-primary transition-all duration-1000 ease-linear"
+          style={{ width: `${(timeUntilNextQuote / 10) * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
