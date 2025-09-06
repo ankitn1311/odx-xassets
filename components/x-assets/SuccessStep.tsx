@@ -42,7 +42,7 @@ export function SuccessStep() {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center px-4">
       <div className="mb-6 mt-4 text-center">
         <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-500" />
         <h2 className="text-xl font-semibold">Transaction Complete</h2>

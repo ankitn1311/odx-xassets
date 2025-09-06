@@ -14,7 +14,7 @@ export function FailedStep() {
   const outputAmount = form.watch('outputAmount');
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center px-4">
       <div className="mb-6 mt-4 text-center">
         <XCircle className="mx-auto mb-4 h-12 w-12 text-destructive" />
         <h2 className="text-xl font-semibold">Transaction Failed</h2>

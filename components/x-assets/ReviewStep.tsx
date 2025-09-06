@@ -99,7 +99,7 @@ export function ReviewStep() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col px-4">
       <div className="mb-4 flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2">
           <ArrowLeft className="h-4 w-4" />
@@ -127,6 +127,7 @@ export function ReviewStep() {
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => {
               addTokenToWallet(inputToken!);
             }}
@@ -158,6 +159,7 @@ export function ReviewStep() {
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => {
               addTokenToWallet(outputToken!);
             }}

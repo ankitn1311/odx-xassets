@@ -127,37 +127,39 @@ export function SwapScreens() {
   return (
     <>
       <SwapBody />
-      {tradeState === TradeState.SUCCESS ||
-      tradeState === TradeState.FAILED ||
-      tradeState === TradeState.PENDING ? (
-        <Button type="submit" size="lg" className="mt-4 w-full" disabled={isSubmitting}>
-          {tradeState === TradeState.SUCCESS || tradeState === TradeState.PENDING
-            ? 'Done'
-            : 'Try Again'}
-        </Button>
-      ) : (
-        <Button
-          type="submit"
-          size="lg"
-          className="mt-4 w-full"
-          disabled={
-            quoteLoading ||
-            isSubmitting ||
-            isInsufficientBalance ||
-            isInsufficientOutputAmount ||
-            !isValidAmount ||
-            isTokenBalanceRefetching ||
-            tradeState === TradeState.CHECKING_APPROVAL
-          }
-        >
-          <div className="flex items-center gap-2">
-            {tradeState === TradeState.PROCESSING && (
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {getButtonText()}
-          </div>
-        </Button>
-      )}
+      <div className="px-4">
+        {tradeState === TradeState.SUCCESS ||
+        tradeState === TradeState.FAILED ||
+        tradeState === TradeState.PENDING ? (
+          <Button type="submit" size="lg" className="mt-4 w-full" disabled={isSubmitting}>
+            {tradeState === TradeState.SUCCESS || tradeState === TradeState.PENDING
+              ? 'Done'
+              : 'Try Again'}
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-4 w-full"
+            disabled={
+              quoteLoading ||
+              isSubmitting ||
+              isInsufficientBalance ||
+              isInsufficientOutputAmount ||
+              !isValidAmount ||
+              isTokenBalanceRefetching ||
+              tradeState === TradeState.CHECKING_APPROVAL
+            }
+          >
+            <div className="flex items-center gap-2">
+              {tradeState === TradeState.PROCESSING && (
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {getButtonText()}
+            </div>
+          </Button>
+        )}
+      </div>
     </>
   );
 }

@@ -1,6 +1,5 @@
 import { BackgroundGradient } from '../ui/background-gradient';
 import { TokenSwapForm } from './TokenSwapForm';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { useTokenSwapStore, TabState, TradeState } from '@/stores/token-swap-store';
 import { Form as FormProvider } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
@@ -9,6 +8,7 @@ import { z } from 'zod';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Card } from '../ui/card';
+import { cn } from '@/lib/utils';
 
 const swapFormSchema = z
   .object({
@@ -95,15 +95,8 @@ const swapFormSchema = z
 export type SwapFormValues = z.infer<typeof swapFormSchema>;
 
 export const TokenSwapCard = () => {
-  const {
-    allTokens,
-    tradeState,
-    activeTab,
-    setActiveTab,
-    resetTradeState,
-    selectedXAsset,
-    setSelectedXAsset,
-  } = useTokenSwapStore();
+  const { allTokens, tradeState, activeTab, resetTradeState, selectedXAsset, setSelectedXAsset } =
+    useTokenSwapStore();
   const [firstToken] = allTokens;
   const { TokenA, TokenB } = firstToken;
   const searchParams = useSearchParams();
@@ -225,89 +218,41 @@ export const TokenSwapCard = () => {
 
       // Reset error state when changing tabs
       form.clearErrors();
-      if (tradeState === TradeState.FAILED) {
-        resetTradeState();
-      }
     }
-  }, [
-    activeTab,
-    allTokens,
-    form,
-    selectedXAsset,
-    setSelectedXAsset,
-    firstToken,
-    tradeState,
-    resetTradeState,
-  ]);
+  }, [activeTab, allTokens, form, selectedXAsset, setSelectedXAsset, firstToken]);
 
-  const isBuyDisabled = ![
-    TradeState.INITIAL,
-    TradeState.APPROVAL,
-    TradeState.APPROVED,
-    TradeState.CHECKING_APPROVAL,
-  ].includes(tradeState);
-
-  const isSellDisabled = ![
-    TradeState.INITIAL,
-    TradeState.APPROVAL,
-    TradeState.APPROVED,
-    TradeState.CHECKING_APPROVAL,
-  ].includes(tradeState);
+  // Separate effect to handle trade state reset
+  useEffect(() => {
+    if (tradeState === TradeState.FAILED) {
+      resetTradeState();
+    }
+  }, [tradeState, resetTradeState]);
 
   return (
     <FormProvider {...form}>
       <BackgroundGradient>
         <div className="flex h-full w-full flex-col">
-          <Card className="h-full bg-card">
-            <div className="h-full px-8 pb-8 pt-6">
-              <Tabs
-                className="flex h-full flex-col"
-                value={activeTab}
-                onValueChange={value => setActiveTab(value as TabState)}
-              >
-                <TabsList className="grid w-full grid-cols-2" variant="underline">
-                  <TabsTrigger
-                    variant="underline"
-                    disabled={isBuyDisabled}
-                    value={TabState.BUY}
-                    onClick={() => {
-                      if (
-                        [TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(
-                          tradeState
-                        )
-                      ) {
-                        resetTradeState();
-                      }
-                    }}
+          <Card className="h-full bg-card py-4">
+            <div className="flex h-full flex-col gap-4">
+              <div className="flex gap-2 px-4">
+                <h2 className="text-lg font-bold">Trade</h2>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span
+                    className={cn(
+                      'rounded-md px-2 py-1 text-xs font-medium',
+                      activeTab === TabState.BUY
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-red-500/20 text-red-400'
+                    )}
                   >
-                    Buy
-                  </TabsTrigger>
-                  <TabsTrigger
-                    variant="underline"
-                    disabled={isSellDisabled}
-                    value={TabState.SELL}
-                    onClick={() => {
-                      if (
-                        [TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(
-                          tradeState
-                        )
-                      ) {
-                        resetTradeState();
-                      }
-                    }}
-                  >
-                    Sell
-                  </TabsTrigger>
-                </TabsList>
+                    {activeTab === TabState.BUY ? 'Buy' : 'Sell'}
+                  </span>
+                </div>
+              </div>
 
-                <TabsContent value={TabState.BUY} className="mt-6 flex-1">
-                  <TokenSwapForm />
-                </TabsContent>
-
-                <TabsContent value={TabState.SELL} className="mt-6 flex-1">
-                  <TokenSwapForm />
-                </TabsContent>
-              </Tabs>
+              <div className="flex-1">
+                <TokenSwapForm />
+              </div>
             </div>
           </Card>
         </div>

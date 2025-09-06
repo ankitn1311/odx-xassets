@@ -14,12 +14,14 @@ import { SwapFormValues } from './TokenSwapCard';
 import { useTheme } from 'next-themes';
 import { SlippageSettings } from './SlippageSettings';
 import { useAppStore } from '@/stores/app-store';
+import { Separator } from '../ui/separator';
+import { ArrowUpDown } from 'lucide-react';
 
 const MAX_DECIMALS = 8;
 const POLLING_INTERVAL = 5000; // 5 seconds
 
 export function InitialStep() {
-  const { tradeState, activeTab } = useTokenSwapStore();
+  const { tradeState, activeTab, setActiveTab } = useTokenSwapStore();
   const { setValue, watch } = useFormContext<SwapFormValues>();
 
   const inputToken = watch('inputToken');
@@ -144,18 +146,30 @@ export function InitialStep() {
     [inputToken, outputToken, setValue, isBuy]
   );
 
+  const handleTabSwitch = useCallback(() => {
+    const newTab = activeTab === TabState.BUY ? TabState.SELL : TabState.BUY;
+    setActiveTab(newTab);
+
+    // Reset trade state if needed
+    if ([TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(tradeState)) {
+      // This will be handled by the TokenSwapCard useEffect
+    }
+  }, [activeTab, setActiveTab, tradeState]);
+
   return (
     <>
-      <TokenInput
-        label={activeTab === TabState.BUY ? 'You Pay' : 'You Sell'}
-        onAmountChange={handleAmountChange}
-        showPercentageButtons={
-          tradeState === TradeState.INITIAL ||
-          tradeState === TradeState.APPROVED ||
-          tradeState === TradeState.CHECKING_APPROVAL
-        }
-      />
-      {/* {WHOLE_NUMBER_TOKENS.includes(inputToken.Name) && (
+      <Separator className="mb-3" />
+      <div className="px-4">
+        <TokenInput
+          label="You Pay"
+          onAmountChange={handleAmountChange}
+          showPercentageButtons={
+            tradeState === TradeState.INITIAL ||
+            tradeState === TradeState.APPROVED ||
+            tradeState === TradeState.CHECKING_APPROVAL
+          }
+        />
+        {/* {WHOLE_NUMBER_TOKENS.includes(inputToken.Name) && (
         <div className="my-4 flex flex-col gap-4 rounded-md border border-warning/20 bg-warning/10 p-3 text-sm text-warning-foreground">
           <div className="flex items-end gap-2">
             <Info className="h-5 w-5 flex-shrink-0" />
@@ -164,71 +178,56 @@ export function InitialStep() {
         </div>
       )} */}
 
-      <div className="mt-2 flex justify-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          type="button"
-          className="h-8 w-8 rounded-full bg-muted/50 p-0 hover:bg-muted"
-          disabled
-          // onClick={handleSwap}
-          // disabled={
-          //   ![TradeState.INITIAL, TradeState.APPROVED, TradeState.CHECKING_APPROVAL].includes(
-          //     tradeState
-          //   )
-          // }
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        <div className="mt-2 flex justify-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            className="h-8 w-8 rounded-full p-0 transition-colors"
+            onClick={handleTabSwitch}
+            disabled={[TradeState.PENDING, TradeState.SUCCESS].includes(tradeState)}
           >
-            <path
-              d="M12 4L12 20M12 20L18 14M12 20L6 14"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Button>
-      </div>
-
-      <div className="mt-2">
-        <TokenInput
-          label={activeTab === TabState.BUY ? 'You Get' : 'You Get'}
-          isOutput
-          onAmountChange={handleAmountChange}
-          // onOutputAmountChange={handleOutputAmountChange}
-          showPercentageButtons={false}
-        />
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="mt-2 flex items-center justify-between pt-4">
-          <p className="text-sm text-muted-foreground">Source</p>
-          <MovingButton className="border-border bg-card text-card-foreground">
-            <ODXApiSource />
-          </MovingButton>
+            <ArrowUpDown className="h-4 w-4" />
+          </Button>
         </div>
 
-        <div className="flex items-center justify-between pb-4">
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">Slippage</p>
-            <SlippageSettings />
+        <div className="mt-2">
+          <TokenInput
+            label="You Get"
+            isOutput
+            onAmountChange={handleAmountChange}
+            // onOutputAmountChange={handleOutputAmountChange}
+            showPercentageButtons={false}
+          />
+        </div>
+      </div>
+      <Separator className="mt-3" />
+      <div className="px-4">
+        <div className="flex flex-col gap-3">
+          <div className="mt-2 flex items-center justify-between pt-4">
+            <p className="text-sm text-muted-foreground">Source</p>
+            <MovingButton className="border-border bg-card text-card-foreground">
+              <ODXApiSource />
+            </MovingButton>
           </div>
-          <p className="text-sm text-muted-foreground">{slippage}%</p>
-        </div>
-      </div>
 
-      <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">
-        <div className="flex items-start gap-2">
-          <Info className="h-5 w-5 flex-shrink-0" />
-          <p>
-            During our alpha test, {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount should
-            be between 5 and 10 USDC.
-          </p>
+          <div className="flex items-center justify-between pb-4">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">Slippage</p>
+              <SlippageSettings />
+            </div>
+            <p className="text-sm text-muted-foreground">{slippage}%</p>
+          </div>
+        </div>
+
+        <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">
+          <div className="flex items-start gap-2">
+            <Info className="h-5 w-5 flex-shrink-0" />
+            <p>
+              During our alpha test, {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount
+              should be between 5 and 10 USDC.
+            </p>
+          </div>
         </div>
       </div>
     </>
