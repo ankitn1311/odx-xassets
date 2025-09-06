@@ -9,7 +9,7 @@ import { TradeState, useTokenSwapStore } from '@/stores/token-swap-store';
 import axios, { AxiosError } from 'axios';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from 'usehooks-ts';
-import { getCurrentBaseUrl } from '@/lib/utils';
+import { getCurrentBaseUrl, removeTrailingZeros } from '@/lib/utils';
 import { getBalanceWithProvider } from '@/utils/chain-client/txs/create_trade';
 import { delay } from '@/utils/helper';
 import crypto from 'crypto';
@@ -41,13 +41,6 @@ interface CosignatureData {
 }
 
 const POLL_INTERVAL = 2000; // 2 seconds
-
-// Helper function to truncate number to specific decimals without rounding
-const truncateToDecimals = (value: number, decimals: number): string => {
-  const multiplier = Math.pow(10, decimals);
-  const truncated = Math.floor(value * multiplier) / multiplier;
-  return truncated.toString();
-};
 
 // Enhanced Nonce Generation Strategy:
 // 1. Base nonce from NonceManager or blockchain
@@ -458,14 +451,14 @@ export const useXAssetSignature = () => {
     const endTime = now + 3600; // 1 hour duration
     const deadline = now + 7200; //
 
-    const inputAmount = ethersV5.utils.parseUnits(
-      truncateToDecimals(Number(data.amount), data.input_decimals),
-      data.input_decimals
-    );
-    const outputAmount = ethersV5.utils.parseUnits(
-      truncateToDecimals(Number(data.output_amount), data.output_decimals),
+    const inputAmountStr = removeTrailingZeros(data.amount.toString(), data.input_decimals);
+    const outputAmountStr = removeTrailingZeros(
+      data.output_amount.toString(),
       data.output_decimals
     );
+
+    const inputAmount = ethersV5.utils.parseUnits(inputAmountStr, data.input_decimals);
+    const outputAmount = ethersV5.utils.parseUnits(outputAmountStr, data.output_decimals);
 
     // Calculate output amounts with slippage
     // For Market orders: startAmount is the minimum (worst case), endAmount can be higher (best case)
