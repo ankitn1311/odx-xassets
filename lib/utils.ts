@@ -90,15 +90,45 @@ export const getCurrentCosignerAddress = (): string => {
   return process.env.NEXT_PUBLIC_COSIGNER || '';
 };
 
-export const removeTrailingZeros = (value: string, maxDecimals: number = 8) => {
-  if (value === '0') return '0';
-  const numValue = Number(value);
+export const removeTrailingZeros = (
+  value: string | number | undefined,
+  maxDecimals: number = 8
+) => {
+  // Handle undefined, null, or empty values
+  if (value === undefined || value === null || value === '') {
+    return '0';
+  }
 
-  // Truncate to maxDecimals without rounding
-  const multiplier = Math.pow(10, maxDecimals);
-  const truncated = Math.floor(numValue * multiplier) / multiplier;
+  // Convert to string if it's a number
+  const valueStr = value.toString();
 
-  return truncated.toString().replace(/\.?0+$/, '');
+  if (valueStr === '0') return '0';
+
+  // If it's a whole number (no decimal point), return as is
+  if (!valueStr.includes('.')) {
+    return valueStr;
+  }
+
+  // Split by decimal point
+  const [integerPart, decimalPart] = valueStr.split('.');
+
+  // If decimal part is shorter than or equal to maxDecimals, return as is
+  if (decimalPart.length <= maxDecimals) {
+    return valueStr;
+  }
+
+  // Truncate decimal part to maxDecimals
+  const truncatedDecimalPart = decimalPart.substring(0, maxDecimals);
+
+  // Remove trailing zeros from decimal part
+  const trimmedDecimalPart = truncatedDecimalPart.replace(/0+$/, '');
+
+  // Return the result
+  if (trimmedDecimalPart === '') {
+    return integerPart;
+  }
+
+  return `${integerPart}.${trimmedDecimalPart}`;
 };
 
 export function getWeekNumber(date: Date): number {

@@ -165,8 +165,8 @@ export const getBalanceWithProvider = async (
 
     if (balances) {
       const formatted = formatUnits(balances, decimals);
-      const parsed = parseFloat(formatted);
-      const removedTrailingZeros = removeTrailingZeros(parsed.toString());
+      // Work directly with the formatted string to avoid scientific notation
+      const removedTrailingZeros = removeTrailingZeros(formatted, 8);
       balance = removedTrailingZeros !== '' ? removedTrailingZeros : '0';
     }
 
