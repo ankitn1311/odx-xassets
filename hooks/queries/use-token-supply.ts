@@ -1,10 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import { erc20Abi } from 'viem';
-import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
 import { useWalletClient } from 'wagmi';
-import { TokenInfo } from './use-all-tokens';
+import { TokenInfo, ALL_V2_TOKEN_PAIRS } from './use-all-tokens';
 import { SONIC_RPC_URL } from '@/utils/chain-client/common/provider';
+import axios from 'axios';
+import { getCurrentBaseUrl } from '@/lib/utils';
+
+// Token conversion mapping for API calls
+const tokenConvert = {
+  USDC: 'USD',
+  USDT: 'USD',
+  x2XRP: 'XRP',
+  x2SOL: 'SOL',
+  x2ADA: 'ADA',
+  x2SUI: 'SUI',
+  x2DOGE: 'DOGE',
+  x2PEPE: 'PEPE',
+  x2BTC: 'BTC',
+};
 
 const getTokenSupply = async (tokenAddress: string | undefined, decimals: number, wallet: any) => {
   if (!tokenAddress) return '0';
@@ -20,10 +34,31 @@ const getTokenSupply = async (tokenAddress: string | undefined, decimals: number
   }
 };
 
+const getTokenPrice = async (tokenSymbol: string) => {
+  try {
+    const convertedSymbol = tokenConvert[tokenSymbol as keyof typeof tokenConvert];
+    console.log(`Getting price for ${tokenSymbol} -> ${convertedSymbol}`);
+
+    const response = await axios.get(`${getCurrentBaseUrl()}/cdc/get-valuations`, {
+      params: {
+        instrument_name: `${convertedSymbol}_USD`,
+        valuation_type: 'mark_price',
+        count: 1,
+      },
+    });
+
+    const price = parseFloat(response.data.result.data[0].v);
+    console.log(`Price for ${tokenSymbol}: $${price}`);
+    return price;
+  } catch (error) {
+    console.error('Error getting token price for', tokenSymbol, error);
+    return 0;
+  }
+};
+
 // Input Token - USDC
 // Output Token - x1SOL | x1PEPE | x1SUI | x1DOGE | x1ADA | x1XRP | x1BTC etc
 export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) => {
-  const { getQuote } = useTradeQuote();
   const { data: wallet } = useWalletClient();
 
   return useQuery({
@@ -43,22 +78,28 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
       const supply = await getTokenSupply(outputToken.V1Address, outputToken.Decimals, wallet);
 
       if (outputToken.V1Address) {
-        const quote = await getQuote({
-          outputToken: inputToken,
-          inputToken: outputToken,
-          inputAmount: '1',
-          type: 'mark',
-        });
+        try {
+          // Get the current price of the base token in USD
+          const tokenPrice = await getTokenPrice(outputToken.Name);
 
-        const reverseQuote = quote;
+          // Calculate total value: supply * price
+          const totalSupplyInUSD = (tokenPrice * parseFloat(supply)).toFixed(2);
 
-        const marketCap = reverseQuote * parseFloat(supply);
-        const totalSupplyInUSD = marketCap.toFixed(2);
+          console.log(
+            `${outputToken.Name}: Supply=${supply}, Token=${outputToken.Name}, Price=$${tokenPrice}, Total=$${totalSupplyInUSD}`
+          );
 
-        return {
-          totalSupply: supply,
-          totalSupplyUSD: totalSupplyInUSD,
-        };
+          return {
+            totalSupply: supply,
+            totalSupplyUSD: totalSupplyInUSD,
+          };
+        } catch (error) {
+          console.error('Error getting price for', outputToken.Name, error);
+          return {
+            totalSupply: supply,
+            totalSupplyUSD: '0',
+          };
+        }
       }
 
       return {
@@ -67,6 +108,64 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
       };
     },
     enabled: !!outputToken?.V1Address && !!inputToken?.Address,
+    staleTime: 1000 * 60 * 10,
+  });
+};
+
+// New hook: fetch supply data for all tokens in a single query
+export const useTokensSupply = () => {
+  const { data: wallet } = useWalletClient();
+
+  return useQuery({
+    queryKey: ['tokens-supply', wallet?.account.address],
+    queryFn: async () => {
+      if (!wallet?.account.address) {
+        return ALL_V2_TOKEN_PAIRS.map(() => ({
+          totalSupply: '0',
+          totalSupplyUSD: '0',
+        }));
+      }
+
+      // Process all token pairs in parallel
+      const results = await Promise.all(
+        ALL_V2_TOKEN_PAIRS.map(async pair => {
+          const supply = await getTokenSupply(pair.TokenB.V1Address, pair.TokenB.Decimals, wallet);
+
+          if (pair.TokenB.V1Address) {
+            try {
+              // Use the full xAsset name directly (e.g., x2SOL)
+              const tokenPrice = await getTokenPrice(pair.TokenB.Name);
+
+              // Calculate total value: supply * price
+              const totalSupplyInUSD = (tokenPrice * parseFloat(supply)).toFixed(2);
+
+              console.log(
+                `${pair.TokenB.Name}: Supply=${supply}, Token=${pair.TokenB.Name}, Price=$${tokenPrice}, Total=$${totalSupplyInUSD}`
+              );
+
+              return {
+                totalSupply: supply,
+                totalSupplyUSD: totalSupplyInUSD,
+              };
+            } catch (error) {
+              console.error('Error getting price for', pair.TokenB.Name, error);
+              return {
+                totalSupply: supply,
+                totalSupplyUSD: '0',
+              };
+            }
+          }
+
+          return {
+            totalSupply: supply,
+            totalSupplyUSD: '0',
+          };
+        })
+      );
+
+      return results;
+    },
+    enabled: !!wallet?.account.address,
     staleTime: 1000 * 60 * 10,
   });
 };
