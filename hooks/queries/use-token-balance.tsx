@@ -69,8 +69,6 @@ export const useTokenBalance = (address: string, decimals: number = 18) => {
 
   if (!address) return { data: 0, isLoading: false };
 
-  // const balance = data ? parseFloat(formatUnits(data, decimals)).toFixed(2) : '0';
-
   return {
     data: data,
     fullBalance: data,

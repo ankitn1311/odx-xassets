@@ -42,6 +42,13 @@ interface CosignatureData {
 
 const POLL_INTERVAL = 2000; // 2 seconds
 
+// Helper function to truncate number to specific decimals without rounding
+const truncateToDecimals = (value: number, decimals: number): string => {
+  const multiplier = Math.pow(10, decimals);
+  const truncated = Math.floor(value * multiplier) / multiplier;
+  return truncated.toString();
+};
+
 // Enhanced Nonce Generation Strategy:
 // 1. Base nonce from NonceManager or blockchain
 // 2. Multiple entropy sources: Math.random(), microtime, user address hash, timestamp
@@ -128,8 +135,8 @@ export const useXAssetSignature = () => {
         data.output_decimals
       );
 
-      // Check if either balance has changed
-      if (newInputBalance !== initialInputBalance || newOutputBalance !== initialOutputBalance) {
+      // Check if both balances have changed
+      if (newInputBalance !== initialInputBalance && newOutputBalance !== initialOutputBalance) {
         // Update the query cache with new balances
         queryClient.setQueryData(
           ['token-balance', data.token, data.input_decimals],
@@ -452,11 +459,11 @@ export const useXAssetSignature = () => {
     const deadline = now + 7200; //
 
     const inputAmount = ethersV5.utils.parseUnits(
-      Number(data.amount).toFixed(data.input_decimals),
+      truncateToDecimals(Number(data.amount), data.input_decimals),
       data.input_decimals
     );
     const outputAmount = ethersV5.utils.parseUnits(
-      Number(data.output_amount).toFixed(data.output_decimals),
+      truncateToDecimals(Number(data.output_amount), data.output_decimals),
       data.output_decimals
     );
 

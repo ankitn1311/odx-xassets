@@ -66,7 +66,7 @@ export const tokenConvertForUI = {
   BTC: 'Bitcoin',
 };
 
-const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
+const calculateQuote = async (params: QuoteParams) => {
   const inputToken = params.inputToken.Name;
   const outputToken = params.outputToken.Name;
   const isBuy = params.type === 'buy';
@@ -76,9 +76,13 @@ const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
     return 0;
   }
 
+  // Always construct instrument_name as XRP_USD format regardless of input/output order
+  const usdToken = inputToken === 'USDC' || inputToken === 'USDT' ? inputToken : outputToken;
+  const cryptoToken = inputToken === 'USDC' || inputToken === 'USDT' ? outputToken : inputToken;
+
   const response = await axios.get(`${getCurrentBaseUrl()}/cdc/get-valuations`, {
     params: {
-      instrument_name: `${tokenConvert[inputToken as keyof typeof tokenConvert]}_${tokenConvert[outputToken as keyof typeof tokenConvert]}`,
+      instrument_name: `${tokenConvert[cryptoToken as keyof typeof tokenConvert]}_${tokenConvert[usdToken as keyof typeof tokenConvert]}`,
       valuation_type: 'mark_price',
       count: 1,
     },
@@ -88,12 +92,15 @@ const calculateQuote = async (params: QuoteParams, allTokens: any[]) => {
   const sellPrice = parseFloat(response.data.result.data[0].sell_price);
   const currentPrice = parseFloat(response.data.result.data[0].v);
   const inputAmount = parseFloat(params.inputAmount);
+
+  // For buy: user pays USD, gets crypto (divide by buy price)
+  // For sell: user pays crypto, gets USD (multiply by sell price)
   if (isBuy) {
-    return inputAmount * buyPrice;
+    return inputAmount / buyPrice;
   } else if (isSell) {
     return inputAmount * sellPrice;
   } else {
-    return inputAmount * currentPrice;
+    return inputAmount / currentPrice;
   }
 };
 
@@ -110,13 +117,13 @@ const getTokenPrice = async (tokenSymbol: string) => {
 };
 
 export const useTradeQuote = () => {
-  const { allTokens, setQuoteLoading } = useTokenSwapStore();
+  const { setQuoteLoading } = useTokenSwapStore();
 
   const quoteMutation = useMutation({
     mutationFn: async (params: QuoteParams) => {
       try {
         setQuoteLoading(true);
-        return await calculateQuote(params, allTokens || []);
+        return await calculateQuote(params);
       } catch (error) {
         console.error('Error fetching price from Crypto.com:', error);
         throw error;
@@ -134,12 +141,10 @@ export const useTradeQuote = () => {
 };
 
 export const useTokenQuote = () => {
-  const { allTokens } = useTokenSwapStore();
-
   const quoteMutation = useMutation({
     mutationFn: async (params: QuoteParams) => {
       try {
-        return await calculateQuote(params, allTokens || []);
+        return await calculateQuote(params);
       } catch (error) {
         console.error('Error fetching price from Crypto.com:', error);
         throw error;

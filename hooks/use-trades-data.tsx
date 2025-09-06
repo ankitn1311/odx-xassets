@@ -26,7 +26,7 @@ export const useTradesData = (
   address: string = '0x0000000000000000000000000000000000000000'
 ) => {
   return useQuery<TradeData[]>({
-    queryKey: ['trades', type],
+    queryKey: ['trades', type, address],
     queryFn: () => getTradesData(type, address),
     // staleTime: 0, // Always consider data stale to get real-time updates
     staleTime: Infinity,

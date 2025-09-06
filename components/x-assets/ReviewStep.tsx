@@ -55,7 +55,7 @@ export function ReviewStep() {
         if (quote !== undefined && quote !== null) {
           form.setValue('outputAmount', quote.toString());
         }
-      } catch (error) {
+      } catch {
         // Optionally handle error (e.g., toast)
       }
     }, POLLING_INTERVAL);
@@ -99,7 +99,7 @@ export function ReviewStep() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col px-4">
       <div className="mb-4 flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2">
           <ArrowLeft className="h-4 w-4" />
@@ -110,7 +110,7 @@ export function ReviewStep() {
       <div className="flex justify-between">
         <div className="flex flex-col items-start">
           <p className="mb-2 text-sm text-muted-foreground">
-            {activeTab === TabState.BUY ? 'Buy' : 'Sell'}
+            {activeTab === TabState.BUY ? 'You Pay' : 'You Sell'}
           </p>
           <div className="flex items-center gap-2">
             <Image
@@ -127,6 +127,7 @@ export function ReviewStep() {
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => {
               addTokenToWallet(inputToken!);
             }}
@@ -141,7 +142,7 @@ export function ReviewStep() {
 
         <div className="flex flex-col items-end">
           <p className="mb-2 text-sm text-muted-foreground">
-            {activeTab === TabState.BUY ? 'Sell' : 'Buy'}
+            {activeTab === TabState.BUY ? 'You Get' : 'You Get'}
           </p>
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-end">
@@ -158,6 +159,7 @@ export function ReviewStep() {
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => {
               addTokenToWallet(outputToken!);
             }}

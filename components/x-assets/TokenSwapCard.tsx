@@ -1,6 +1,5 @@
 import { BackgroundGradient } from '../ui/background-gradient';
 import { TokenSwapForm } from './TokenSwapForm';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { useTokenSwapStore, TabState, TradeState } from '@/stores/token-swap-store';
 import { Form as FormProvider } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
@@ -9,6 +8,10 @@ import { z } from 'zod';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Card } from '../ui/card';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+import { useQuoteTimer } from './QuoteTimerContext';
+import { useFormContext } from 'react-hook-form';
 
 const swapFormSchema = z
   .object({
@@ -45,14 +48,19 @@ const swapFormSchema = z
   // )
   .refine(
     data => {
-      if (Number(data.outputAmount) < 5 || Number(data.outputAmount) > 10) {
+      // For Buy tab: amount is USDC, outputAmount is xAsset
+      // For Sell tab: amount is xAsset, outputAmount is USDC
+      // We need to validate the USDC amount regardless of which field it's in
+      const usdcAmount =
+        data.inputToken?.Name === 'USDC' ? Number(data.amount) : Number(data.outputAmount);
+      if (usdcAmount < 5 || usdcAmount > 10) {
         return false;
       }
       return true;
     },
     {
       message: 'USDC amount must be between 5 and 10, during the alpha',
-      path: ['outputAmount'],
+      path: ['amount'], // This will show the error on the USDC input field
     }
   );
 // .refine(
@@ -90,7 +98,8 @@ const swapFormSchema = z
 export type SwapFormValues = z.infer<typeof swapFormSchema>;
 
 export const TokenSwapCard = () => {
-  const { allTokens, tradeState } = useTokenSwapStore();
+  const { allTokens, tradeState, activeTab, resetTradeState, selectedXAsset, setSelectedXAsset } =
+    useTokenSwapStore();
   const [firstToken] = allTokens;
   const { TokenA, TokenB } = firstToken;
   const searchParams = useSearchParams();
@@ -101,94 +110,156 @@ export const TokenSwapCard = () => {
       amount: '0',
       outputAmount: '0',
       percentage: 25,
-      inputToken: TokenB,
-      outputToken: TokenA,
+      inputToken: TokenA, // USDC for Buy tab
+      outputToken: TokenB, // xAsset for Buy tab
     },
     mode: 'onBlur',
   });
 
-  // Set the inputToken to the selected token if present in the query param
+  // Set the selected xAsset from query param (only on mount)
   useEffect(() => {
     if (selectedTokenAddress && allTokens.length > 0) {
       const found = allTokens.find(t => t.TokenB.Address === selectedTokenAddress);
       if (found) {
-        form.setValue('inputToken', found.TokenB);
-        form.setValue('outputToken', found.TokenA);
+        setSelectedXAsset(found.TokenB); // Store in global state
       }
     }
     // Only run on mount or when allTokens changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTokenAddress, allTokens]);
 
-  const { activeTab, setActiveTab, resetTradeState } = useTokenSwapStore();
+  // Initialize selectedXAsset if not set
+  useEffect(() => {
+    if (!selectedXAsset && allTokens.length > 0) {
+      const [firstToken] = allTokens;
+      setSelectedXAsset(firstToken.TokenB);
+    }
+  }, [selectedXAsset, allTokens, setSelectedXAsset]);
 
-  const isBuyDisabled = ![
-    TradeState.INITIAL,
-    TradeState.APPROVAL,
-    TradeState.APPROVED,
-    TradeState.CHECKING_APPROVAL,
-  ].includes(tradeState);
-  const isSellDisabled = ![
-    TradeState.INITIAL,
-    TradeState.APPROVAL,
-    TradeState.APPROVED,
-    TradeState.CHECKING_APPROVAL,
-  ].includes(tradeState);
+  // Update form when selectedXAsset changes from store (disabled to prevent race conditions)
+  // useEffect(() => {
+  //   if (selectedXAsset && allTokens.length > 0) {
+  //     const [firstToken] = allTokens;
+  //     const { TokenA } = firstToken; // USDC is always TokenA
+
+  //     if (activeTab === TabState.BUY) {
+  //       form.setValue('inputToken', TokenA); // USDC
+  //       form.setValue('outputToken', selectedXAsset); // selected xAsset
+  //     } else {
+  //       form.setValue('inputToken', selectedXAsset); // selected xAsset
+  //       form.setValue('outputToken', TokenA); // USDC
+  //     }
+  //   }
+  // }, [selectedXAsset, activeTab, allTokens, form]);
+
+  // Handle token swapping when switching between Buy and Sell tabs
+  useEffect(() => {
+    if (allTokens.length > 0) {
+      const [firstToken] = allTokens;
+      const { TokenA } = firstToken; // USDC is always TokenA
+
+      // Get current form values BEFORE any updates
+      const currentInputToken = form.getValues('inputToken');
+      const currentOutputToken = form.getValues('outputToken');
+      const currentAmount = form.getValues('amount');
+      const currentOutputAmount = form.getValues('outputAmount');
+
+      // Determine which amount corresponds to which token type based on CURRENT tab
+      let usdcAmount = '0';
+      let xAssetAmount = '0';
+
+      // Check which tab we're currently on to determine token positions
+      const isCurrentlyBuy = currentInputToken?.Name === 'USDC';
+
+      if (isCurrentlyBuy) {
+        // Currently on Buy tab: inputToken = USDC, outputToken = xAsset
+        usdcAmount = currentAmount;
+        xAssetAmount = currentOutputAmount;
+      } else {
+        // Currently on Sell tab: inputToken = xAsset, outputToken = USDC
+        usdcAmount = currentOutputAmount;
+        xAssetAmount = currentAmount;
+      }
+
+      // Always prioritize the selectedXAsset from store
+      let currentSelectedXAsset = selectedXAsset;
+
+      // If no xAsset in store, try to get from form values as fallback
+      if (!currentSelectedXAsset) {
+        if (currentInputToken?.Name !== 'USDC') {
+          currentSelectedXAsset = currentInputToken;
+        } else if (currentOutputToken?.Name !== 'USDC') {
+          currentSelectedXAsset = currentOutputToken;
+        }
+
+        // If still no xAsset, use the first one as default
+        if (!currentSelectedXAsset) {
+          currentSelectedXAsset = firstToken.TokenB;
+        }
+
+        // Store it for future use
+        setSelectedXAsset(currentSelectedXAsset);
+      }
+
+      // For Buy tab: inputToken = USDC, outputToken = selected xAsset
+      // For Sell tab: inputToken = selected xAsset, outputToken = USDC
+      if (activeTab === TabState.BUY) {
+        form.setValue('inputToken', TokenA); // USDC
+        form.setValue('outputToken', currentSelectedXAsset); // selected xAsset
+        // Use the USDC amount for the input field
+        form.setValue('amount', usdcAmount);
+        form.setValue('outputAmount', '0');
+      } else {
+        form.setValue('inputToken', currentSelectedXAsset); // selected xAsset
+        form.setValue('outputToken', TokenA); // USDC
+        // Use the xAsset amount for the input field
+        form.setValue('amount', xAssetAmount);
+        form.setValue('outputAmount', '0');
+      }
+
+      form.setValue('percentage', 0);
+
+      // Reset error state when changing tabs
+      form.clearErrors();
+    }
+  }, [activeTab, allTokens, form, selectedXAsset, setSelectedXAsset, firstToken]);
+
+  // Separate effect to handle trade state reset
+  useEffect(() => {
+    if (tradeState === TradeState.FAILED) {
+      resetTradeState();
+    }
+  }, [tradeState, resetTradeState]);
 
   return (
     <FormProvider {...form}>
       <BackgroundGradient>
         <div className="flex h-full w-full flex-col">
-          <Card className="h-full bg-card">
-            <div className="h-full px-8 pb-8 pt-6">
-              <Tabs
-                className="flex h-full flex-col"
-                value={activeTab}
-                onValueChange={value => setActiveTab(value as TabState)}
-              >
-                <TabsList className="grid w-full grid-cols-2" variant="underline">
-                  <TabsTrigger
-                    variant="underline"
-                    disabled={isBuyDisabled}
-                    value={TabState.BUY}
-                    onClick={() => {
-                      if (
-                        [TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(
-                          tradeState
-                        )
-                      ) {
-                        resetTradeState();
-                      }
-                    }}
-                  >
-                    Buy
-                  </TabsTrigger>
-                  <TabsTrigger
-                    variant="underline"
-                    disabled={isSellDisabled}
-                    value={TabState.SELL}
-                    onClick={() => {
-                      if (
-                        [TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(
-                          tradeState
-                        )
-                      ) {
-                        resetTradeState();
-                      }
-                    }}
-                  >
-                    Sell
-                  </TabsTrigger>
-                </TabsList>
+          <Card className="h-full bg-card py-4">
+            <div className="flex h-full flex-col gap-4">
+              <div className="flex items-center justify-between px-4">
+                <div className="flex gap-2">
+                  <h2 className="text-lg font-bold">Trade</h2>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span
+                      className={cn(
+                        'rounded-md px-2 py-1 text-xs font-medium',
+                        activeTab === TabState.BUY
+                          ? 'bg-success/20 text-success'
+                          : 'bg-destructive/20 text-destructive'
+                      )}
+                    >
+                      {activeTab === TabState.BUY ? 'Buy' : 'Sell'}
+                    </span>
+                  </div>
+                </div>
 
-                <TabsContent value={TabState.BUY} className="mt-6 flex-1">
-                  <TokenSwapForm />
-                </TabsContent>
+                <QuoteTimer />
+              </div>
 
-                <TabsContent value={TabState.SELL} className="mt-6 flex-1">
-                  <TokenSwapForm />
-                </TabsContent>
-              </Tabs>
+              <div className="flex-1">
+                <TokenSwapForm />
+              </div>
             </div>
           </Card>
         </div>
@@ -196,3 +267,51 @@ export const TokenSwapCard = () => {
     </FormProvider>
   );
 };
+
+// QuoteTimer component
+function QuoteTimer() {
+  const { tradeState } = useTokenSwapStore();
+  const { timeUntilNextQuote, isQuoteLoading } = useQuoteTimer();
+  const form = useFormContext<SwapFormValues>();
+  const inputAmount = form.watch('amount');
+
+  // Only show timer in INITIAL state
+  if (
+    [
+      TradeState.FAILED,
+      TradeState.PENDING,
+      TradeState.SUCCESS,
+      TradeState.REVIEW,
+      TradeState.APPROVAL,
+      TradeState.CHECKING_APPROVAL,
+      TradeState.PROCESSING,
+    ].includes(tradeState)
+  ) {
+    return null;
+  }
+
+  // Don't show timer if there's no input amount or if amount is 0
+  if (!inputAmount || inputAmount === '0' || inputAmount === '') {
+    return null;
+  }
+
+  // Show loader when timer is at 0 or when quote is loading
+  if (timeUntilNextQuote === 0 || isQuoteLoading) {
+    return (
+      <div className="gap2 flex w-8 items-center justify-center text-sm text-muted-foreground">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+  return (
+    <div className="flex h-7 flex-col items-center text-sm text-muted-foreground">
+      <span>{timeUntilNextQuote}s</span>
+      <div className="h-1 w-8 overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-1 bg-primary transition-all duration-1000 ease-linear"
+          style={{ width: `${(timeUntilNextQuote / 10) * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}

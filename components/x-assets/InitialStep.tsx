@@ -14,12 +14,15 @@ import { SwapFormValues } from './TokenSwapCard';
 import { useTheme } from 'next-themes';
 import { SlippageSettings } from './SlippageSettings';
 import { useAppStore } from '@/stores/app-store';
+import { Separator } from '../ui/separator';
+import { ArrowUpDown } from 'lucide-react';
+import { useQuoteTimer } from './QuoteTimerContext';
 
-const MAX_DECIMALS = 6;
-const POLLING_INTERVAL = 5000; // 5 seconds
+const MAX_DECIMALS = 8;
+const POLLING_INTERVAL = 10000; // 10 seconds
 
 export function InitialStep() {
-  const { tradeState, activeTab } = useTokenSwapStore();
+  const { tradeState, activeTab, setActiveTab } = useTokenSwapStore();
   const { setValue, watch } = useFormContext<SwapFormValues>();
 
   const inputToken = watch('inputToken');
@@ -28,10 +31,36 @@ export function InitialStep() {
   const isBuy = activeTab === TabState.BUY;
 
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { setTimeUntilNextQuote, setIsQuoteLoading } = useQuoteTimer();
 
   const { getQuote } = useTradeQuote();
   const inputAmount = watch('amount');
+
+  // Helper function to restart the timer
+  const restartTimer = useCallback(() => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    timerIntervalRef.current = setInterval(() => {
+      setTimeUntilNextQuote(prev => {
+        if (prev <= 0) {
+          // Clear the interval when we reach 0
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+          }
+          // Trigger quote fetch when timer reaches 0
+          if (debouncedGetQuoteRef.current) {
+            debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount, isBuy);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [inputToken, outputToken, inputAmount, isBuy, setTimeUntilNextQuote]);
 
   useEffect(() => {
     // Initialize the debounced function
@@ -47,8 +76,11 @@ export function InitialStep() {
             setValue('outputAmount', '0');
             setValue('amount', '0');
             setValue('percentage', 0);
+            setIsQuoteLoading(false);
             return;
           }
+
+          setIsQuoteLoading(true);
           const quote = await getQuote({
             inputToken,
             outputToken,
@@ -58,9 +90,17 @@ export function InitialStep() {
           if (quote) {
             setValue('outputAmount', quote.toString());
           }
+          setIsQuoteLoading(false);
+          // Reset timer after quote is fetched and restart the interval
+          setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+          restartTimer();
         } catch (error) {
           toast.error('Failed to get quote');
           console.error('Error getting quote:', error);
+          setIsQuoteLoading(false);
+          // Reset timer even on error and restart the interval
+          setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+          restartTimer();
         }
       },
       500
@@ -72,7 +112,7 @@ export function InitialStep() {
         debouncedGetQuoteRef.current.cancel();
       }
     };
-  }, [getQuote, setValue]);
+  }, [getQuote, setValue, setIsQuoteLoading, setTimeUntilNextQuote, restartTimer]);
 
   // Add polling effect
   useEffect(() => {
@@ -80,30 +120,38 @@ export function InitialStep() {
       setValue('outputAmount', '');
       setValue('amount', inputAmount === '0' ? '0' : '');
       setValue('percentage', 0);
+      setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+      setIsQuoteLoading(false);
       return;
     }
 
     if (inputAmount && inputToken && outputToken) {
-      // Clear any existing interval
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
+      // Clear any existing timer interval
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
       }
 
-      // Set up new polling interval
-      pollingIntervalRef.current = setInterval(() => {
-        if (debouncedGetQuoteRef.current) {
-          debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount, isBuy);
-        }
-      }, POLLING_INTERVAL);
+      // Reset timer and start the interval
+      setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
+      restartTimer();
     }
 
     // Cleanup function
     return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
       }
     };
-  }, [inputAmount, inputToken, outputToken, setValue, isBuy]);
+  }, [
+    inputAmount,
+    inputToken,
+    outputToken,
+    setValue,
+    isBuy,
+    setTimeUntilNextQuote,
+    setIsQuoteLoading,
+    restartTimer,
+  ]);
 
   useEffect(() => {
     if (inputToken && outputToken && debouncedGetQuoteRef.current && inputAmount) {
@@ -144,18 +192,30 @@ export function InitialStep() {
     [inputToken, outputToken, setValue, isBuy]
   );
 
+  const handleTabSwitch = useCallback(() => {
+    const newTab = activeTab === TabState.BUY ? TabState.SELL : TabState.BUY;
+    setActiveTab(newTab);
+
+    // Reset trade state if needed
+    if ([TradeState.SUCCESS, TradeState.PENDING, TradeState.FAILED].includes(tradeState)) {
+      // This will be handled by the TokenSwapCard useEffect
+    }
+  }, [activeTab, setActiveTab, tradeState]);
+
   return (
     <>
-      <TokenInput
-        label={activeTab === TabState.BUY ? 'You Get' : 'You Sell'}
-        onAmountChange={handleAmountChange}
-        showPercentageButtons={
-          tradeState === TradeState.INITIAL ||
-          tradeState === TradeState.APPROVED ||
-          tradeState === TradeState.CHECKING_APPROVAL
-        }
-      />
-      {/* {WHOLE_NUMBER_TOKENS.includes(inputToken.Name) && (
+      <Separator className="mb-3" />
+      <div className="px-4">
+        <TokenInput
+          label="You Pay"
+          onAmountChange={handleAmountChange}
+          showPercentageButtons={
+            tradeState === TradeState.INITIAL ||
+            tradeState === TradeState.APPROVED ||
+            tradeState === TradeState.CHECKING_APPROVAL
+          }
+        />
+        {/* {WHOLE_NUMBER_TOKENS.includes(inputToken.Name) && (
         <div className="my-4 flex flex-col gap-4 rounded-md border border-warning/20 bg-warning/10 p-3 text-sm text-warning-foreground">
           <div className="flex items-end gap-2">
             <Info className="h-5 w-5 flex-shrink-0" />
@@ -164,71 +224,56 @@ export function InitialStep() {
         </div>
       )} */}
 
-      <div className="mt-2 flex justify-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          type="button"
-          className="h-8 w-8 rounded-full bg-muted/50 p-0 hover:bg-muted"
-          disabled
-          // onClick={handleSwap}
-          // disabled={
-          //   ![TradeState.INITIAL, TradeState.APPROVED, TradeState.CHECKING_APPROVAL].includes(
-          //     tradeState
-          //   )
-          // }
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        <div className="mt-2 flex justify-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            className="h-8 w-8 rounded-full p-0 transition-colors"
+            onClick={handleTabSwitch}
+            disabled={[TradeState.PENDING, TradeState.SUCCESS].includes(tradeState)}
           >
-            <path
-              d="M12 4L12 20M12 20L18 14M12 20L6 14"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Button>
-      </div>
-
-      <div className="mt-2">
-        <TokenInput
-          label={activeTab === TabState.BUY ? 'You Pay' : 'You Get'}
-          isOutput
-          onAmountChange={handleAmountChange}
-          // onOutputAmountChange={handleOutputAmountChange}
-          showPercentageButtons={false}
-        />
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="mt-2 flex items-center justify-between pt-4">
-          <p className="text-sm text-muted-foreground">Source</p>
-          <MovingButton className="border-border bg-card text-card-foreground">
-            <ODXApiSource />
-          </MovingButton>
+            <ArrowUpDown className="h-4 w-4" />
+          </Button>
         </div>
 
-        <div className="flex items-center justify-between pb-4">
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">Slippage</p>
-            <SlippageSettings />
+        <div className="mt-2">
+          <TokenInput
+            label="You Get"
+            isOutput
+            onAmountChange={handleAmountChange}
+            // onOutputAmountChange={handleOutputAmountChange}
+            showPercentageButtons={false}
+          />
+        </div>
+      </div>
+      <Separator className="mt-3" />
+      <div className="px-4">
+        <div className="flex flex-col gap-3">
+          <div className="mt-2 flex items-center justify-between pt-4">
+            <p className="text-sm text-muted-foreground">Source</p>
+            <MovingButton className="border-border bg-card text-card-foreground">
+              <ODXApiSource />
+            </MovingButton>
           </div>
-          <p className="text-sm text-muted-foreground">{slippage}%</p>
-        </div>
-      </div>
 
-      <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">
-        <div className="flex items-start gap-2">
-          <Info className="h-5 w-5 flex-shrink-0" />
-          <p>
-            During our alpha test, {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount should
-            be between 5 and 10 USDC.
-          </p>
+          <div className="flex items-center justify-between pb-4">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">Slippage</p>
+              <SlippageSettings />
+            </div>
+            <p className="text-sm text-muted-foreground">{slippage}%</p>
+          </div>
+        </div>
+
+        <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">
+          <div className="flex items-start gap-2">
+            <Info className="h-5 w-5 flex-shrink-0" />
+            <p>
+              During our alpha test, {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount
+              should be between 5 and 10 USDC.
+            </p>
+          </div>
         </div>
       </div>
     </>

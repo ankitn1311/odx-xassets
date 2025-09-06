@@ -5,7 +5,7 @@ import { ExternalLink } from 'lucide-react';
 import { TradeData } from '@/providers/trades-provider';
 import { tokenConvertReverse, tokenConvertReverseV1 } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
-import { removeTrailingZeros, truncateToFixed } from '@/lib/utils';
+import { removeTrailingZeros } from '@/lib/utils';
 import { toast } from 'sonner';
 
 // Helper function to format timestamp
@@ -114,7 +114,7 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
         : tokenConvertReverse[row.original.currency as keyof typeof tokenConvertReverse];
       return (
         <span className="text-md font-mono text-muted-foreground">
-          {removeTrailingZeros(truncateToFixed(Number(quantity), 6))} {tokenName}
+          {removeTrailingZeros(quantity, 6)} {tokenName}
         </span>
       );
     },
@@ -134,7 +134,7 @@ export const tradeColumns: ColumnDef<TradeData>[] = [
       const usdAmount = row.getValue('usdAmount') as string;
       return (
         <span className="text-md font-mono text-muted-foreground">
-          ${removeTrailingZeros(truncateToFixed(Number(usdAmount), 6))}
+          ${removeTrailingZeros(usdAmount, 6)}
         </span>
       );
     },

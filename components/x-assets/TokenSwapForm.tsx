@@ -10,7 +10,6 @@ import { erc20Abi } from 'viem';
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
 import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
-import { truncateToFixed } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
 import { sonic } from 'viem/chains';
 
@@ -28,15 +27,14 @@ export function TokenSwapForm() {
   const { slippage } = useAppStore();
   const { address } = useAccount();
   const form = useFormContext<SwapFormValues>();
+  const { watch } = form;
+  const amount = watch('amount');
+  const inputToken = watch('inputToken');
+  const outputToken = watch('outputToken');
   const chainId = useChainId();
   const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
 
-  const { watch } = form;
-  const formValues = watch();
-  const amount = formValues.amount;
   const { data: wallet } = useWalletClient();
-  const inputToken = formValues.inputToken;
-  const outputToken = formValues.outputToken;
 
   const resetForm = () => {
     form.reset({
@@ -57,16 +55,22 @@ export function TokenSwapForm() {
         if (tradeState !== TradeState.INITIAL) return;
         setTradeState(TradeState.CHECKING_APPROVAL);
         const provider = new ethers.providers.Web3Provider(wallet as any);
-        const isBuy = activeTab === TabState.BUY;
-        const xUSDTContract = new ethers.Contract(
-          isBuy ? outputToken?.Address : (inputToken?.Address ?? ''),
+        // Always approve the input token (the token being spent)
+        const inputTokenContract = new ethers.Contract(
+          inputToken?.Address ?? '',
           erc20Abi,
           provider
         );
-        const currentAllowance = await xUSDTContract.allowance(address, PERMIT2_ADDRESS);
+        const currentAllowance = await inputTokenContract.allowance(address, PERMIT2_ADDRESS);
+        // Always use the input amount (the amount being spent)
+        const inputAmount = amount;
+        // Truncate to prevent rounding issues
+        const truncatedAmount =
+          Math.floor(Number(inputAmount) * Math.pow(10, inputToken?.Decimals ?? 6)) /
+          Math.pow(10, inputToken?.Decimals ?? 6);
         const requiredAmount = ethers.utils.parseUnits(
-          amount,
-          isBuy ? outputToken?.Decimals : inputToken?.Decimals
+          truncatedAmount.toString(),
+          inputToken?.Decimals ?? 6
         );
         const approved = Number(currentAllowance.toString()) >= Number(requiredAmount.toString());
         setIsApproved(approved);
@@ -83,17 +87,7 @@ export function TokenSwapForm() {
     };
 
     checkApproval();
-  }, [
-    inputToken,
-    wallet,
-    address,
-    setIsApproved,
-    setTradeState,
-    tradeState,
-    amount,
-    activeTab,
-    outputToken,
-  ]);
+  }, [inputToken, wallet, address, setIsApproved, setTradeState, tradeState, amount, activeTab]);
 
   const isValidAmount = amount && Number(amount) > 0;
 
@@ -102,13 +96,9 @@ export function TokenSwapForm() {
       setTradeState(TradeState.CHECKING_APPROVAL);
       const provider = new ethers.providers.Web3Provider(wallet as any);
       const signer = provider.getSigner();
-      if (activeTab === TabState.BUY) {
-        const xUSDTContract = new ethers.Contract(outputToken?.Address ?? '', erc20Abi, signer);
-        await xUSDTContract.approve(PERMIT2_ADDRESS, ethers.constants.MaxUint256);
-      } else if (activeTab === TabState.SELL) {
-        const xUSDTContract = new ethers.Contract(inputToken?.Address ?? '', erc20Abi, signer);
-        await xUSDTContract.approve(PERMIT2_ADDRESS, ethers.constants.MaxUint256);
-      }
+      // Always approve the input token (the token being spent)
+      const inputTokenContract = new ethers.Contract(inputToken?.Address ?? '', erc20Abi, signer);
+      await inputTokenContract.approve(PERMIT2_ADDRESS, ethers.constants.MaxUint256);
       setTradeState(TradeState.REVIEW);
       setIsApproved(true);
     } catch (error) {
@@ -116,34 +106,6 @@ export function TokenSwapForm() {
       toast.error('Error approving max amount');
       setTradeState(TradeState.APPROVAL);
     }
-  };
-
-  const roundOutputAndAdjustInput = (values: SwapFormValues) => {
-    const inputAmount = Number(values.amount);
-    const outputAmount = Number(values.outputAmount);
-
-    if (inputAmount <= 0 || outputAmount <= 0) return values;
-
-    // Round output amount to whole number
-    const roundedOutputAmount = Math.floor(outputAmount);
-
-    if (roundedOutputAmount === 0) return values;
-
-    // Calculate the ratio of original amounts
-    const originalRatio = outputAmount / inputAmount;
-
-    // Calculate new input amount based on rounded output
-    const adjustedInputAmount = roundedOutputAmount / originalRatio;
-
-    // Update form values
-    form.setValue('outputAmount', roundedOutputAmount.toString());
-    form.setValue('amount', truncateToFixed(adjustedInputAmount, 6)); // Keep 6 decimal places for precision
-
-    return {
-      ...values,
-      amount: truncateToFixed(adjustedInputAmount, 6),
-      outputAmount: roundedOutputAmount.toString(),
-    };
   };
 
   const onSubmit = async (values: SwapFormValues) => {
@@ -206,26 +168,38 @@ export function TokenSwapForm() {
 
       if (tradeState === TradeState.REVIEW) {
         setTradeState(TradeState.PROCESSING);
+
+        // return console.log({
+        //   token: inputToken?.Address ?? '',
+        //   amount: values.amount,
+        //   output_amount: values.outputAmount,
+        //   input_decimals: inputToken?.Decimals ?? 0,
+        //   output_decimals: outputToken?.Decimals ?? 0,
+        //   output_token: outputToken?.Address ?? '',
+        //   slippage: slippage,
+        // });
         if (activeTab === TabState.BUY) {
+          // Buy: inputToken = USDC, outputToken = xAsset
           await submitSignature({
             user_address: address ?? '',
-            token: outputToken?.Address ?? '',
-            amount: values.outputAmount,
-            output_amount: values.amount,
-            input_decimals: outputToken?.Decimals ?? 0,
-            output_decimals: inputToken?.Decimals ?? 0,
-            output_token: inputToken?.Address ?? '',
+            token: inputToken?.Address ?? '', // USDC
+            amount: values.amount, // USDC amount
+            output_amount: values.outputAmount, // xAsset amount
+            input_decimals: inputToken?.Decimals ?? 0, // USDC decimals
+            output_decimals: outputToken?.Decimals ?? 0, // xAsset decimals
+            output_token: outputToken?.Address ?? '', // xAsset address
             slippage: slippage,
           });
         } else if (activeTab === TabState.SELL) {
+          // Sell: inputToken = xAsset, outputToken = USDC
           await submitSignature({
             user_address: address ?? '',
-            token: inputToken?.Address ?? '',
-            amount: values.amount,
-            output_amount: values.outputAmount,
-            input_decimals: inputToken?.Decimals ?? 0,
-            output_decimals: outputToken?.Decimals ?? 0,
-            output_token: outputToken?.Address ?? '',
+            token: inputToken?.Address ?? '', // xAsset
+            amount: values.amount, // xAsset amount
+            output_amount: values.outputAmount, // USDC amount
+            input_decimals: inputToken?.Decimals ?? 0, // xAsset decimals
+            output_decimals: outputToken?.Decimals ?? 0, // USDC decimals
+            output_token: outputToken?.Address ?? '', // USDC address
             slippage: slippage,
           });
         }
@@ -245,7 +219,7 @@ export function TokenSwapForm() {
     }
   };
 
-  const onError = (error: any) => {
+  const onError = () => {
     switch (tradeState) {
       case TradeState.SUCCESS:
         setTradeState(TradeState.INITIAL);

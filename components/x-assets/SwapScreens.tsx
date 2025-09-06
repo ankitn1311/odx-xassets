@@ -11,11 +11,11 @@ import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
 import { Loader } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Trade } from '@/utils/chain-client/query/type-trade';
+import { useQuoteTimer } from './QuoteTimerContext';
 
 export function SwapScreens() {
-  const { tradeState, quoteLoading, activeTab } = useTokenSwapStore();
-  const isBuy = activeTab === TabState.BUY;
+  const { tradeState, activeTab } = useTokenSwapStore();
+  const { isQuoteLoading, timeUntilNextQuote } = useQuoteTimer();
   const queryClient = useQueryClient();
 
   const {
@@ -29,12 +29,12 @@ export function SwapScreens() {
   const outputAmount = watch('outputAmount');
   const debouncedGetQuoteRef = useRef<ReturnType<typeof debounce> | null>(null);
   const { data: numericBalance, isRefetching: isTokenBalanceRefetching } = useTokenBalance(
-    isBuy ? (outputToken?.Address ?? '') : (inputToken?.Address ?? ''),
-    isBuy ? (outputToken?.Decimals ?? 18) : (inputToken?.Decimals ?? 18)
+    inputToken?.Address ?? '', // Always check inputToken balance (the token being spent)
+    inputToken?.Decimals ?? 18
   );
 
   const { getQuote } = useTradeQuote();
-  const amountToUse = isBuy ? outputAmount : amount;
+  const amountToUse = amount; // Always use the amount field (inputToken amount)
 
   useEffect(() => {
     // Initialize the debounced function
@@ -72,9 +72,6 @@ export function SwapScreens() {
   }, [getQuote, setValue]);
 
   const getButtonText = () => {
-    if (quoteLoading) {
-      return 'Fetching quote...';
-    }
     if (isTokenBalanceRefetching) {
       return 'Updating balance...';
     }
@@ -109,58 +106,60 @@ export function SwapScreens() {
   useEffect(() => {
     if (tradeState === TradeState.SUCCESS) {
       console.log('UPDATING BALANCE SUCCESS', tradeState);
-      // queryClient.invalidateQueries({
-      //   queryKey: ['token-balance', inputToken?.Address, inputToken?.Decimals],
-      // });
-      // queryClient.invalidateQueries({
-      //   queryKey: ['token-balance', outputToken?.Address, outputToken?.Decimals],
-      // });
+      // Invalidate both input and output token balances after successful trade
+      queryClient.invalidateQueries({
+        queryKey: ['token-balance', inputToken?.Address, inputToken?.Decimals],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['token-balance', outputToken?.Address, outputToken?.Decimals],
+      });
     }
-    // if (tradeState === TradeState.INITIAL) {
-    //   console.log('UPDATING BALANCE INITIAL', tradeState);
-    //   queryClient.invalidateQueries({
-    //     queryKey: ['token-balance', inputToken?.Address, inputToken?.Decimals],
-    //   });
-    //   queryClient.invalidateQueries({
-    //     queryKey: ['token-balance', outputToken?.Address, outputToken?.Decimals],
-    //   });
-    // }
-  }, [tradeState]);
+  }, [
+    tradeState,
+    inputToken?.Address,
+    inputToken?.Decimals,
+    outputToken?.Address,
+    outputToken?.Decimals,
+    queryClient,
+  ]);
 
   return (
     <>
       <SwapBody />
-      {tradeState === TradeState.SUCCESS ||
-      tradeState === TradeState.FAILED ||
-      tradeState === TradeState.PENDING ? (
-        <Button type="submit" size="lg" className="mt-4 w-full" disabled={isSubmitting}>
-          {tradeState === TradeState.SUCCESS || tradeState === TradeState.PENDING
-            ? 'Done'
-            : 'Try Again'}
-        </Button>
-      ) : (
-        <Button
-          type="submit"
-          size="lg"
-          className="mt-4 w-full"
-          disabled={
-            quoteLoading ||
-            isSubmitting ||
-            isInsufficientBalance ||
-            isInsufficientOutputAmount ||
-            !isValidAmount ||
-            isTokenBalanceRefetching ||
-            tradeState === TradeState.CHECKING_APPROVAL
-          }
-        >
-          <div className="flex items-center gap-2">
-            {tradeState === TradeState.PROCESSING && (
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {getButtonText()}
-          </div>
-        </Button>
-      )}
+      <div className="px-4">
+        {tradeState === TradeState.SUCCESS ||
+        tradeState === TradeState.FAILED ||
+        tradeState === TradeState.PENDING ? (
+          <Button type="submit" size="lg" className="mt-4 w-full" disabled={isSubmitting}>
+            {tradeState === TradeState.SUCCESS || tradeState === TradeState.PENDING
+              ? 'Done'
+              : 'Try Again'}
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-4 w-full"
+            disabled={
+              timeUntilNextQuote === 0 ||
+              isQuoteLoading ||
+              isSubmitting ||
+              isInsufficientBalance ||
+              isInsufficientOutputAmount ||
+              !isValidAmount ||
+              isTokenBalanceRefetching ||
+              tradeState === TradeState.CHECKING_APPROVAL
+            }
+          >
+            <div className="flex items-center gap-2">
+              {tradeState === TradeState.PROCESSING && (
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {getButtonText()}
+            </div>
+          </Button>
+        )}
+      </div>
     </>
   );
 }

@@ -90,15 +90,15 @@ export const getCurrentCosignerAddress = (): string => {
   return process.env.NEXT_PUBLIC_COSIGNER || '';
 };
 
-export const removeTrailingZeros = (value: string) => {
+export const removeTrailingZeros = (value: string, maxDecimals: number = 8) => {
+  if (value === '0') return '0';
   const numValue = Number(value);
 
-  return numValue.toFixed(8).replace(/\.?0+$/, '');
-};
+  // Truncate to maxDecimals without rounding
+  const multiplier = Math.pow(10, maxDecimals);
+  const truncated = Math.floor(numValue * multiplier) / multiplier;
 
-export const truncateToFixed = (num: number, decimals: number) => {
-  const factor = Math.pow(10, decimals);
-  return (Math.floor(num * factor) / factor).toFixed(decimals);
+  return truncated.toString().replace(/\.?0+$/, '');
 };
 
 export function getWeekNumber(date: Date): number {
