@@ -2,49 +2,36 @@ import { Card } from '@/components/ui/card';
 import { DataTable } from './data-table';
 import { exploreColumn } from './columns';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTokenSupply } from '@/hooks/queries/use-token-supply';
+import { useTokensSupply } from '@/hooks/queries/use-token-supply';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Image from 'next/image';
 import { removeTrailingZeros } from '@/lib/utils';
+import { ALL_V2_TOKEN_PAIRS } from '@/hooks/queries/use-all-tokens';
 
 const xTokenToToken = tokenConvert;
 
 export function ReservesTable() {
   const { allTokens } = useTokenSwapStore();
   const isMobile = useIsMobile();
+
+  // Use the batch hook to get all token supply data in one query
+  const { data: allSupplyData, isLoading: isSupplyLoading } = useTokensSupply();
+
+  // Find tokens by their names
   const solToken = allTokens.find(token => token.TokenB.Name === 'x2SOL');
   const xrpToken = allTokens.find(token => token.TokenB.Name === 'x2XRP');
   const adaToken = allTokens.find(token => token.TokenB.Name === 'x2ADA');
-  // const dogeToken = allTokens.find(token => token.TokenB.Name === 'x1DOGE');
-  // const pepeToken = allTokens.find(token => token.TokenB.Name === 'x1PEPE');
   const suiToken = allTokens.find(token => token.TokenB.Name === 'x2SUI');
 
-  const { data: tokenSupplyData, isLoading: isSupplyLoading } = useTokenSupply(
-    solToken?.TokenA,
-    solToken?.TokenB
-  );
-  const { data: xrpTokenSupplyData, isLoading: isXrpSupplyLoading } = useTokenSupply(
-    xrpToken?.TokenA,
-    xrpToken?.TokenB
-  );
-  const { data: adaTokenSupplyData, isLoading: isAdaSupplyLoading } = useTokenSupply(
-    adaToken?.TokenA,
-    adaToken?.TokenB
-  );
-  // const { data: dogeTokenSupplyData, isLoading: isDogeSupplyLoading } = useTokenSupply(
-  //   dogeToken?.TokenA,
-  //   dogeToken?.TokenB
-  // );
-  // const { data: pepeTokenSupplyData, isLoading: isPepeSupplyLoading } = useTokenSupply(
-  //   pepeToken?.TokenA,
-  //   pepeToken?.TokenB
-  // );
-  const { data: suiTokenSupplyData, isLoading: isSuiSupplyLoading } = useTokenSupply(
-    suiToken?.TokenA,
-    suiToken?.TokenB
-  );
+  console.log('ALL SUPPLY DATA', allSupplyData);
+
+  // Get supply data for each token from the batch result
+  const xrpTokenSupplyData = allSupplyData?.[0]; // x2XRP is first in ALL_V2_TOKEN_PAIRS
+  const tokenSupplyData = allSupplyData?.[1]; // x2SOL is second
+  const adaTokenSupplyData = allSupplyData?.[2]; // x2ADA is third
+  const suiTokenSupplyData = allSupplyData?.[3]; // x2SUI is fourth
 
   const tableData = solToken
     ? [
@@ -129,14 +116,7 @@ export function ReservesTable() {
       ]
     : [];
 
-  if (
-    isSupplyLoading ||
-    isXrpSupplyLoading ||
-    isAdaSupplyLoading ||
-    // isDogeSupplyLoading ||
-    // isPepeSupplyLoading ||
-    isSuiSupplyLoading
-  ) {
+  if (isSupplyLoading) {
     if (isMobile) {
       // Mobile skeleton: match new card layout
       return (
