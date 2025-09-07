@@ -9,12 +9,45 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
+import { MarketsPageSkeleton } from '@/components/skeletons/markets-page-skeleton';
 
-// Dynamic imports with Next.js
+// Dynamic imports with Next.js - using content-aware skeletons
 const DataTable = dynamic(
   () => import('../x-assets/data-table').then(mod => ({ default: mod.DataTable })),
   {
-    loading: () => <Skeleton className="h-96 w-full" />,
+    loading: () => (
+      <div className="space-y-4">
+        {/* Table Header */}
+        <div className="grid grid-cols-5 gap-4 px-4">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+        {/* Table Rows */}
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="grid grid-cols-5 gap-4 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <div className="flex flex-col gap-1">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-3 w-12" />
+              </div>
+            </div>
+            <div className="flex items-center justify-center">
+              <Skeleton className="h-6 w-16" />
+            </div>
+            <Skeleton className="h-4 w-20" />
+            <div className="flex items-center gap-1">
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-3 w-3" />
+            </div>
+            <Skeleton className="h-8 w-16" />
+          </div>
+        ))}
+      </div>
+    ),
     ssr: false,
   }
 );
@@ -38,7 +71,23 @@ const PriceChangeDisplay = dynamic(
 const AnalyticsCard = dynamic(
   () => import('./analytics-card').then(mod => ({ default: mod.AnalyticsCard })),
   {
-    loading: () => <Skeleton className="h-32 w-full" />,
+    loading: () => (
+      <Card className="p-4">
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-6 w-32" />
+          <div className="flex">
+            <div className="flex flex-1 flex-col gap-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-8 w-24" />
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-28" />
+            </div>
+          </div>
+        </div>
+      </Card>
+    ),
     ssr: false,
   }
 );

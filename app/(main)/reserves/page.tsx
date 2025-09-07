@@ -5,12 +5,40 @@ import { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { convertXUSDT } from '@/lib/utils';
+import { ReservesPageSkeleton } from '@/components/skeletons/reserves-page-skeleton';
 
-// Dynamic imports with Next.js
+// Dynamic imports with Next.js - using content-aware skeletons
 const ReservesTable = dynamic(
   () => import('./reservers-table').then(mod => ({ default: mod.ReservesTable })),
   {
-    loading: () => <Skeleton className="h-96 w-full" />,
+    loading: () => (
+      <Card className="p-4">
+        <div className="space-y-4">
+          <div className="grid grid-cols-5 gap-4">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-5 gap-4 border-b py-3 last:border-b-0">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
+      </Card>
+    ),
     ssr: false,
   }
 );
