@@ -1,12 +1,35 @@
 'use client';
-import { TokenSwapCard } from '@/components/x-assets/TokenSwapCard';
+import dynamic from 'next/dynamic';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-
-import { ReservesTable } from './reservers-table';
-import { PoolCard } from '@/app/components/x-assets/PoolCard';
+import { Skeleton } from '@/components/ui/skeleton';
 import { convertXUSDT } from '@/lib/utils';
+
+// Dynamic imports with Next.js
+const ReservesTable = dynamic(
+  () => import('./reservers-table').then(mod => ({ default: mod.ReservesTable })),
+  {
+    loading: () => <Skeleton className="h-96 w-full" />,
+    ssr: false,
+  }
+);
+
+const PoolCard = dynamic(
+  () => import('@/app/components/x-assets/PoolCard').then(mod => ({ default: mod.PoolCard })),
+  {
+    loading: () => <Skeleton className="h-32 w-full" />,
+    ssr: false,
+  }
+);
+
+const TokenSwapCard = dynamic(
+  () => import('@/components/x-assets/TokenSwapCard').then(mod => ({ default: mod.TokenSwapCard })),
+  {
+    loading: () => <Skeleton className="h-64 w-full" />,
+    ssr: false,
+  }
+);
 
 export default function XAssets() {
   const { setNumericBalance, allTokens } = useTokenSwapStore();

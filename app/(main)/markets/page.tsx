@@ -1,16 +1,47 @@
 'use client';
+import dynamic from 'next/dynamic';
 import { Card } from '@/components/ui/card';
-import { DataTable } from '../x-assets/data-table';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useMemo } from 'react';
 import { useMarketsColumns } from './markets-columns';
 import { useRouter } from 'nextjs-toploader/app';
 import { Button } from '@/components/ui/button';
-import { PriceDisplay } from './price-display';
-import { PriceChangeDisplay } from './price-change-display';
-import Image from 'next/image';
-import { AnalyticsCard } from './analytics-card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
+import Image from 'next/image';
+
+// Dynamic imports with Next.js
+const DataTable = dynamic(
+  () => import('../x-assets/data-table').then(mod => ({ default: mod.DataTable })),
+  {
+    loading: () => <Skeleton className="h-96 w-full" />,
+    ssr: false,
+  }
+);
+
+const PriceDisplay = dynamic(
+  () => import('./price-display').then(mod => ({ default: mod.PriceDisplay })),
+  {
+    loading: () => <Skeleton className="h-4 w-16" />,
+    ssr: false,
+  }
+);
+
+const PriceChangeDisplay = dynamic(
+  () => import('./price-change-display').then(mod => ({ default: mod.PriceChangeDisplay })),
+  {
+    loading: () => <Skeleton className="h-3 w-12" />,
+    ssr: false,
+  }
+);
+
+const AnalyticsCard = dynamic(
+  () => import('./analytics-card').then(mod => ({ default: mod.AnalyticsCard })),
+  {
+    loading: () => <Skeleton className="h-32 w-full" />,
+    ssr: false,
+  }
+);
 
 export default function MarketsPage() {
   const { allTokens = [] } = useTokenSwapStore();
@@ -82,7 +113,7 @@ export default function MarketsPage() {
         )}
       </div>
       <Card className="hidden py-4 md:block">
-        <DataTable columns={columns} data={tableData} />
+        <DataTable columns={columns as any} data={tableData} />
       </Card>
     </div>
   );

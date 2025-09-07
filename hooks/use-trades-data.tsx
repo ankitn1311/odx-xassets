@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { TradeData } from '@/providers/trades-provider';
 import axios from 'axios';
-import { useAccount } from 'wagmi';
 import { SwapperData } from './queries/use-wallet-profile';
 import { getCurrentBaseUrl } from '@/lib/utils';
 
@@ -28,10 +27,12 @@ export const useTradesData = (
   return useQuery<TradeData[]>({
     queryKey: ['trades', type, address],
     queryFn: () => getTradesData(type, address),
-    // staleTime: 0, // Always consider data stale to get real-time updates
-    staleTime: Infinity,
+    staleTime: 1000 * 60 * 2, // 2 minutes cache
+    gcTime: 1000 * 60 * 5, // 5 minutes in memory (renamed from cacheTime)
     refetchInterval: false, // Don't refetch automatically
-    // enabled: !!address,
-    refetchOnMount: 'always',
+    enabled: !!address && address !== '0x0000000000000000000000000000000000000000',
+    refetchOnMount: false, // Don't refetch on mount since we have WebSocket updates
+    retry: 1, // Retry once on failure
+    retryDelay: 2000, // 2 second delay
   });
 };

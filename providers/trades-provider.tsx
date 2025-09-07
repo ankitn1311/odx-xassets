@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useAccount } from 'wagmi';
 import { getCurrentWebSocketUrl } from '@/lib/utils';
+import { debounce } from 'lodash';
 
 export interface TradeData {
   quantity: string;
@@ -51,6 +52,7 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
   const queryClient = useQueryClient();
   const connectionIdRef = useRef<string>(crypto.randomUUID());
   const tradesRef = useRef<TradeData[]>([]);
+  const pendingTradesRef = useRef<TradeData[]>([]);
   const webSocketUrl = getCurrentWebSocketUrl();
 
   // WebSocket configuration
@@ -81,6 +83,38 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
     }
   );
 
+  // Batched update function to reduce re-renders
+  const batchUpdateTrades = useMemo(
+    () =>
+      debounce((trades: TradeData[]) => {
+        if (trades.length === 0) return;
+
+        // Update local ref
+        tradesRef.current = [...trades, ...tradesRef.current].slice(0, 100); // Keep only last 100 trades
+
+        // Separate user and explorer trades
+        const userTrades = trades.filter(trade => trade.swapper === address);
+        const allTrades = trades;
+
+        // Batch update React Query cache
+        if (userTrades.length > 0) {
+          queryClient.setQueryData(['trades', 'user'], (oldData: TradeData[] = []) => {
+            const newData = [...userTrades, ...oldData];
+            return newData.slice(0, 100); // Keep only last 100 trades
+          });
+        }
+
+        queryClient.setQueryData(['trades', 'explorer'], (oldData: TradeData[] = []) => {
+          const newData = [...allTrades, ...oldData];
+          return newData.slice(0, 100); // Keep only last 100 trades
+        });
+
+        // Clear pending trades
+        pendingTradesRef.current = [];
+      }, 100), // Batch updates every 100ms
+    [queryClient, address]
+  );
+
   // Handle incoming messages
   const handleMessage = useCallback(
     (message: WebSocketMessage) => {
@@ -98,25 +132,13 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
         orderId: message.orderId,
       };
 
-      // Add to local ref for immediate access
-      tradesRef.current = [trade, ...tradesRef.current.slice(0, 999)]; // Keep last 1000 trades
+      // Add to pending trades for batching
+      pendingTradesRef.current.push(trade);
 
-      const userAddress = trade.swapper;
-
-      if (userAddress === address) {
-        queryClient.setQueryData(['trades', 'user'], (oldData: TradeData[] = []) => {
-          const newData = [trade, ...oldData];
-          return newData.slice(0, 1000); // Keep last 1000 trades
-        });
-      }
-
-      // Update React Query cache
-      queryClient.setQueryData(['trades', 'explorer'], (oldData: TradeData[] = []) => {
-        const newData = [trade, ...oldData];
-        return newData.slice(0, 1000); // Keep last 1000 trades
-      });
+      // Trigger batched update
+      batchUpdateTrades([...pendingTradesRef.current]);
     },
-    [queryClient, address]
+    [batchUpdateTrades]
   );
 
   useEffect(() => {
@@ -132,6 +154,13 @@ export const TradesProvider: React.FC<TradesProviderProps> = ({ children }) => {
       }
     }
   }, [lastJsonMessage, handleMessage]);
+
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      batchUpdateTrades.cancel();
+    };
+  }, [batchUpdateTrades]);
 
   const value = useMemo(
     () => ({

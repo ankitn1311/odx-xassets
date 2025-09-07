@@ -20,7 +20,7 @@ const tokenConvert = {
   x2BTC: 'BTC',
 };
 
-const getTokenSupply = async (tokenAddress: string | undefined, decimals: number, wallet: any) => {
+const getTokenSupply = async (tokenAddress: string | undefined, decimals: number) => {
   if (!tokenAddress) return '0';
 
   try {
@@ -75,7 +75,7 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
           totalSupplyUSD: '0',
         };
       }
-      const supply = await getTokenSupply(outputToken.V1Address, outputToken.Decimals, wallet);
+      const supply = await getTokenSupply(outputToken.V1Address, outputToken.Decimals);
 
       if (outputToken.V1Address) {
         try {
@@ -112,7 +112,7 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
   });
 };
 
-// New hook: fetch supply data for all tokens in a single query
+// Optimized hook: fetch supply data for all tokens with better caching and error handling
 export const useTokensSupply = () => {
   const { data: wallet } = useWalletClient();
 
@@ -126,46 +126,56 @@ export const useTokensSupply = () => {
         }));
       }
 
-      // Process all token pairs in parallel
-      const results = await Promise.all(
+      // Process all token pairs in parallel with better error handling
+      const results = await Promise.allSettled(
         ALL_V2_TOKEN_PAIRS.map(async pair => {
-          const supply = await getTokenSupply(pair.TokenB.V1Address, pair.TokenB.Decimals, wallet);
+          try {
+            const supply = await getTokenSupply(pair.TokenB.V1Address, pair.TokenB.Decimals);
 
-          if (pair.TokenB.V1Address) {
-            try {
-              // Use the full xAsset name directly (e.g., x2SOL)
-              const tokenPrice = await getTokenPrice(pair.TokenB.Name);
+            if (pair.TokenB.V1Address) {
+              try {
+                // Use the full xAsset name directly (e.g., x2SOL)
+                const tokenPrice = await getTokenPrice(pair.TokenB.Name);
 
-              // Calculate total value: supply * price
-              const totalSupplyInUSD = (tokenPrice * parseFloat(supply)).toFixed(2);
+                // Calculate total value: supply * price
+                const totalSupplyInUSD = (tokenPrice * parseFloat(supply)).toFixed(2);
 
-              console.log(
-                `${pair.TokenB.Name}: Supply=${supply}, Token=${pair.TokenB.Name}, Price=$${tokenPrice}, Total=$${totalSupplyInUSD}`
-              );
-
-              return {
-                totalSupply: supply,
-                totalSupplyUSD: totalSupplyInUSD,
-              };
-            } catch (error) {
-              console.error('Error getting price for', pair.TokenB.Name, error);
-              return {
-                totalSupply: supply,
-                totalSupplyUSD: '0',
-              };
+                return {
+                  totalSupply: supply,
+                  totalSupplyUSD: totalSupplyInUSD,
+                };
+              } catch (error) {
+                console.error('Error getting price for', pair.TokenB.Name, error);
+                return {
+                  totalSupply: supply,
+                  totalSupplyUSD: '0',
+                };
+              }
             }
-          }
 
-          return {
-            totalSupply: supply,
-            totalSupplyUSD: '0',
-          };
+            return {
+              totalSupply: supply,
+              totalSupplyUSD: '0',
+            };
+          } catch (error) {
+            console.error('Error getting supply for', pair.TokenB.Name, error);
+            return {
+              totalSupply: '0',
+              totalSupplyUSD: '0',
+            };
+          }
         })
       );
 
-      return results;
+      // Extract successful results, fallback to default for failed ones
+      return results.map(result =>
+        result.status === 'fulfilled' ? result.value : { totalSupply: '0', totalSupplyUSD: '0' }
+      );
     },
     enabled: !!wallet?.account.address,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    gcTime: 1000 * 60 * 10, // 10 minutes in memory (renamed from cacheTime)
+    retry: 2, // Retry failed requests twice
+    retryDelay: 1000, // 1 second delay between retries
   });
 };
