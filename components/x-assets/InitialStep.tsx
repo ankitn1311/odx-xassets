@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { Button as MovingButton } from '../ui/moving-border';
 import Image from 'next/image';
 import { TradeState, useTokenSwapStore, TabState } from '@/stores/token-swap-store';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { debounce } from 'lodash';
 import { useTradeQuote } from '@/hooks/mutations/use-trade-quote';
@@ -38,7 +38,7 @@ export function InitialStep() {
   const { getQuote } = useTradeQuote();
   const inputAmount = watch('amount');
 
-  // Helper function to restart the timer
+  // Memoize the restart timer function to prevent unnecessary re-renders
   const restartTimer = useCallback(() => {
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
@@ -62,9 +62,9 @@ export function InitialStep() {
     }, 1000);
   }, [inputToken, outputToken, inputAmount, isBuy, setTimeUntilNextQuote]);
 
-  useEffect(() => {
-    // Initialize the debounced function
-    debouncedGetQuoteRef.current = debounce(
+  // Memoize the debounced function to prevent recreation on every render
+  const debouncedGetQuote = useMemo(() => {
+    return debounce(
       async (
         inputToken: TokenInfo,
         outputToken: TokenInfo,
@@ -105,6 +105,11 @@ export function InitialStep() {
       },
       500
     );
+  }, [getQuote, setValue, setIsQuoteLoading, setTimeUntilNextQuote, restartTimer]);
+
+  // Update the ref when the memoized function changes
+  useEffect(() => {
+    debouncedGetQuoteRef.current = debouncedGetQuote;
 
     // Cleanup function
     return () => {
@@ -112,10 +117,16 @@ export function InitialStep() {
         debouncedGetQuoteRef.current.cancel();
       }
     };
-  }, [getQuote, setValue, setIsQuoteLoading, setTimeUntilNextQuote, restartTimer]);
+  }, [debouncedGetQuote]);
 
-  // Add polling effect
+  // Optimized polling effect with proper cleanup
   useEffect(() => {
+    // Clear any existing timer on mount or dependency change
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+
     if (inputAmount === '0' || inputAmount === '' || !inputAmount) {
       setValue('outputAmount', '');
       setValue('amount', inputAmount === '0' ? '0' : '');
@@ -126,11 +137,6 @@ export function InitialStep() {
     }
 
     if (inputAmount && inputToken && outputToken) {
-      // Clear any existing timer interval
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-
       // Reset timer and start the interval
       setTimeUntilNextQuote(POLLING_INTERVAL / 1000);
       restartTimer();
@@ -140,6 +146,7 @@ export function InitialStep() {
     return () => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
       }
     };
   }, [
@@ -147,18 +154,25 @@ export function InitialStep() {
     inputToken,
     outputToken,
     setValue,
-    isBuy,
     setTimeUntilNextQuote,
     setIsQuoteLoading,
     restartTimer,
   ]);
 
+  // Optimized effect for triggering quotes
   useEffect(() => {
-    if (inputToken && outputToken && debouncedGetQuoteRef.current && inputAmount) {
+    if (
+      inputToken &&
+      outputToken &&
+      debouncedGetQuoteRef.current &&
+      inputAmount &&
+      inputAmount !== '0'
+    ) {
       debouncedGetQuoteRef.current(inputToken, outputToken, inputAmount, isBuy);
     }
-  }, [isBuy, inputToken, outputToken, inputAmount, debouncedGetQuoteRef]);
+  }, [isBuy, inputToken, outputToken, inputAmount]);
 
+  // Memoized amount change handler
   const handleAmountChange = useCallback(
     async (value: string) => {
       if (!value) {

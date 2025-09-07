@@ -1,12 +1,63 @@
 'use client';
-import { TokenSwapCard } from '@/components/x-assets/TokenSwapCard';
+import dynamic from 'next/dynamic';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-
-import { ReservesTable } from './reservers-table';
-import { PoolCard } from '@/app/components/x-assets/PoolCard';
+import { Skeleton } from '@/components/ui/skeleton';
 import { convertXUSDT } from '@/lib/utils';
+import { ReservesPageSkeleton } from '@/components/skeletons/reserves-page-skeleton';
+
+// Dynamic imports with Next.js - using content-aware skeletons
+const ReservesTable = dynamic(
+  () => import('./reservers-table').then(mod => ({ default: mod.ReservesTable })),
+  {
+    loading: () => (
+      <Card className="p-4">
+        <div className="space-y-4">
+          <div className="grid grid-cols-5 gap-4">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-5 gap-4 border-b py-3 last:border-b-0">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
+      </Card>
+    ),
+    ssr: false,
+  }
+);
+
+const PoolCard = dynamic(
+  () => import('@/app/components/x-assets/PoolCard').then(mod => ({ default: mod.PoolCard })),
+  {
+    loading: () => <Skeleton className="h-32 w-full" />,
+    ssr: false,
+  }
+);
+
+const TokenSwapCard = dynamic(
+  () => import('@/components/x-assets/TokenSwapCard').then(mod => ({ default: mod.TokenSwapCard })),
+  {
+    loading: () => <Skeleton className="h-64 w-full" />,
+    ssr: false,
+  }
+);
 
 export default function XAssets() {
   const { setNumericBalance, allTokens } = useTokenSwapStore();
