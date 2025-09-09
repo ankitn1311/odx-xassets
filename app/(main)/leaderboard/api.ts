@@ -37,24 +37,12 @@ export async function fetchWeeklyLeaderboardPage({
   const startRank = (page - 1) * pageSize + 1;
   const limit = pageSize;
 
-  const response = await axios.get(`${getCurrentBaseUrl()}/weekly-rankings`, {
+  const response = await axios.get(`${getCurrentBaseUrl()}/rankings/weekly`, {
     params: {
       limit,
       startRank,
     },
   });
 
-  const weeklyLeaderboard = response.data.leaderboard.map((item: any) => {
-    return {
-      ...item,
-      totalPoints: item.total_points,
-      rank: item.rank,
-      address: item.wallet_address,
-    };
-  });
-
-  return {
-    leaderboard: weeklyLeaderboard,
-    count: response.data.count,
-  };
+  return response.data;
 }

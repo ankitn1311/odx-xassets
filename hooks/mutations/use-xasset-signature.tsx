@@ -92,10 +92,13 @@ interface OrderStatusResponse {
   cmltvFees: string;
 }
 
+const TESTNET_CHAIN_ID = 57054;
+
 export const useXAssetSignature = () => {
   const { data: wallet, isError, error } = useWalletClient();
-  const { address } = useAccount();
+  const { address, chainId } = useAccount();
   const queryClient = useQueryClient();
+  const isTestnet = chainId === TESTNET_CHAIN_ID;
   const { setTradeState, setLatestTradeHash, setIsBalanceUpdating } = useTokenSwapStore();
   const [, copyToClipboard] = useCopyToClipboard();
 
@@ -132,11 +135,23 @@ export const useXAssetSignature = () => {
       if (newInputBalance !== initialInputBalance && newOutputBalance !== initialOutputBalance) {
         // Update the query cache with new balances
         queryClient.setQueryData(
-          ['token-balance', data.token, data.input_decimals],
+          [
+            'token-balance',
+            data.token,
+            data.input_decimals,
+            address,
+            isTestnet ? 'testnet' : 'mainnet',
+          ],
           newInputBalance
         );
         queryClient.setQueryData(
-          ['token-balance', data.output_token, data.output_decimals],
+          [
+            'token-balance',
+            data.output_token,
+            data.output_decimals,
+            address,
+            isTestnet ? 'testnet' : 'mainnet',
+          ],
           newOutputBalance
         );
 
