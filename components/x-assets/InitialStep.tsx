@@ -200,7 +200,7 @@ export function InitialStep() {
       }
 
       if (inputToken && outputToken && debouncedGetQuoteRef.current) {
-        debouncedGetQuoteRef.current(inputToken, outputToken, numValue.toString(), isBuy);
+        debouncedGetQuoteRef.current(inputToken, outputToken, formattedValue, isBuy);
       }
     },
     [inputToken, outputToken, setValue, isBuy]

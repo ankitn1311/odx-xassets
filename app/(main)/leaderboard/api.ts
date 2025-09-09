@@ -1,4 +1,4 @@
-import { getCurrentBaseUrl, getWeekId } from '@/lib/utils';
+import { getCurrentBaseUrl } from '@/lib/utils';
 import { LeaderboardEntry } from './columns';
 import axios from 'axios';
 
@@ -44,8 +44,5 @@ export async function fetchWeeklyLeaderboardPage({
     },
   });
 
-  return {
-    leaderboard: response.data,
-    count: response.data.count,
-  };
+  return response.data;
 }
