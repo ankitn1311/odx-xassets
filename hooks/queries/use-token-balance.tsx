@@ -59,7 +59,7 @@ export const useTokenBalance = (address: string, decimals: number = 18) => {
   const queryEnabled = isTestnet ? !!wallet && !!address : !!userAddress && !!address;
 
   const { data, isLoading, isRefetching } = useQuery({
-    queryKey: ['token-balance', address, decimals],
+    queryKey: ['token-balance', address, decimals, userAddress, isTestnet ? 'testnet' : 'mainnet'],
     queryFn: () =>
       isTestnet
         ? getBalance(wallet, address, decimals)
