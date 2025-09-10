@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import { erc20Abi } from 'viem';
-import { useWalletClient } from 'wagmi';
-import { TokenInfo, ALL_V2_TOKEN_PAIRS } from './use-all-tokens';
+import { TokenInfo, useAllTokens } from './use-all-tokens';
 import { SONIC_RPC_URL } from '@/utils/chain-client/common/provider';
 import axios from 'axios';
 import { getCurrentBaseUrl } from '@/lib/utils';
@@ -59,15 +58,8 @@ const getTokenPrice = async (tokenSymbol: string) => {
 // Input Token - USDC
 // Output Token - x1SOL | x1PEPE | x1SUI | x1DOGE | x1ADA | x1XRP | x1BTC etc
 export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) => {
-  const { data: wallet } = useWalletClient();
-
   return useQuery({
-    queryKey: [
-      'token-supply',
-      inputToken?.Address,
-      outputToken?.V1Address,
-      wallet?.account.address,
-    ],
+    queryKey: ['token-supply', inputToken?.Address, outputToken?.V1Address],
     queryFn: async () => {
       if (!inputToken || !outputToken) {
         return {
@@ -114,21 +106,14 @@ export const useTokenSupply = (inputToken?: TokenInfo, outputToken?: TokenInfo) 
 
 // Optimized hook: fetch supply data for all tokens with better caching and error handling
 export const useTokensSupply = () => {
-  const { data: wallet } = useWalletClient();
+  const { data: allTokens } = useAllTokens();
 
   return useQuery({
-    queryKey: ['tokens-supply', wallet?.account.address],
+    queryKey: ['tokens-supply'],
     queryFn: async () => {
-      if (!wallet?.account.address) {
-        return ALL_V2_TOKEN_PAIRS.map(() => ({
-          totalSupply: '0',
-          totalSupplyUSD: '0',
-        }));
-      }
-
       // Process all token pairs in parallel with better error handling
       const results = await Promise.allSettled(
-        ALL_V2_TOKEN_PAIRS.map(async pair => {
+        allTokens?.map(async pair => {
           try {
             const supply = await getTokenSupply(pair.TokenB.V1Address, pair.TokenB.Decimals);
 
@@ -172,7 +157,7 @@ export const useTokensSupply = () => {
         result.status === 'fulfilled' ? result.value : { totalSupply: '0', totalSupplyUSD: '0' }
       );
     },
-    enabled: !!wallet?.account.address,
+    // enabled: !!wallet?.account.address,
     staleTime: 1000 * 60 * 5, // 5 minutes cache
     gcTime: 1000 * 60 * 10, // 10 minutes in memory (renamed from cacheTime)
     retry: 2, // Retry failed requests twice

@@ -17,6 +17,7 @@ import { useAppStore } from '@/stores/app-store';
 import { Separator } from '../ui/separator';
 import { ArrowUpDown } from 'lucide-react';
 import { useQuoteTimer } from './QuoteTimerContext';
+// import { sortWeeklyRank36ByW36Rank } from '@/utils/weekly-rank-36';
 
 const MAX_DECIMALS = 8;
 const POLLING_INTERVAL = 10000; // 10 seconds
@@ -215,6 +216,9 @@ export function InitialStep() {
       // This will be handled by the TokenSwapCard useEffect
     }
   }, [activeTab, setActiveTab, tradeState]);
+  // useEffect(() => {
+  //   console.log(sortWeeklyRank36ByW36Rank());
+  // }, []);
 
   return (
     <>
