@@ -1,8 +1,11 @@
+import axios from 'axios';
+
 // Function to sort weeklyRank36 by 2025_W36_rank
-export const sortWeeklyRank36ByW36Rank = (ascending: boolean = true) => {
-  return [...weeklyRank36].sort((a, b) => {
-    const aRank = a['2025_W36_rank'];
-    const bRank = b['2025_W36_rank'];
+export const sortWeeklyRanks = async (week: number, ascending: boolean = true) => {
+  const weeklyRanks = await fetchWeeklyRanks(week);
+  return [...weeklyRanks].sort((a, b) => {
+    const aRank = a[`2025_W${week}_rank`];
+    const bRank = b[`2025_W${week}_rank`];
 
     if (ascending) {
       return aRank - bRank;
@@ -12,14 +15,21 @@ export const sortWeeklyRank36ByW36Rank = (ascending: boolean = true) => {
   });
 };
 
-// Function to generate CSV format with address and 2025_W36_rank
-export const getWeeklyRank36CSV = (ascending: boolean = true) => {
-  const sortedData = sortWeeklyRank36ByW36Rank(ascending);
+// // Function to generate CSV format with address and 2025_W36_rank
+// export const getWeeklyRanksCSV = (ascending: boolean = true) => {
+//   const sortedData = sortWeeklyRanks(ascending);
 
-  const csvHeader = 'address,2025_W36_rank';
-  const csvRows = sortedData.map(item => `${item.address},${item['2025_W36_rank']}`);
+//   const csvHeader = 'address,2025_W36_rank';
+//   const csvRows = sortedData.map(item => `${item.address},${item['2025_W36_rank']}`);
 
-  return [csvHeader, ...csvRows].join('\n');
+//   return [csvHeader, ...csvRows].join('\n');
+// };
+
+const fetchWeeklyRanks = async (weekNumber: number) => {
+  const response = await axios.get(
+    `https://ashwin-ap-northeast-1.odxtradeservice.api.devo.backend.odx.so/rankings/weekly?weekId=2025_W${weekNumber}&secret=INTERNALUSEONLY`
+  );
+  return response.data;
 };
 
 export const weeklyRank36 = [
