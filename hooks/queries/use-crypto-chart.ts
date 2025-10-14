@@ -9,6 +9,7 @@ const TOKEN_SYMBOL_MAP: Record<string, string> = {
   x2DOGE: 'DOGE_USD',
   x2PEPE: 'PEPE_USD',
   x2SUI: 'SUI_USD',
+  x2ETH: 'ETH_USD',
   // Add more mappings as needed
 };
 
