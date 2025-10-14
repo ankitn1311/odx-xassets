@@ -63,10 +63,9 @@ const PENDING_STATES = [
   'CUSTODY_VERIFIER_START',
   'CUSTODY_VERIFIER_SUCCESS',
   'PROCESSING',
-  'PROCESSED',
 ] as const;
 
-const SUCCESS_STATES = ['POINTS_AWARDED'] as const;
+const SUCCESS_STATES = ['POINTS_AWARDED', 'PROCESSED'] as const;
 
 type SuccessStatus = (typeof SUCCESS_STATES)[number];
 type ErrorStatus = (typeof ERROR_STATES)[number];
@@ -603,6 +602,7 @@ export const useXAssetSignature = () => {
       const txHash = orderStatus.txHash;
 
       if (SUCCESS_STATES.includes(orderStatus.status as SuccessStatus)) {
+        console.log('TRADE STATUS: ', orderStatus.status);
         if (orderStatus.errorMessage) {
           setTradeState(TradeState.FAILED);
           throw new Error(`FAILED_${orderStatus.executionName}`);
@@ -630,6 +630,7 @@ export const useXAssetSignature = () => {
         // Start updating balances after successful transaction
         updateBalancesAfterTransaction(data, initialInputBalance, initialOutputBalance);
       } else if (ERROR_STATES.includes(orderStatus.status as ErrorStatus)) {
+        console.log('TRADE STATUS: ', orderStatus.status);
         if (
           orderStatus.status === 'VALIDATION_FAILED' &&
           orderStatus.errorMessage &&
@@ -657,6 +658,7 @@ export const useXAssetSignature = () => {
         setTradeState(TradeState.FAILED);
         throw new Error(`FAILED_${orderStatus.executionName}`);
       } else if (PENDING_STATES.includes(orderStatus.status as PendingStatus)) {
+        console.log('TRADE STATUS: ', orderStatus.status);
         toast.info('Transaction pending', {
           description: txHash ? (
             <a href={`https://sonicscan.org/tx/${txHash}`} target="_blank">

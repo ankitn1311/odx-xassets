@@ -228,9 +228,9 @@ export function InitialStep() {
   //         [`${week}_points`]: rank[`2025_W${week}`],
   //       };
   //     });
-  //     console.log('RANKS MAPS', ranksMaps);
+  //     console.log('RANKS MAPS', week, ranksMaps);
   //   };
-  //   getRank(37);
+  //   getRank(40);
   // }, []);
 
   return (
