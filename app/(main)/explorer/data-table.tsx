@@ -132,6 +132,10 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
     );
   }
 
+  if (!address) {
+    return null;
+  }
+
   return (
     <>
       <Card className="hidden py-4 md:block">
