@@ -89,6 +89,24 @@ export const ALL_V2_TOKEN_PAIRS = [
     },
     Name: 'USDC/x2SUI',
   },
+  {
+    TokenA: {
+      Name: 'USDC',
+      FullName: 'USDC',
+      Address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+      Decimals: 6,
+    },
+    TokenB: {
+      Name: 'x2ETH',
+      V1Name: 'x1ETH',
+      FullName: 'x2ETH',
+      Address: '0xf5FC32390c371AA29250CE16dec397CA48B5Bfe7',
+      V1Address: '0xf5FC32390c371AA29250CE16dec397CA48B5Bfe7',
+      Decimals: 18,
+      QtyTickSize: 0.0001,
+    },
+    Name: 'USDC/x2ETH',
+  },
 ];
 
 export const useAllTokens = () => {

@@ -17,6 +17,7 @@ const tokenConvert = {
   x2DOGE: 'DOGE',
   x2PEPE: 'PEPE',
   x2BTC: 'BTC',
+  x2ETH: 'ETH',
 };
 
 const getTokenSupply = async (tokenAddress: string | undefined, decimals: number) => {

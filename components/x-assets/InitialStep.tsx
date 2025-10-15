@@ -17,6 +17,7 @@ import { useAppStore } from '@/stores/app-store';
 import { Separator } from '../ui/separator';
 import { ArrowUpDown } from 'lucide-react';
 import { useQuoteTimer } from './QuoteTimerContext';
+import { sortWeeklyRanks } from '@/utils/weekly-rank-36';
 // import { sortWeeklyRank36ByW36Rank } from '@/utils/weekly-rank-36';
 
 const MAX_DECIMALS = 8;
@@ -216,8 +217,20 @@ export function InitialStep() {
       // This will be handled by the TokenSwapCard useEffect
     }
   }, [activeTab, setActiveTab, tradeState]);
+
   // useEffect(() => {
-  //   console.log(sortWeeklyRank36ByW36Rank());
+  //   const getRank = async (week: number) => {
+  //     const ranks = await sortWeeklyRanks(week);
+  //     const ranksMaps = ranks.map(rank => {
+  //       return {
+  //         address: rank.address,
+  //         [`${week}_rank`]: rank[`2025_W${week}_rank`],
+  //         [`${week}_points`]: rank[`2025_W${week}`],
+  //       };
+  //     });
+  //     console.log('RANKS MAPS', week, ranksMaps);
+  //   };
+  //   getRank(40);
   // }, []);
 
   return (

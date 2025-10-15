@@ -119,9 +119,9 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
         </Card>
 
         <Card className="py-4 md:hidden">
-          <div className="px-4 pb-4">
+          {/* <div className="px-4 pb-4">
             <h2 className="text-lg font-semibold">Live Trades</h2>
-          </div>
+          </div> */}
           <div className="space-y-6 px-4">
             {Array.from({ length: Math.min(10, pageSize) }).map((_, index) => (
               <MobileSkeletonRow key={index} />
@@ -130,6 +130,10 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
         </Card>
       </>
     );
+  }
+
+  if (!address) {
+    return null;
   }
 
   return (
@@ -175,9 +179,9 @@ export function TradesTable({ pageSize = 20, type }: TradesTableProps) {
         )}
       </Card>
       <Card className="py-4 md:hidden">
-        <div className="px-4 pb-4">
+        {/* <div className="px-4 pb-4">
           <h2 className="text-lg font-semibold">Live Trades</h2>
-        </div>
+        </div> */}
         {tableData.length === 0 ? (
           <div className="px-4 py-8 text-center">
             <div className="text-muted-foreground">

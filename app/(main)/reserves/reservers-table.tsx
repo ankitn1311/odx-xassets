@@ -8,7 +8,6 @@ import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Image from 'next/image';
 import { removeTrailingZeros } from '@/lib/utils';
-import { ALL_V2_TOKEN_PAIRS } from '@/hooks/queries/use-all-tokens';
 
 const xTokenToToken = tokenConvert;
 
@@ -24,6 +23,7 @@ export function ReservesTable() {
   const xrpToken = allTokens.find(token => token.TokenB.Name === 'x2XRP');
   const adaToken = allTokens.find(token => token.TokenB.Name === 'x2ADA');
   const suiToken = allTokens.find(token => token.TokenB.Name === 'x2SUI');
+  const ethToken = allTokens.find(token => token.TokenB.Name === 'x2ETH');
 
   console.log('ALL SUPPLY DATA', allSupplyData);
 
@@ -32,6 +32,7 @@ export function ReservesTable() {
   const tokenSupplyData = allSupplyData?.[1]; // x2SOL is second
   const adaTokenSupplyData = allSupplyData?.[2]; // x2ADA is third
   const suiTokenSupplyData = allSupplyData?.[3]; // x2SUI is fourth
+  const ethTokenSupplyData = allSupplyData?.[4]; // x2ETH is fifth
 
   const tableData = solToken
     ? [
@@ -112,6 +113,19 @@ export function ReservesTable() {
           priceChange: 0,
           marketCap: 0,
           image: `/images/tokens/${suiToken?.TokenB.Name}.png`,
+        },
+        {
+          tokenName: xTokenToToken[ethToken?.TokenB.Name as keyof typeof xTokenToToken],
+          tokenSymbol: ethToken?.TokenB.Name || '',
+          totalSupply: ethTokenSupplyData?.totalSupply || '0',
+          totalSupplyUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
+          unitsInReserve: ethTokenSupplyData?.totalSupply || '0',
+          unitsInReserveUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
+          ratio: '100%',
+          price: 0,
+          priceChange: 0,
+          marketCap: 0,
+          image: `/images/tokens/${ethToken?.TokenB.Name}.png`,
         },
       ]
     : [];

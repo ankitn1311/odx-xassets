@@ -42,13 +42,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={config} reconnectOnMount>
         <RainbowKitProvider theme={darkTheme()} key="ODX">
-          <TradesProvider>
-            <TokenProvider>
-              {children}
-              <ReactQueryDevtools />
-              <Toaster richColors />
-            </TokenProvider>
-          </TradesProvider>
+          {/* <TradesProvider> */}
+          <TokenProvider>
+            {children}
+            <ReactQueryDevtools />
+            <Toaster richColors />
+          </TokenProvider>
+          {/* </TradesProvider> */}
         </RainbowKitProvider>
       </WagmiProvider>
     </QueryClientProvider>
