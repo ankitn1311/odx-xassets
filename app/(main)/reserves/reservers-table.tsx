@@ -114,19 +114,19 @@ export function ReservesTable() {
           marketCap: 0,
           image: `/images/tokens/${suiToken?.TokenB.Name}.png`,
         },
-        {
-          tokenName: xTokenToToken[ethToken?.TokenB.Name as keyof typeof xTokenToToken],
-          tokenSymbol: ethToken?.TokenB.Name || '',
-          totalSupply: ethTokenSupplyData?.totalSupply || '0',
-          totalSupplyUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
-          unitsInReserve: ethTokenSupplyData?.totalSupply || '0',
-          unitsInReserveUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
-          ratio: '100%',
-          price: 0,
-          priceChange: 0,
-          marketCap: 0,
-          image: `/images/tokens/${ethToken?.TokenB.Name}.png`,
-        },
+        // {
+        //   tokenName: xTokenToToken[ethToken?.TokenB.Name as keyof typeof xTokenToToken],
+        //   tokenSymbol: ethToken?.TokenB.Name || '',
+        //   totalSupply: ethTokenSupplyData?.totalSupply || '0',
+        //   totalSupplyUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
+        //   unitsInReserve: ethTokenSupplyData?.totalSupply || '0',
+        //   unitsInReserveUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
+        //   ratio: '100%',
+        //   price: 0,
+        //   priceChange: 0,
+        //   marketCap: 0,
+        //   image: `/images/tokens/${ethToken?.TokenB.Name}.png`,
+        // },
       ]
     : [];
 
