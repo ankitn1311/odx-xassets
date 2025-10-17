@@ -119,6 +119,12 @@ export default function Home() {
         </Select>
 
         <ModeToggle />
+
+        <Separator />
+        <p>Admin Dashboard</p>
+        <Button asChild>
+          <a href="/tokens-dashboard">Tokens Dashboard</a>
+        </Button>
       </main>
       <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
         <a
