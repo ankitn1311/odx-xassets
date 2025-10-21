@@ -124,10 +124,10 @@ const TokensDashboard = () => {
               <p>Refresh All</p>
             </div>
           </Button>
-          <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
+          {/* <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
             <LogOut className="h-4 w-4" />
             <p>Logout</p>
-          </Button>
+          </Button> */}
         </div>
       </div>
 
