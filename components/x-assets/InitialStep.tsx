@@ -218,20 +218,17 @@ export function InitialStep() {
     }
   }, [activeTab, setActiveTab, tradeState]);
 
-  // useEffect(() => {
-  //   const getRank = async (week: number) => {
-  //     const ranks = await sortWeeklyRanks(week);
-  //     const ranksMaps = ranks.map(rank => {
-  //       return {
-  //         address: rank.address,
-  //         [`${week}_rank`]: rank[`2025_W${week}_rank`],
-  //         [`${week}_points`]: rank[`2025_W${week}`],
-  //       };
-  //     });
-  //     console.log('RANKS MAPS', week, ranksMaps);
-  //   };
-  //   getRank(40);
-  // }, []);
+  const getRank = async (week: number) => {
+    const ranks = await sortWeeklyRanks(week);
+    const ranksMaps = ranks.map(rank => {
+      return {
+        address: rank.address,
+        [`${week}_rank`]: rank[`2025_W${week}_rank`],
+        [`${week}_points`]: rank[`2025_W${week}`],
+      };
+    });
+    console.log('RANKS MAPS', week, ranksMaps);
+  };
 
   return (
     <>
@@ -246,6 +243,8 @@ export function InitialStep() {
             tradeState === TradeState.CHECKING_APPROVAL
           }
         />
+
+        {/* <a onClick={() => getRank(getWeekNumber(new Date()) - 1)}>Get Rank</a> */}
         {/* {WHOLE_NUMBER_TOKENS.includes(inputToken.Name) && (
         <div className="my-4 flex flex-col gap-4 rounded-md border border-warning/20 bg-warning/10 p-3 text-sm text-warning-foreground">
           <div className="flex items-end gap-2">

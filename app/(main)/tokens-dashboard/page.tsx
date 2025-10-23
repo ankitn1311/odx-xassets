@@ -20,6 +20,12 @@ const WALLET_ADDRESSES = [
   { label: 'Wallet 4', address: '0x491Dc87523afcB2076A886B1b8Aa14De2DE3D3bC' },
   { label: 'Wallet 5', address: '0xEDb1034FEe328A3eC6A637c76472c25d1fbA80B7' },
   { label: 'Wallet 6', address: '0xa9c374D24f6c131E551E17b501cFA6a0B9c81596' },
+  { label: 'Wallet 7', address: '0xe79b8106C412a102dc7a0938626Fa4380350a4b7' },
+  { label: 'Wallet 8', address: '0xe76027e931aA76933fB62ac9c3afD8cad7AD72C0' },
+  { label: 'Wallet 9', address: '0x7091ee0151afCF35E4566e3098b53EDF71a030C6' },
+  { label: 'Wallet 10', address: '0x4610B8be4d152C7B8bdd8418997F6b1Dfb48804D' },
+  { label: 'Wallet 11', address: '0x80F69a793D3db61E56357e8776CEE087a0BEfe96' },
+  { label: 'Wallet 12', address: '0x95b086459EeA350e8CF688284B7A209436E1aC2a' },
 ];
 
 const CORRECT_PASSWORD = '654321';
