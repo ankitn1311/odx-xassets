@@ -23,11 +23,16 @@ export const sortWeeklyRanks = async (week: number, ascending: boolean = true) =
 //   const csvRows = sortedData.map(item => `${item.address},${item['2025_W36_rank']}`);
 
 //   return [csvHeader, ...csvRows].join('\n');
-// };
+
+// }
+//
+//
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const fetchWeeklyRanks = async (weekNumber: number) => {
   const response = await axios.get(
-    `https://ashwin-ap-northeast-1.odxtradeservice.api.devo.backend.odx.so/rankings/weekly?weekId=2025_W${weekNumber}&secret=INTERNALUSEONLY`
+    `${BASE_URL}/rankings/weekly?weekId=2025_W${weekNumber}&secret=INTERNALUSEONLY`
   );
   return response.data;
 };
