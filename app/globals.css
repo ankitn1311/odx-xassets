@@ -32,35 +32,37 @@ body {
     scrollbar-width: none;
   }
   :root {
-    --background: 0 0% 98%;
-    --foreground: 222 47% 11%;
+    /* App palette, shared with the landing page: white ground, #F0F0F0 surfaces,
+       #E5E5E5 hairlines, near-black primary, blue accent, green/red for deltas. */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%; /* #121212 */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 319 84% 67%;
-    --accent-foreground: 210 40% 98%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 0 0% 7%; /* black buttons */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 94%; /* #F0F0F0 chips */
+    --secondary-foreground: 0 0% 7%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 38%; /* #626262 */
+    --accent: 217 52% 58%; /* #5A86CC */
+    --accent-foreground: 0 0% 100%;
     --warning: 38 95% 64%;
     --warning-foreground: 38 95% 29%;
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
-    --chart-1: 221 83% 53%; /* Primary blue */
-    --chart-2: 319 84% 67%; /* Accent pink/magenta */
-    --chart-3: 142 76% 36%; /* Success green */
-    --chart-4: 38 95% 64%; /* Warning orange/yellow */
-    --chart-5: 0 72% 51%; /* Destructive red */
-    --radius: 0.5rem;
+    --success: 154 70% 38%; /* #1DA66A */
+    --success-foreground: 0 0% 100%;
+    --destructive: 3 65% 49%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%; /* #E5E5E5 */
+    --input: 0 0% 90%;
+    --ring: 0 0% 7%;
+    --chart-1: 217 52% 58%; /* Blue */
+    --chart-2: 271 33% 54%; /* Plum */
+    --chart-3: 154 70% 38%; /* Green */
+    --chart-4: 38 95% 64%; /* Warning */
+    --chart-5: 3 65% 49%; /* Red */
+    --radius: 0.75rem;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 221 83% 53%;
@@ -216,7 +218,103 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background font-medium text-foreground;
+    @apply bg-background font-normal text-foreground;
+  }
+}
+
+/* Landing page palette. Light-only by design, independent of the app theme. */
+.landing {
+  --l-ink: #121212;
+  --l-ink-2: #313131;
+  --l-muted: #626262;
+  --l-muted-2: #b1b1b1;
+  --l-line: #dedede;
+  --l-surface: #f0f0f0;
+  --l-white: #ffffff;
+  --l-hero: #272727;
+  --l-blue: #5a86cc;
+  --l-blue-soft: #c1cbf2;
+  --l-blue-mist: #e0ecff;
+  --l-sky: #8cb1ed;
+  --l-green: #1da66a;
+  --l-green-soft: #d5e5cf;
+  --l-green-mist: #ebf0e7;
+  --l-plum: #8c64b0;
+  color-scheme: light;
+  color: var(--l-ink);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+.landing ::selection {
+  background: var(--l-blue-soft);
+  color: var(--l-ink);
+}
+/* The page ground starts as the hero colour and fades to white as soon as the reader scrolls. */
+.landing {
+  --l-ease: cubic-bezier(0.45, 0, 0.25, 1);
+  --l-morph: 1.1s;
+}
+.landing-ground {
+  background-color: var(--l-hero);
+  transition: background-color var(--l-morph) var(--l-ease);
+}
+.landing-ground.is-expanded {
+  background-color: var(--l-white);
+}
+/* Hero media: full-bleed at rest, a rounded square once the page has been scrolled. */
+.landing .hero-media {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  border-radius: 0;
+  overflow: hidden;
+  transition:
+    width var(--l-morph) var(--l-ease),
+    height var(--l-morph) var(--l-ease),
+    border-radius var(--l-morph) var(--l-ease);
+}
+.landing-ground.is-expanded .hero-media {
+  width: var(--hero-square, 480px);
+  height: var(--hero-square, 480px);
+  border-radius: 45px;
+}
+/* Header: full-width and transparent over the hero, a floating black pill afterwards. */
+.landing .site-bar {
+  transition:
+    max-width var(--l-morph) var(--l-ease),
+    height var(--l-morph) var(--l-ease),
+    margin var(--l-morph) var(--l-ease),
+    padding var(--l-morph) var(--l-ease),
+    background-color var(--l-morph) var(--l-ease),
+    border-radius var(--l-morph) var(--l-ease),
+    box-shadow var(--l-morph) var(--l-ease),
+    color var(--l-morph) var(--l-ease);
+}
+/* Odometer digits: a column of 0-9 that slides to the target digit. */
+.landing .odo {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: top;
+}
+.landing .odo > span {
+  display: block;
+  transition: transform 1.4s var(--l-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-ground,
+  .landing .hero-media,
+  .landing .site-bar,
+  .landing .odo > span {
+    transition: none;
+  }
+  .landing .animate-ticker,
+  .landing .animate-ticker-slow {
+    animation: none;
   }
 }
 

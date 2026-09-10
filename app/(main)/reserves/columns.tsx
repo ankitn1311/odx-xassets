@@ -1,4 +1,8 @@
 import Image from 'next/image';
+import { ColumnDef } from '@tanstack/react-table';
+import { tokenConvertForUI } from '@/hooks/mutations/use-trade-quote';
+import { DemoAlert } from '@/components/common/demo-alert';
+import { fmtCompactUsd, fmtUnits } from '@/lib/format';
 
 export const TokenName = ({
   name,
@@ -10,141 +14,78 @@ export const TokenName = ({
   image: string;
 }) => {
   return (
-    <div className="flex items-center gap-2">
-      <Image
-        alt="Coin Image"
-        src={image}
-        width="40"
-        height="40"
-        loading="lazy"
-        className="h-10 w-10"
-      />
-      <div className="flex flex-col">
-        <div className="text-md text-foreground">
-          {tokenConvertForUI[name as keyof typeof tokenConvertForUI]}
+    <div className="flex items-center gap-3">
+      <Image alt="" src={image} width={36} height={36} loading="lazy" className="h-9 w-9" />
+      <div className="flex flex-col leading-tight">
+        <div className="text-[15px] font-medium text-foreground">
+          {tokenConvertForUI[name as keyof typeof tokenConvertForUI] ?? name}
         </div>
-        <div className="text-xs font-semibold text-muted-foreground">{symbol}</div>
+        <div className="text-xs text-muted-foreground">{symbol}</div>
       </div>
     </div>
   );
 };
 
-// columns.ts
-import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
-import { removeTrailingZeros } from '@/lib/utils';
-import { tokenConvert, tokenConvertForUI } from '@/hooks/mutations/use-trade-quote';
-
-export type Available = {
-  tokenName: string;
-  tokenSymbol: string;
-  price: number;
-  priceChange: number;
-  totalSupply: string;
-  totalSupplyUSD: string;
-  unitsInReserve: string;
-  unitsInReserveUSD: string;
-  marketCap: number;
+export type ReserveRow = {
+  symbol: string;
+  name: string; // underlying ticker, e.g. XRP
   image: string;
+  minted: number;
+  mintedUsd: number;
+  inReserve: number;
+  inReserveUsd: number;
+  ratio: number; // fraction
+  custodian: string;
+  updatedAt: number;
 };
 
-export const exploreColumn: ColumnDef<Available>[] = [
+/** Units on the first line, USD on the second. */
+const Amount = ({ units, unit, usd }: { units: number; unit: string; usd: number }) => (
+  <div className="flex flex-col leading-tight">
+    <span className="font-mono text-[15px] tabular-nums">
+      {fmtUnits(units)} <span className="font-sans text-xs text-muted-foreground">{unit}</span>
+    </span>
+    <span className="text-xs text-muted-foreground tabular-nums">{fmtCompactUsd(usd)}</span>
+  </div>
+);
+
+export const reserveColumns: ColumnDef<ReserveRow>[] = [
   {
-    accessorKey: 'tokenName',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">Token</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
+    accessorKey: 'symbol',
+    header: 'Asset',
+    meta: { className: 'min-w-[180px]' },
+    cell: ({ row }) => (
+      <TokenName name={row.original.name} symbol={row.original.symbol} image={row.original.image} />
     ),
-    cell: ({ row }) => {
-      const name: string = row.getValue('tokenName');
-      const symbol: string = row.original.tokenSymbol;
-      const image: string = row.original.image;
-      return (
-        <div className="flex items-center">
-          <TokenName name={name} symbol={symbol} image={image} />
-        </div>
-      );
-    },
   },
   {
-    accessorKey: 'totalSupply',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">Total Supply of xAsset</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
+    accessorKey: 'minted',
+    header: 'Total Supply of xAsset',
+    cell: ({ row }) => (
+      <Amount units={row.original.minted} unit={row.original.symbol} usd={row.original.mintedUsd} />
     ),
-    cell: ({ row }) => {
-      const totalSupply = row.getValue('totalSupply') as string;
-      const totalSupplyUSD = row.original.totalSupplyUSD;
-      return (
-        <div className="flex flex-col items-start">
-          <p className="font-mono text-base font-normal text-card-foreground">
-            {parseFloat(removeTrailingZeros(Number(totalSupply).toFixed(3))).toLocaleString()}
-            <span className="font-sans text-xs font-semibold text-muted-foreground">
-              {' '}
-              {row.original.tokenSymbol}
-            </span>
-          </p>
-          <p className="font-mono text-sm font-semibold">
-            ${parseFloat(totalSupplyUSD).toLocaleString()}
-          </p>
-        </div>
-      );
-    },
   },
   {
-    accessorKey: 'unitsInReserve',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">Units in Reserve</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
+    accessorKey: 'inReserve',
+    header: () => (
+      <span className="inline-flex items-center gap-1">
+        Units in Reserve <DemoAlert className="h-3 w-3" note="Mirrors total supply; no custody feed yet" />
+      </span>
     ),
-    cell: ({ row }) => {
-      const unitsInReserve = row.getValue('unitsInReserve') as string;
-      const unitsInReserveUSD = row.original.unitsInReserveUSD;
-      return (
-        <div className="flex flex-col items-start">
-          <p className="font-mono text-base font-normal text-card-foreground">
-            {parseFloat(removeTrailingZeros(Number(unitsInReserve).toFixed(3))).toLocaleString()}
-            <span className="font-sans text-xs font-semibold text-muted-foreground">
-              {' '}
-              {tokenConvert[row.original.tokenSymbol as keyof typeof tokenConvert]}
-            </span>
-          </p>
-          <p className="font-mono text-sm font-semibold">
-            ${parseFloat(unitsInReserveUSD).toLocaleString()}
-          </p>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <Amount units={row.original.inReserve} unit={row.original.name} usd={row.original.inReserveUsd} />
+    ),
   },
   {
     accessorKey: 'ratio',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-end gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-        <p className="select-none text-sm font-semibold">Ratio</p>
-      </div>
+    header: () => (
+      <span className="inline-flex items-center justify-end gap-1">
+        Ratio <DemoAlert className="h-3 w-3" note="Ratio is hardcoded to 100%" />
+      </span>
     ),
-    cell: ({ row }) => {
-      const ratio = row.getValue('ratio') as string;
-      return <p className="text-right font-mono text-base font-normal">{ratio}</p>;
-    },
+    meta: { className: 'w-28 text-right' },
+    cell: ({ row }) => (
+      <span className="font-mono text-[15px] tabular-nums">{Math.round(row.original.ratio * 100)}%</span>
+    ),
   },
 ];

@@ -1,0 +1,20 @@
+7. Redeem /redeemAsset + amount   
+Route chosen automatically:  Instant (buffer)   
+Queue (show position + ETA)   
+Delayed swap (Cork) — hide until phase 4 
+ Receive asset (USDC.e)   
+Fee + haircut   
+Burn 
+ 
+Pending queue items live here and on Portfolio.8. Portfolio /portfolioWraps   
+xCASH (shares, NAV, $ value, est. APY)   
+Pending mints / redeems   
+Claim / add token 
+ 
+9. Reserves /reservesPublic, no wallet required. 
+Table: asset · minted · in custody · ratio · custodian · updated. 
+Link to attestation. This is the trust page. Ship it with mint.10. Activity /activityMint, redeem, queue filled, failed quote. Explorer link.11. Settings /settingsWallet, network (Sonic / Whitechain), slippage, hide test assets, legal, support.12. Connect / legal (modals)Connect wallet   
+Mint/redeem KYC gate only if that series requires it (fund shares). Trading xXRP should not force KYC in v1 if that’s the legal theory — confirm with counsel   
+ToS + “this is a receipt not the underlying” 
+ 
+13. Status /status (tiny)Mint paused, oracle stale, buffer low. Can be a banner instead of a page.

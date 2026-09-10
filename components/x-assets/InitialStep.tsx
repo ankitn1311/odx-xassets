@@ -1,6 +1,5 @@
 import { TokenInput } from './TokenInput';
 import { Button } from '../ui/button';
-import { Button as MovingButton } from '../ui/moving-border';
 import Image from 'next/image';
 import { TradeState, useTokenSwapStore, TabState } from '@/stores/token-swap-store';
 import { useCallback, useEffect, useRef, useMemo } from 'react';
@@ -11,10 +10,8 @@ import { toast } from 'sonner';
 import { Info } from 'lucide-react';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
-import { useTheme } from 'next-themes';
 import { SlippageSettings } from './SlippageSettings';
 import { useAppStore } from '@/stores/app-store';
-import { Separator } from '../ui/separator';
 import { ArrowUpDown } from 'lucide-react';
 import { useQuoteTimer } from './QuoteTimerContext';
 import { sortWeeklyRanks } from '@/utils/weekly-rank-36';
@@ -232,10 +229,9 @@ export function InitialStep() {
 
   return (
     <>
-      <Separator className="mb-3" />
-      <div className="px-4">
+      <div className="flex flex-col px-4">
         <TokenInput
-          label="You Pay"
+          label={isBuy ? 'Spend' : 'Sell'}
           onAmountChange={handleAmountChange}
           showPercentageButtons={
             tradeState === TradeState.INITIAL ||
@@ -244,95 +240,59 @@ export function InitialStep() {
           }
         />
 
-        {/* <a onClick={() => getRank(getWeekNumber(new Date()) - 1)}>Get Rank</a> */}
-        {/* {WHOLE_NUMBER_TOKENS.includes(inputToken.Name) && (
-        <div className="my-4 flex flex-col gap-4 rounded-md border border-warning/20 bg-warning/10 p-3 text-sm text-warning-foreground">
-          <div className="flex items-end gap-2">
-            <Info className="h-5 w-5 flex-shrink-0" />
-            <p className="h-5">{inputToken.Name} amount must be a whole number.</p>
-          </div>
-        </div>
-      )} */}
-
-        <div className="mt-2 flex justify-center">
+        {/* Swap direction, sitting on the seam between the two blocks. */}
+        <div className="relative z-10 -my-3 flex justify-center">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             type="button"
-            className="h-8 w-8 rounded-full p-0 transition-colors"
+            className="h-8 w-8 rounded-full border-[#E6E6E6] shadow-sm"
             onClick={handleTabSwitch}
             disabled={[TradeState.PENDING, TradeState.SUCCESS].includes(tradeState)}
+            aria-label="Switch between buy and sell"
           >
             <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="mt-2">
-          <TokenInput
-            label="You Get"
-            isOutput
-            onAmountChange={handleAmountChange}
-            // onOutputAmountChange={handleOutputAmountChange}
-            showPercentageButtons={false}
-          />
-        </div>
+        <TokenInput
+          label="Receive"
+          isOutput
+          onAmountChange={handleAmountChange}
+          showPercentageButtons={false}
+        />
       </div>
-      <Separator className="mt-3" />
-      <div className="px-4">
-        <div className="flex flex-col gap-3">
-          <div className="mt-2 flex items-center justify-between pt-4">
-            <p className="text-sm text-muted-foreground">Source</p>
-            <MovingButton className="border-border bg-card text-card-foreground">
-              <ODXApiSource />
-            </MovingButton>
-          </div>
 
-          <div className="flex items-center justify-between pb-4">
+      <div className="px-4">
+        <div className="mt-3 flex flex-col gap-3 rounded-xl bg-card px-4 py-3 text-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-muted-foreground">Source</p>
+            <ODXApiSource />
+          </div>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <p className="text-sm text-muted-foreground">Slippage</p>
+              <p className="text-muted-foreground">Slippage</p>
               <SlippageSettings />
             </div>
-            <p className="text-sm text-muted-foreground">{slippage}%</p>
+            <p className="font-mono text-xs">{slippage}%</p>
           </div>
         </div>
 
-        <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">
-          <div className="flex items-start gap-2">
-            <Info className="h-5 w-5 flex-shrink-0" />
-            <p>
-              During our alpha test, {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount
-              should be between 5 and 10 USDC.
-            </p>
-          </div>
-        </div>
+        <p className="mt-3 flex items-start gap-2 px-1 text-xs leading-relaxed text-muted-foreground">
+          <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+          During the alpha, the {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount must be
+          between 5 and 10 USDC.
+        </p>
       </div>
     </>
   );
 }
 
 export function ODXApiSource() {
-  const { theme, systemTheme } = useTheme();
-  const currentTheme = theme === 'system' ? systemTheme : theme;
   return (
-    <div className="flex items-center gap-2">
-      {currentTheme === 'dark' ? (
-        <Image
-          src="/images/logos/odx-dark.svg"
-          alt="ODX"
-          width={16}
-          height={16}
-          className="h-4 w-4"
-        />
-      ) : (
-        <Image
-          src="/images/logos/odx-light.svg"
-          alt="ODX"
-          width={16}
-          height={16}
-          className="h-4 w-4"
-        />
-      )}
-      <p className="text-xs">ODX API</p>
-    </div>
+    <span className="flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+      <Image src="/images/logos/odx-light.svg" alt="ODX" width={14} height={14} className="h-3.5 w-3.5" />
+      ODX API
+    </span>
   );
 }

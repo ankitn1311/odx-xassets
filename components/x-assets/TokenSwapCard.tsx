@@ -1,4 +1,3 @@
-import { BackgroundGradient } from '../ui/background-gradient';
 import { TokenSwapForm } from './TokenSwapForm';
 import { useTokenSwapStore, TabState, TradeState } from '@/stores/token-swap-store';
 import { Form as FormProvider } from '@/components/ui/form';
@@ -98,8 +97,15 @@ const swapFormSchema = z
 export type SwapFormValues = z.infer<typeof swapFormSchema>;
 
 export const TokenSwapCard = () => {
-  const { allTokens, tradeState, activeTab, resetTradeState, selectedXAsset, setSelectedXAsset } =
-    useTokenSwapStore();
+  const {
+    allTokens,
+    tradeState,
+    activeTab,
+    setActiveTab,
+    resetTradeState,
+    selectedXAsset,
+    setSelectedXAsset,
+  } = useTokenSwapStore();
   const [firstToken] = allTokens;
   const { TokenA, TokenB } = firstToken;
   const searchParams = useSearchParams();
@@ -231,39 +237,43 @@ export const TokenSwapCard = () => {
     }
   }, [tradeState, resetTradeState]);
 
+  const tabLocked = [TradeState.PENDING, TradeState.SUCCESS, TradeState.PROCESSING].includes(
+    tradeState
+  );
+
   return (
     <FormProvider {...form}>
-      <BackgroundGradient>
-        <div className="flex h-full w-full flex-col">
-          <Card className="h-full bg-card py-4">
-            <div className="flex h-full flex-col gap-4">
-              <div className="flex items-center justify-between px-4">
-                <div className="flex gap-2">
-                  <h2 className="text-lg font-bold">Trade</h2>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span
-                      className={cn(
-                        'rounded-md px-2 py-1 text-xs font-medium',
-                        activeTab === TabState.BUY
-                          ? 'bg-success/20 text-success'
-                          : 'bg-destructive/20 text-destructive'
-                      )}
-                    >
-                      {activeTab === TabState.BUY ? 'Buy' : 'Sell'}
-                    </span>
-                  </div>
-                </div>
-
-                <QuoteTimer />
-              </div>
-
-              <div className="flex-1">
-                <TokenSwapForm />
-              </div>
+      {/* Grey panel with white input blocks inside, like the reference trade card. */}
+      <Card className="flex h-full w-full flex-col border-0 bg-[#F3F3F3] py-4">
+        <div className="flex h-full flex-col gap-4">
+          <div className="flex items-center justify-between px-4">
+            <div className="flex rounded-lg bg-[#E6E6E6] p-1 text-sm">
+              {[TabState.BUY, TabState.SELL].map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  disabled={tabLocked}
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    'rounded-md px-4 py-1.5 font-medium transition-colors disabled:opacity-60',
+                    activeTab === tab
+                      ? 'bg-white text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {tab === TabState.BUY ? 'Buy' : 'Sell'}
+                </button>
+              ))}
             </div>
-          </Card>
+
+            <QuoteTimer />
+          </div>
+
+          <div className="flex-1">
+            <TokenSwapForm />
+          </div>
         </div>
-      </BackgroundGradient>
+      </Card>
     </FormProvider>
   );
 };
@@ -304,11 +314,11 @@ function QuoteTimer() {
     );
   }
   return (
-    <div className="flex h-7 flex-col items-center text-sm text-muted-foreground">
-      <span>{timeUntilNextQuote}s</span>
-      <div className="h-1 w-8 overflow-hidden rounded-full bg-muted">
+    <div className="flex h-7 flex-col items-center text-xs text-muted-foreground">
+      <span className="font-mono">{timeUntilNextQuote}s</span>
+      <div className="h-1 w-8 overflow-hidden rounded-full bg-[#E0E0E0]">
         <div
-          className="h-1 bg-primary transition-all duration-1000 ease-linear"
+          className="h-1 bg-foreground transition-all duration-1000 ease-linear"
           style={{ width: `${(timeUntilNextQuote / 10) * 100}%` }}
         />
       </div>

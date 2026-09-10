@@ -130,7 +130,7 @@ export function SwapScreens() {
         {tradeState === TradeState.SUCCESS ||
         tradeState === TradeState.FAILED ||
         tradeState === TradeState.PENDING ? (
-          <Button type="submit" size="lg" className="mt-4 w-full" disabled={isSubmitting}>
+          <Button type="submit" size="lg" className="mt-3 w-full" disabled={isSubmitting}>
             {tradeState === TradeState.SUCCESS || tradeState === TradeState.PENDING
               ? 'Done'
               : 'Try Again'}
@@ -139,7 +139,7 @@ export function SwapScreens() {
           <Button
             type="submit"
             size="lg"
-            className="mt-4 w-full"
+            className="mt-3 w-full"
             disabled={
               timeUntilNextQuote === 0 ||
               isQuoteLoading ||

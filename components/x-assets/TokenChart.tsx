@@ -3,7 +3,6 @@ import { useSearchParams } from 'next/navigation';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
 import { useCryptoChart } from '@/hooks/queries/use-crypto-chart';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useRouter } from 'nextjs-toploader/app';
 import { ArrowLeft, Copy, Verified } from 'lucide-react';
@@ -19,16 +18,6 @@ const DURATIONS = [
   { label: '1M', value: '1M' },
 ];
 
-// Generate a flat line placeholder chart
-function getFlatLineData(length = 40, price = 1) {
-  const now = Date.now();
-  const interval = 60 * 60 * 1000; // 1 hour
-  return Array.from({ length }, (_, i) => ({
-    time: now - (length - i) * interval,
-    price,
-  }));
-}
-
 export const TokenChart = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -43,13 +32,9 @@ export const TokenChart = () => {
 
   const { data } = useCryptoChart(selectedToken?.Name, duration);
 
-  // For loading/error, use a flat line at the last known price or 1
-  const flatPrice = data && data.length > 0 ? data[data.length - 1].price : 1;
-  const placeholderData = getFlatLineData(40, flatPrice);
-
   return (
     <div className="flex w-full flex-col">
-      <Card className="flex h-full flex-col justify-between gap-6 bg-card p-6">
+      <Card className="flex h-full flex-col justify-between gap-6 border-0 bg-[#EEF2F9] p-6">
         {/* Top section: Token info and price */}
         <div className="flex items-center gap-2">
           {/* <button
@@ -100,23 +85,30 @@ export const TokenChart = () => {
           </div>
         </div>
         <div className="flex w-full items-center justify-between">
-          <div className="flex flex-col items-start">
-            <PriceDisplay tokenSymbol={selectedToken?.Name || ''} className="text-2xl font-bold" />
+          <div className="flex flex-col items-start gap-2">
+            <PriceDisplay
+              tokenSymbol={selectedToken?.Name || ''}
+              className="block !px-0 !py-0 text-[40px] font-medium leading-none tracking-[-0.02em]"
+            />
             <div className="flex items-center gap-2">
               <PriceChangeDisplay tokenSymbol={selectedToken?.Name || ''} className="text-base" />
               <span className="text-xs text-muted-foreground">Last 24 hours</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-lg bg-white/70 p-1">
             {DURATIONS.map(d => (
-              <Button
+              <button
                 key={d.value}
-                variant={duration === d.value ? 'default' : 'secondary'}
-                size="sm"
+                type="button"
                 onClick={() => setDuration(d.value as any)}
+                className={
+                  duration === d.value
+                    ? 'rounded-md bg-foreground px-3 py-1 text-xs font-medium text-background'
+                    : 'rounded-md px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground'
+                }
               >
                 {d.label}
-              </Button>
+              </button>
             ))}
           </div>
         </div>
@@ -173,6 +165,8 @@ export const TokenChart = () => {
                 tickLine={false}
                 axisLine={false}
               />
+              {/* Scale to the data's own range so small moves are visible. */}
+              <RechartsPrimitive.YAxis hide domain={['dataMin', 'dataMax']} />
               <RechartsPrimitive.Tooltip
                 content={<ChartTooltipContent />}
                 formatter={(value, name) => {

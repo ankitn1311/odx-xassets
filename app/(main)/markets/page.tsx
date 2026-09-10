@@ -1,168 +1,149 @@
 'use client';
-import dynamic from 'next/dynamic';
-import { Card } from '@/components/ui/card';
-import { useTokenSwapStore } from '@/stores/token-swap-store';
-import { useMemo } from 'react';
-import { useMarketsColumns } from './markets-columns';
+import { useMemo, useState } from 'react';
+import Image from 'next/image';
+import { Search } from 'lucide-react';
 import { useRouter } from 'nextjs-toploader/app';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
-import Image from 'next/image';
-import { MarketsPageSkeleton } from '@/components/skeletons/markets-page-skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DataTable } from '../x-assets/data-table';
+import { useMarketsColumns } from './markets-columns';
+import { AnalyticsCard } from './analytics-card';
+import { PromoBanner } from './promo-banner';
+import { MarketLists } from './market-lists';
+import { useMarketRows, type MarketRow } from '@/hooks/queries/use-market-rows';
+import { PriceDisplay } from './price-display';
+import { PriceChangeDisplay } from './price-change-display';
+import { cn } from '@/lib/utils';
+import { DemoAlert } from '@/components/common/demo-alert';
 
-// Dynamic imports with Next.js - using content-aware skeletons
-const DataTable = dynamic(
-  () => import('../x-assets/data-table').then(mod => ({ default: mod.DataTable })),
-  {
-    loading: () => (
-      <div className="space-y-4">
-        {/* Table Header */}
-        <div className="grid grid-cols-5 gap-4 px-4">
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-12" />
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-16" />
-        </div>
-        {/* Table Rows */}
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="grid grid-cols-5 gap-4 px-4 py-3">
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-3 w-12" />
-              </div>
-            </div>
-            <div className="flex items-center justify-center">
-              <Skeleton className="h-6 w-16" />
-            </div>
-            <Skeleton className="h-4 w-20" />
-            <div className="flex items-center gap-1">
-              <Skeleton className="h-4 w-12" />
-              <Skeleton className="h-3 w-3" />
-            </div>
-            <Skeleton className="h-8 w-16" />
-          </div>
-        ))}
-      </div>
-    ),
-    ssr: false,
-  }
-);
-
-const PriceDisplay = dynamic(
-  () => import('./price-display').then(mod => ({ default: mod.PriceDisplay })),
-  {
-    loading: () => <Skeleton className="h-4 w-16" />,
-    ssr: false,
-  }
-);
-
-const PriceChangeDisplay = dynamic(
-  () => import('./price-change-display').then(mod => ({ default: mod.PriceChangeDisplay })),
-  {
-    loading: () => <Skeleton className="h-3 w-12" />,
-    ssr: false,
-  }
-);
-
-const AnalyticsCard = dynamic(
-  () => import('./analytics-card').then(mod => ({ default: mod.AnalyticsCard })),
-  {
-    loading: () => (
-      <Card className="p-4">
-        <div className="flex flex-col gap-4">
-          <Skeleton className="h-6 w-32" />
-          <div className="flex">
-            <div className="flex flex-1 flex-col gap-2">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-8 w-24" />
-            </div>
-            <div className="flex flex-1 flex-col gap-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-8 w-28" />
-            </div>
-          </div>
-        </div>
-      </Card>
-    ),
-    ssr: false,
-  }
-);
+const FILTERS = ['All assets', 'Layer 1', 'Payments', 'Meme'] as const;
+const SORTS = {
+  traded: { label: 'Most traded', fn: (a: MarketRow, b: MarketRow) => b.volumeUsd - a.volumeUsd },
+  gainers: { label: 'Top gainers', fn: (a: MarketRow, b: MarketRow) => (b.change ?? 0) - (a.change ?? 0) },
+  name: { label: 'Name', fn: (a: MarketRow, b: MarketRow) => a.symbol.localeCompare(b.symbol) },
+} as const;
 
 export default function MarketsPage() {
-  const { allTokens = [] } = useTokenSwapStore();
-  const columns = useMarketsColumns();
-
   const router = useRouter();
+  const { rows, isLoading } = useMarketRows();
+  const columns = useMarketsColumns();
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]>('All assets');
+  const [sort, setSort] = useState<keyof typeof SORTS>('traded');
+  const [query, setQuery] = useState('');
 
-  const tableData = useMemo(
-    () =>
-      allTokens?.map(tokenPair => ({
-        tokenName: tokenConvert[tokenPair.TokenB.Name as keyof typeof tokenConvert],
-        tokenSymbol: tokenPair.TokenB.Name,
-        address: tokenPair.TokenB.Address,
-        image: `/images/tokens/${tokenPair.TokenB.Name}.png`,
-      })) || [],
-    [allTokens]
-  );
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows
+      .filter(r => filter === 'All assets' || r.category === filter)
+      .filter(r => !q || r.symbol.toLowerCase().includes(q) || r.name.toLowerCase().includes(q))
+      .sort(SORTS[sort].fn);
+  }, [rows, filter, sort, query]);
+
+  const goTrade = (row: MarketRow) => router.push(`/x-assets?selected-token=${row.address}`);
 
   return (
-    <div className="flex h-full w-full max-w-5xl flex-col items-stretch gap-2 p-2 md:py-12">
+    <div className="flex h-full w-full max-w-6xl flex-col items-stretch gap-4 px-4 py-4 md:py-8">
       <AnalyticsCard />
+      <PromoBanner />
+      <MarketLists rows={rows} isLoading={isLoading} />
 
-      <Card className="p-4">
-        <section className="flex h-full flex-col justify-center">
-          <h2 className="text-lg font-semibold">Markets</h2>
-          <p className="text-sm text-muted-foreground">
-            Explore available xAssets and start trading with ease.
-          </p>
-        </section>
-      </Card>
-      <div className="flex flex-col gap-2 pb-[4.5rem] md:hidden">
-        {tableData.length ? (
-          tableData.map((row, idx) => (
-            <Card key={row.address || idx} className="flex flex-col gap-2 p-4">
-              <div className="flex flex-row items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={row.image}
-                    alt={row.tokenSymbol}
-                    className="h-10 w-10"
-                    width={40}
-                    height={40}
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-base font-semibold">{row.tokenName}</span>
-                    <span className="text-xs text-muted-foreground">{row.tokenSymbol}</span>
-                  </div>
-                </div>
-                {/* <div className="mt-2 flex items-center gap-2">
-                    <SmallPriceChart tokenName={row.tokenName} />
-                  </div> */}
-                <div className="flex flex-col items-end gap-1">
-                  <PriceDisplay tokenSymbol={row.tokenSymbol} className="text-base font-semibold" />
-                  <PriceChangeDisplay tokenSymbol={row.tokenSymbol} className="text-xs" />
-                </div>
-              </div>
+      <Card className="mb-[4.5rem] md:mb-0">
+        {/* Card header: title, count, market state */}
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-medium">xAssets</h2>
+            <span className="rounded-md bg-secondary px-1.5 py-0.5 text-[11px] text-muted-foreground">
+              {rows.length}
+            </span>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs text-success">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" />
+            Market open
+            <span className="text-muted-foreground">(24/7)</span>
+            <DemoAlert className="h-3 w-3" note="Market status is a constant" />
+          </span>
+        </div>
 
-              <Button
-                variant="secondary"
-                className="mt-4 w-full"
-                onClick={() => router.push(`/x-assets?selected-token=${row.address}`)}
-              >
+        {/* Filters, search, sort */}
+        <div className="flex flex-wrap items-center gap-2 px-5 py-3">
+          <DemoAlert note="Categories are a hardcoded mapping" />
+          {FILTERS.map(f => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFilter(f)}
+              className={cn(
+                'rounded-lg px-3 py-1.5 text-sm transition-colors',
+                filter === f ? 'bg-secondary font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {f}
+            </button>
+          ))}
+          <div className="ml-auto flex items-center gap-2">
+            <label className="flex h-9 items-center gap-2 rounded-lg bg-secondary px-3 text-sm">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search assets"
+                className="w-32 bg-transparent placeholder:text-muted-foreground focus:outline-none md:w-40"
+              />
+            </label>
+            <Select value={sort} onValueChange={v => setSort(v as keyof typeof SORTS)}>
+              <SelectTrigger aria-label="Sort" className="h-9 w-auto gap-2 rounded-lg border-0 bg-secondary px-3 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent align="end" className="rounded-xl">
+                {Object.entries(SORTS).map(([k, s]) => (
+                  <SelectItem key={k} value={k} className="rounded-lg">
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden pb-2 md:block">
+          {isLoading && rows.length === 0 ? (
+            <div className="space-y-3 px-5 py-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : (
+            <DataTable columns={columns} data={visible} onRowClick={goTrade} />
+          )}
+        </div>
+
+        {/* Mobile list */}
+        <ul className="divide-y divide-border md:hidden">
+          {visible.map(row => (
+            <li key={row.symbol} className="flex items-center justify-between gap-3 px-4 py-3">
+              <span className="flex items-center gap-3">
+                <Image src={row.image} alt="" width={36} height={36} className="h-9 w-9" />
+                <span className="flex flex-col leading-tight">
+                  <span className="text-[15px] font-medium">{row.symbol}</span>
+                  <span className="text-xs text-muted-foreground">{row.name}</span>
+                </span>
+              </span>
+              <span className="flex flex-col items-end leading-tight">
+                <PriceDisplay tokenSymbol={row.symbol} className="!px-0 !py-0 font-medium" />
+                <PriceChangeDisplay tokenSymbol={row.symbol} />
+              </span>
+              <Button variant="secondary" size="sm" onClick={() => goTrade(row)}>
                 Trade
               </Button>
-            </Card>
-          ))
-        ) : (
-          <div className="text-center text-muted-foreground">No results.</div>
-        )}
-      </div>
-      <Card className="hidden py-4 md:block">
-        <DataTable columns={columns as any} data={tableData} />
+            </li>
+          ))}
+          {!visible.length && (
+            <li className="px-4 py-8 text-center text-muted-foreground">No results.</li>
+          )}
+        </ul>
       </Card>
     </div>
   );

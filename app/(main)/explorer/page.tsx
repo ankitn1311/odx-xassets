@@ -1,42 +1,15 @@
 'use client';
-import { Card } from '@/components/ui/card';
 import { TradesTable } from './data-table';
-import { Button } from '@/components/ui/button';
-import { RefreshCwIcon } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 
 export default function ExplorerPage() {
-  const queryClient = useQueryClient();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await queryClient.invalidateQueries({ queryKey: ['trades', 'explorer'] });
-    setIsRefreshing(false);
-  };
-
   return (
-    <div className="flex h-full w-full max-w-5xl flex-col items-stretch gap-2 p-2 md:py-12">
-      <Card className="p-4">
-        <div className="flex items-center justify-between">
-          <section className="flex h-full flex-col justify-center">
-            <h2 className="text-lg font-semibold">Explorer</h2>
-            <p className="text-sm text-muted-foreground">
-              View recent trades taking place on the platform.
-            </p>
-          </section>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            isLoading={isRefreshing}
-          >
-            <RefreshCwIcon />
-          </Button>
-        </div>
-      </Card>
+    <div className="flex h-full w-full max-w-6xl flex-col items-stretch gap-4 px-4 py-4 md:py-8">
+      <section className="flex flex-col gap-1 px-1 pt-2">
+        <h1 className="text-2xl font-medium tracking-[-0.02em]">Explorer</h1>
+        <p className="text-sm text-muted-foreground">
+          Every mint and redeem on ODX, as it settles on Sonic.
+        </p>
+      </section>
       <TradesTable type="explorer" />
     </div>
   );

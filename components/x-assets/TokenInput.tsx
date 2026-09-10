@@ -19,7 +19,6 @@ import { useTokenBalance } from '@/hooks/queries/use-token-balance';
 import { cn, convertXUSDT, removeTrailingZeros } from '@/lib/utils';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { Skeleton } from '../ui/skeleton';
-import { Wallet } from 'lucide-react';
 
 interface TokenInputProps {
   label: string;
@@ -31,6 +30,7 @@ interface TokenInputProps {
 
 const PERCENTAGE_OPTIONS = [50, 100];
 
+/** One white "Spend" / "Receive" block: label, big amount, token chip, balance row. */
 export function TokenInput({
   label,
   isOutput = false,
@@ -49,7 +49,6 @@ export function TokenInput({
   const token = !isOutput ? inputToken : outputToken;
   const isUSDT = token?.Name === 'USDC';
   const { getQuote } = useTradeQuote();
-  // const token = isOutput ? outputToken : inputToken;
 
   const availableTokens = allTokens?.map(tokens => {
     if (tokens.TokenA.Name === 'USDC') {
@@ -141,146 +140,92 @@ export function TokenInput({
     };
   }, [getQuote, setValue]);
 
+  const chipClass =
+    'flex h-9 shrink-0 items-center gap-2 rounded-full bg-secondary px-3 text-sm font-medium';
+
   return (
-    <div className="relative">
-      <div className={cn('rounded-lg bg-card/50 py-3')}>
-        <div
-          className={cn('mb-3 text-xs font-black uppercase tracking-wider text-muted-foreground')}
-        >
-          {label}
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <FormField
-            control={form.control}
-            name={fieldName}
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="0.0"
-                    disabled={isOutput}
-                    className="min-h-[2.5rem] overflow-hidden text-ellipsis border-0 bg-transparent px-0 py-2 font-normal placeholder:text-muted-foreground/50 focus-visible:ring-0 md:text-2xl"
-                    value={field.value}
-                    onChange={
-                      e => !isOutput && onAmountChange(e.target.value)
-                      // ? onOutputAmountChange?.(e.target.value)
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {isUSDT ? (
-            <div className="flex h-10 shrink-0 items-center gap-2 rounded-md bg-background/50 px-3 py-2">
-              <Image
-                src={`/images/tokens/${token?.Name}.png`}
-                alt={token?.Name}
-                width={24}
-                height={24}
-              />
-              <span className="font-medium">{convertXUSDT(token?.Name)}</span>
-            </div>
-          ) : (
-            <Select value={token?.Name} onValueChange={handleTokenSelect}>
-              <SelectTrigger className="h-10 w-auto gap-2 border-0 bg-background/50 px-3 py-2 hover:bg-background">
-                {/* <div className="flex items-center gap-2">
-                     
-                  <Image
-                    src={`/images/tokens/${token?.Name}.png`}
-                    alt={token?.Name}
-                    width={24}
-                    height={24}
-                    className="rounded-full"
-                  />
-                  <SelectValue placeholder="Select token" />
-                </div> */}
-                <SelectValue placeholder="Select token" />
-              </SelectTrigger>
-              <SelectContent>
-                <div className="flex flex-col gap-2">
-                  {availableTokens
-                    ?.filter(t => t.Name !== 'xUSDT') // Exclude xUSDT from dropdown
-                    .map(token => (
-                      <SelectItem
-                        key={token.Address}
-                        value={token.Name}
-                        className="flex items-center gap-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Image
-                            src={`/images/tokens/${token.Name}.png`}
-                            alt={token.Name}
-                            width={24}
-                            height={24}
-                          />
-                          <span>{convertXUSDT(token.Name)}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                </div>
-              </SelectContent>
-            </Select>
+    <div className="rounded-xl bg-card p-4">
+      <div className="text-[13px] text-muted-foreground">{label}</div>
+      <div className="mt-1 flex items-center justify-between gap-3">
+        <FormField
+          control={form.control}
+          name={fieldName}
+          render={({ field }) => (
+            <FormItem className="min-w-0 flex-1">
+              <FormControl>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  disabled={isOutput}
+                  className="h-11 overflow-hidden text-ellipsis border-0 bg-transparent px-0 text-[30px] font-normal tracking-[-0.02em] placeholder:text-muted-foreground/60 focus-visible:ring-0 disabled:opacity-100 md:text-[30px]"
+                  value={field.value}
+                  onChange={e => !isOutput && onAmountChange(e.target.value)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-md bg-muted/50 px-2 py-1">
-              <Wallet
-                className={
-                  'h-3 w-3 text-muted-foreground ' + (isBalanceUpdating && 'animate-pulse')
-                }
-              />
-              {/* <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className={cn('text-muted-foreground', isBalanceUpdating && 'animate-pulse')}
-              >
-                <path
-                  d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-                <path
-                  d="M16.5 8.5L16.5 16.5M16.5 16.5L12 12M16.5 16.5L21 16.5"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg> */}
-              <span className="text-xs text-muted-foreground">Balance:</span>
-              {isBalanceLoading ? (
-                <Skeleton className="h-3 w-16" />
-              ) : (
-                <span className={cn('text-xs font-medium', isBalanceUpdating && 'animate-pulse')}>
-                  {removeTrailingZeros(Number(balance).toString())}
-                </span>
-              )}
-            </div>
+        />
+        {isUSDT ? (
+          <div className={chipClass}>
+            <Image src={`/images/tokens/${token?.Name}.png`} alt={token?.Name} width={22} height={22} />
+            <span>{convertXUSDT(token?.Name)}</span>
           </div>
-          {!isOutput && showPercentageButtons && (
-            <div className="flex items-center gap-1">
-              {PERCENTAGE_OPTIONS.map(percentage => (
-                <Button
-                  key={percentage}
-                  variant="ghost"
-                  size="sm"
-                  type="button"
-                  className="h-6 rounded px-2 text-xs font-medium"
-                  onClick={() => handlePercentageClick(percentage)}
-                >
-                  {percentage === 100 ? 'MAX' : `${percentage}%`}
-                </Button>
-              ))}
-            </div>
+        ) : (
+          <Select value={token?.Name} onValueChange={handleTokenSelect}>
+            <SelectTrigger className={cn(chipClass, 'w-auto border-0 py-0 hover:bg-[#E6E6E6]')}>
+              <SelectValue placeholder="Select token" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <div className="flex flex-col gap-1">
+                {availableTokens
+                  ?.filter(t => t.Name !== 'xUSDT') // Exclude xUSDT from dropdown
+                  .map(token => (
+                    <SelectItem key={token.Address} value={token.Name} className="rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src={`/images/tokens/${token.Name}.png`}
+                          alt={token.Name}
+                          width={22}
+                          height={22}
+                        />
+                        <span>{convertXUSDT(token.Name)}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+              </div>
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <span>Balance</span>
+          {isBalanceLoading ? (
+            <Skeleton className="h-3 w-16" />
+          ) : (
+            <span className={cn('font-mono text-foreground', isBalanceUpdating && 'animate-pulse')}>
+              {removeTrailingZeros(Number(balance).toString())}
+            </span>
           )}
-          {isOutput && showPercentageButtons && <div className="invisible h-6" />}
         </div>
+        {!isOutput && showPercentageButtons && (
+          <div className="flex items-center gap-1">
+            {PERCENTAGE_OPTIONS.map(percentage => (
+              <Button
+                key={percentage}
+                variant="secondary"
+                size="sm"
+                type="button"
+                className="h-6 rounded-full px-2 text-[11px]"
+                onClick={() => handlePercentageClick(percentage)}
+              >
+                {percentage === 100 ? 'Max' : `${percentage}%`}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
