@@ -1,6 +1,6 @@
 'use client';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { HeroSheet, MintDiagram } from './blueprint';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import { useLandingExpanded } from './landing-ground';
@@ -55,7 +55,7 @@ export function Hero() {
   }, []);
 
   const t = reduce ? { duration: 0 } : MORPH;
-  const ink = expanded ? '#121212' : '#ffffff';
+  const ink = expanded ? '#0B0F17' : '#ffffff';
 
   return (
     <section
@@ -65,22 +65,20 @@ export function Hero() {
     >
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="hero-media">
-          <Image
-            src="https://picsum.photos/id/1042/1920/1200"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
+          {/* Full-bleed: a quiet sheet, grid and the square motif only. The mint diagram
+              is drawn in once the media has collapsed into the square. */}
+          <HeroSheet />
           <motion.div
-            className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50"
-            animate={{ opacity: expanded ? 0 : 1 }}
-            transition={t}
-          />
+            className="absolute inset-0"
+            initial={false}
+            animate={{ opacity: expanded ? 1 : 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: expanded ? 0.5 : 0 }}
+          >
+            <MintDiagram />
+          </motion.div>
         </div>
 
-        <h1 className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center gap-[0.3em] whitespace-nowrap px-4 text-center font-medium text-[40px] leading-none tracking-[-0.02em] sm:text-[60px] md:flex-row md:text-[72px] lg:text-[84px]">
+        <h1 className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center gap-[0.3em] whitespace-nowrap px-4 text-center text-[40px] font-semibold leading-none tracking-[-0.03em] sm:text-[60px] md:flex-row md:text-[72px] lg:text-[84px]">
           <motion.span
             ref={leftRef}
             className="inline-block origin-left"
@@ -110,7 +108,7 @@ export function Hero() {
         </h1>
 
         <motion.p
-          className="absolute inset-x-0 mx-auto max-w-[560px] px-6 text-center font-display text-lg leading-snug text-[var(--l-ink)] md:text-[22px]"
+          className="absolute inset-x-0 mx-auto max-w-[560px] px-6 text-center text-lg font-normal leading-snug text-[var(--l-ink-2)] md:text-[20px]"
           style={{ top: `calc(50% + ${geo.square / 2}px + 40px)` }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: expanded ? 1 : 0, y: expanded ? 0 : 12 }}
@@ -125,7 +123,7 @@ export function Hero() {
           animate={{ opacity: expanded ? 0 : 1, y: expanded ? 40 : 0 }}
           transition={t}
         >
-          <p className="mb-8 flex items-center justify-center gap-1.5 text-sm text-white/80">
+          <p className="mb-8 flex items-center justify-center gap-1.5 font-mono text-xs uppercase tracking-[0.14em] text-white/70">
             Scroll to explore <ArrowDown className="size-3.5" />
           </p>
           <AssetTicker tone="dark" />

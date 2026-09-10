@@ -32,37 +32,37 @@ body {
     scrollbar-width: none;
   }
   :root {
-    /* App palette, shared with the landing page: white ground, #F0F0F0 surfaces,
-       #E5E5E5 hairlines, near-black primary, blue accent, green/red for deltas. */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 7%; /* #121212 */
+    /* "Blueprint" palette, shared with the landing page: cool graphite ground, ink text,
+       electric blue (from the logo's square) as the only accent, mono numerals, 8px corners. */
+    --background: 216 29% 97%; /* #F4F6F9 */
+    --foreground: 222 35% 7%; /* #0B0F17 */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 222 35% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
-    --primary: 0 0% 7%; /* black buttons */
+    --popover-foreground: 222 35% 7%;
+    --primary: 222 100% 59%; /* #2F6BFF */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 94%; /* #F0F0F0 chips */
-    --secondary-foreground: 0 0% 7%;
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 38%; /* #626262 */
-    --accent: 217 52% 58%; /* #5A86CC */
-    --accent-foreground: 0 0% 100%;
+    --secondary: 216 26% 93%; /* #E9EDF3 chips */
+    --secondary-foreground: 222 35% 7%;
+    --muted: 216 26% 93%;
+    --muted-foreground: 216 12% 40%; /* #5B6474 */
+    --accent: 214 91% 68%; /* #63A0F8, the logo square */
+    --accent-foreground: 222 35% 7%;
     --warning: 38 95% 64%;
     --warning-foreground: 38 95% 29%;
     --success: 154 70% 38%; /* #1DA66A */
     --success-foreground: 0 0% 100%;
     --destructive: 3 65% 49%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%; /* #E5E5E5 */
-    --input: 0 0% 90%;
-    --ring: 0 0% 7%;
-    --chart-1: 217 52% 58%; /* Blue */
-    --chart-2: 271 33% 54%; /* Plum */
+    --border: 218 22% 88%; /* #D9DEE7 */
+    --input: 218 22% 88%;
+    --ring: 222 100% 59%;
+    --chart-1: 222 100% 59%; /* Blue */
+    --chart-2: 214 91% 68%; /* Light blue */
     --chart-3: 154 70% 38%; /* Green */
     --chart-4: 38 95% 64%; /* Warning */
     --chart-5: 3 65% 49%; /* Red */
-    --radius: 0.75rem;
+    --radius: 0.5rem;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 221 83% 53%;
@@ -222,28 +222,41 @@ body {
   }
 }
 
-/* Landing page palette. Light-only by design, independent of the app theme. */
+/* Landing page palette: the same Blueprint tokens as the app, as plain hex. */
 .landing {
-  --l-ink: #121212;
-  --l-ink-2: #313131;
-  --l-muted: #626262;
-  --l-muted-2: #b1b1b1;
-  --l-line: #dedede;
-  --l-surface: #f0f0f0;
-  --l-white: #ffffff;
-  --l-hero: #272727;
-  --l-blue: #5a86cc;
-  --l-blue-soft: #c1cbf2;
-  --l-blue-mist: #e0ecff;
-  --l-sky: #8cb1ed;
+  --l-ink: #0b0f17;
+  --l-ink-2: #2a3140;
+  --l-muted: #5b6474;
+  --l-muted-2: #9aa3b2;
+  --l-line: #d9dee7;
+  --l-surface: #e9edf3;
+  --l-white: #f4f6f9;
+  --l-hero: #0b0f17;
+  --l-blue: #2f6bff;
+  --l-blue-soft: #c9d8ff;
+  --l-blue-mist: #e6eeff;
+  --l-sky: #63a0f8;
   --l-green: #1da66a;
   --l-green-soft: #d5e5cf;
   --l-green-mist: #ebf0e7;
-  --l-plum: #8c64b0;
+  --l-plum: #1f55e0;
   color-scheme: light;
   color: var(--l-ink);
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+}
+/* Faint blueprint grid: 40px cells, a hair of ink on light grounds, a hair of white on dark. */
+.blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(11, 15, 23, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 15, 23, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.blueprint-grid-dark {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 .landing ::selection {
   background: var(--l-blue-soft);
@@ -280,7 +293,7 @@ body {
 .landing-ground.is-expanded .hero-media {
   width: var(--hero-square, 480px);
   height: var(--hero-square, 480px);
-  border-radius: 45px;
+  border-radius: 12px;
 }
 /* Header: full-width and transparent over the hero, a floating black pill afterwards. */
 .landing .site-bar {

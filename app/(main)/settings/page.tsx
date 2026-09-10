@@ -89,7 +89,7 @@ export default function SettingsPage() {
                   <span className={cn('h-2 w-2 rounded-full', active ? 'bg-success' : n.live ? 'bg-muted-foreground/40' : 'bg-border')} />
                   {n.name}
                   {!n.live && (
-                    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[11px] font-normal text-muted-foreground">
+                    <span className="ml-2 inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5 text-[11px] font-normal text-muted-foreground">
                       Coming soon <DemoAlert className="h-3 w-3" note="Whitechain is not deployed yet" />
                     </span>
                   )}

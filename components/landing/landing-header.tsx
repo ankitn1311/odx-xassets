@@ -28,7 +28,7 @@ export function LandingHeader() {
         className={cn(
           'site-bar mx-auto flex w-full items-center justify-between',
           expanded
-            ? 'mt-3 h-[58px] max-w-[calc(100%-24px)] rounded-xl bg-black px-3 shadow-[0_24px_60px_-24px_rgba(0,0,0,.6)] md:max-w-[792px] md:px-6'
+            ? 'mt-3 h-[56px] max-w-[calc(100%-24px)] rounded-md bg-[#0B0F17] px-3 shadow-[0_24px_60px_-24px_rgba(11,15,23,.6)] md:max-w-[792px] md:px-5'
             : 'mt-0 h-[88px] max-w-[1600px] rounded-none bg-transparent px-5 shadow-none md:px-10'
         )}
       >
@@ -43,7 +43,7 @@ export function LandingHeader() {
               href={item.href}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noopener noreferrer' : undefined}
-              className="rounded-full px-4 py-2 text-[15px] font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white"
+              className="rounded-md px-3.5 py-2 text-[15px] font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white"
             >
               {item.label}
             </a>
@@ -57,7 +57,7 @@ export function LandingHeader() {
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(o => !o)}
-            className="flex size-10 items-center justify-center rounded-full md:hidden"
+            className="flex size-10 items-center justify-center rounded-md md:hidden"
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -65,7 +65,7 @@ export function LandingHeader() {
       </div>
 
       {menuOpen && (
-        <div className="mx-3 mt-2 rounded-xl bg-black px-5 pb-6 pt-2 text-white md:hidden">
+        <div className="mx-3 mt-2 rounded-md bg-[#0B0F17] px-5 pb-6 pt-2 text-white md:hidden">
           <nav className="flex flex-col">
             {NAV.map(item => (
               <a

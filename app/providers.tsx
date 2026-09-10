@@ -42,7 +42,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={config} reconnectOnMount>
         <RainbowKitProvider
-          theme={lightTheme({ accentColor: '#121212', borderRadius: 'medium' })}
+          theme={lightTheme({ accentColor: '#2F6BFF', borderRadius: 'small' })}
           key="ODX"
         >
           {/* <TradesProvider> */}

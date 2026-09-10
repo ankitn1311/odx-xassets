@@ -41,7 +41,7 @@ export default async function RootLayout({
       <link rel="apple-touch-icon" href="/images/favicon.png" />
 
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans text-sm antialiased`}>
-        <NextTopLoader color="#121212" showSpinner={false} height={2} />
+        <NextTopLoader color="#2F6BFF" showSpinner={false} height={2} />
         <Providers>
           {/* The product is light-only, like the landing page. */}
           <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light">

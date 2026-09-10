@@ -1,9 +1,8 @@
 'use client';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
 import { Words } from './reveal';
 import { LaunchGate } from './launch-gate';
+import { DiagramTile, Marker } from './blueprint';
 import { cn } from '@/lib/utils';
 
 const AUTOPLAY_MS = 6000;
@@ -11,26 +10,26 @@ const AUTOPLAY_MS = 6000;
 const NOTES = [
   {
     tag: 'Mint',
+    kind: 'mint' as const,
     title: 'One screen to mint wraps and cash',
     body: 'Pay with USDC.e or USDT and pick the asset. The quote shows units out, the spread in basis points and when it settles: instant, T+0 or T+1.',
-    image: 'https://picsum.photos/id/1067/1200/800',
   },
   {
     tag: 'Reserves',
+    kind: 'reserves' as const,
     title: 'The reserves page ships with mint',
     body: 'Public and open without a wallet: units minted against units in custody for every asset, the custodian named, and a link to the attestation.',
-    image: 'https://picsum.photos/id/1076/1200/800',
   },
   {
     tag: 'Redeem',
+    kind: 'redeem' as const,
     title: 'Redeem anytime, route chosen for you',
     body: 'Instant from the buffer, or a queue with your position and ETA. You receive USDC.e, with the fee and haircut shown before you burn.',
-    image: 'https://picsum.photos/id/1080/1200/800',
   },
 ];
 
 /**
- * Accordion carousel: the active card takes the row, the others collapse into grey
+ * Accordion carousel: the active card takes the row, the others collapse into narrow
  * columns at the sides. Autoplays with a progress ring; any card can be clicked.
  */
 export function Latest() {
@@ -52,13 +51,16 @@ export function Latest() {
 
   return (
     <section className="mx-auto max-w-[1600px] px-5 pb-20 pt-12 md:px-10 md:pb-32">
+      <p className="mb-3 flex items-center justify-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-[var(--l-muted)]">
+        <Marker /> Product notes
+      </p>
       <Words
         text="What's new"
         muted="at ODX"
-        className="text-center text-[36px] font-medium leading-[1.05] tracking-[-0.03em] md:text-[48px]"
+        className="text-center text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[48px]"
       />
 
-      <div className="mt-12 flex h-[560px] gap-4 md:h-[440px]">
+      <div className="mt-12 flex h-[560px] gap-3 md:h-[440px]">
         {NOTES.map((n, i) => {
           const isActive = i === active;
           return (
@@ -73,34 +75,45 @@ export function Latest() {
               aria-label={isActive ? undefined : `Show: ${n.title}`}
               aria-current={isActive}
               className={cn(
-                'relative min-w-0 overflow-hidden rounded-3xl text-left transition-[flex-basis,background-color] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
-                isActive ? 'flex-1 basis-full bg-[var(--l-hero)] text-white' : 'flex-none basis-10 bg-[var(--l-surface)] md:basis-16'
+                'group relative min-w-0 overflow-hidden rounded-lg text-left transition-[flex-basis,background-color] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
+                isActive
+                  ? 'flex-1 basis-full bg-[var(--l-hero)] text-white'
+                  : 'flex-none basis-12 cursor-pointer border border-[var(--l-line)] bg-white hover:border-[var(--l-blue)] md:basis-16'
               )}
             >
+              {/* Collapsed: a vertical tab, numbered and named, so the column reads as something to open. */}
               <div
                 className={cn(
-                  'grid h-full w-[min(100%,1400px)] gap-6 p-4 transition-opacity duration-500 md:grid-cols-[1fr_1.1fr] md:p-6',
+                  'absolute inset-0 flex flex-col items-center justify-between py-5 transition-opacity duration-300',
+                  isActive ? 'pointer-events-none opacity-0' : 'opacity-100 delay-300'
+                )}
+              >
+                <Marker className="group-hover:bg-[var(--l-blue)]" />
+                <span className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--l-muted)] [writing-mode:vertical-rl] group-hover:text-[var(--l-ink)]">
+                  <span>{n.tag}</span>
+                </span>
+                <span className="font-mono text-[11px] text-[var(--l-muted-2)]">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <div
+                className={cn(
+                  'grid h-full w-[min(100%,1400px)] gap-6 p-4 transition-opacity duration-500 md:grid-cols-[1fr_1.1fr] md:p-5',
                   isActive ? 'opacity-100 delay-300' : 'opacity-0'
                 )}
               >
-                <div className="relative h-48 overflow-hidden rounded-2xl md:h-full">
-                  <Image
-                    src={n.image}
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 100vw, 45vw"
-                    className="object-cover"
-                  />
+                <div className="relative h-48 overflow-hidden rounded-md border border-white/10 md:h-full">
+                  <DiagramTile kind={n.kind} />
                 </div>
-                <div className="flex flex-col py-2 md:py-4">
+                <div className="flex flex-col py-2 md:py-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-white/60">{n.tag}</span>
+                    <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-[#63A0F8]">
+                      <Marker /> {n.tag}
+                    </span>
                     {isActive && <ProgressRing key={tick} />}
                   </div>
-                  <h3 className="mt-4 text-[28px] font-medium leading-[1.1] tracking-[-0.02em] md:text-[40px]">
+                  <h3 className="mt-4 text-[28px] font-semibold leading-[1.1] tracking-[-0.02em] md:text-[38px]">
                     {n.title}
                   </h3>
-                  <p className="mt-4 max-w-[560px] font-display text-base leading-[1.5] text-white/70 md:text-[18px]">
+                  <p className="mt-4 max-w-[560px] text-base leading-[1.55] text-white/70">
                     {n.body}
                   </p>
                   <div className="mt-auto pt-6">
@@ -122,16 +135,10 @@ export function Latest() {
             type="button"
             aria-label={`Go to ${i + 1}`}
             onClick={() => select(i)}
-            className={cn(
-              'h-1.5 rounded-full transition-all',
-              i === active ? 'w-8 bg-[var(--l-ink)]' : 'w-3 bg-[var(--l-line)]'
-            )}
+            className={cn('h-1.5 transition-all', i === active ? 'w-8 bg-[var(--l-blue)]' : 'w-3 bg-[var(--l-line)]')}
           />
         ))}
       </div>
-      <span className="sr-only">
-        <ArrowRight className="size-4" />
-      </span>
     </section>
   );
 }
@@ -148,7 +155,7 @@ function ProgressRing() {
         cy="9"
         r={r}
         fill="none"
-        stroke="#fff"
+        stroke="#63A0F8"
         strokeWidth="2"
         strokeDasharray={c}
         style={{ animation: `ring-fill ${AUTOPLAY_MS}ms linear forwards` }}

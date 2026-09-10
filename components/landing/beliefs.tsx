@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Marker } from './blueprint';
 
 const BELIEFS = [
   {
@@ -30,8 +31,10 @@ export function Beliefs() {
     <section id="principles" className="mx-auto max-w-[1600px] scroll-mt-24 px-5 py-20 md:px-10 md:py-32">
       <div className="grid items-center gap-10 md:grid-cols-[1fr_1.2fr_1fr]">
         <div>
-          <p className="text-sm text-[var(--l-muted)]">A message from ODX</p>
-          <h2 className="mt-2 text-[40px] font-medium leading-none tracking-[-0.03em] md:text-[56px]">
+          <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-[var(--l-muted)]">
+            <Marker /> A message from ODX
+          </p>
+          <h2 className="mt-3 text-[40px] font-semibold leading-none tracking-[-0.03em] md:text-[56px]">
             We believe in
           </h2>
         </div>
@@ -46,7 +49,7 @@ export function Beliefs() {
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -16, filter: 'blur(8px)' }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[36px] font-medium leading-none tracking-[-0.03em] text-[#2B4C8C] md:text-[52px]"
+              className="text-[36px] font-semibold leading-none tracking-[-0.03em] text-[var(--l-blue)] md:text-[52px]"
             >
               {BELIEFS[i].title}
             </motion.h3>
@@ -62,7 +65,7 @@ export function Beliefs() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="max-w-[560px] font-display text-lg leading-[1.45] text-[var(--l-ink-2)]"
+            className="max-w-[560px] text-lg leading-[1.45] text-[var(--l-ink-2)]"
           >
             {BELIEFS[i].body}
           </motion.p>
@@ -76,7 +79,7 @@ export function Beliefs() {
               aria-label={b.title}
               aria-current={n === i}
               className={cn(
-                'flex size-9 items-center justify-center rounded-full border text-xs font-medium transition-colors',
+                'flex size-9 items-center justify-center rounded-md border font-mono text-xs font-medium transition-colors',
                 n === i
                   ? 'border-[var(--l-surface)] bg-[var(--l-surface)] text-[var(--l-ink)]'
                   : 'border-[var(--l-line)] text-[var(--l-muted-2)] hover:text-[var(--l-ink)]'
@@ -142,7 +145,7 @@ function Globe({ className }: { className?: string }) {
         const rad = 1.4 + depth * 1.2;
         ctx.beginPath();
         ctx.arc(cx + x * R, cy + p.y * R, rad, 0, Math.PI * 2);
-        ctx.fillStyle = p.land ? `rgba(43,76,140,${alpha})` : `rgba(140,177,237,${alpha * 0.55})`;
+        ctx.fillStyle = p.land ? `rgba(47,107,255,${alpha})` : `rgba(99,160,248,${alpha * 0.55})`;
         ctx.fill();
       }
       if (!reduce) raf = requestAnimationFrame(draw);

@@ -67,14 +67,14 @@ export function Leaderboard({ period, pageSize = 100 }: { period: Period; pageSi
     <div className="flex flex-col gap-4">
       {/* Leader spotlight with the chasers and their gaps */}
       {isLoading ? (
-        <Skeleton className="h-56 rounded-2xl" />
+        <Skeleton className="h-56 rounded-lg" />
       ) : (
         leader && (
           <div className="grid gap-4 md:grid-cols-[1.35fr_1fr]">
-            <section className="relative overflow-hidden rounded-2xl bg-[#0B1F3A] p-6 text-white md:p-7">
+            <section className="blueprint-grid-dark relative overflow-hidden rounded-lg bg-[#0B0F17] p-6 text-white md:p-7">
               <div className="relative z-10 flex flex-col gap-5">
-                <span className="flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-[#8CB1ED]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#8CB1ED]" />
+                <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-[#63A0F8]">
+                  <span className="h-2 w-2 bg-[#63A0F8]" />
                   {period === 'all' ? 'Leader, all time' : 'Leader this week'}
                 </span>
                 <div className="flex items-center gap-4">
@@ -88,19 +88,19 @@ export function Leaderboard({ period, pageSize = 100 }: { period: Period; pageSi
                       href={`https://sonicscan.org/address/${leader.address}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-[#8CB1ED] hover:underline"
+                      className="text-xs text-[#63A0F8] hover:underline"
                     >
                       View on Sonicscan ↗
                     </a>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-end justify-between gap-4">
-                  <span className="text-[44px] font-medium leading-none tracking-[-0.03em] tabular-nums">
+                  <span className="font-mono text-[44px] font-medium leading-none tracking-[-0.03em] tabular-nums">
                     {leader.totalPoints.toLocaleString()}
-                    <span className="ml-2 text-sm font-normal tracking-normal text-[#8CB1ED]">pts</span>
+                    <span className="ml-2 text-sm font-normal tracking-normal text-[#63A0F8]">pts</span>
                   </span>
                   {chasers[0] && (
-                    <span className="text-sm text-[#8CB1ED]">
+                    <span className="text-sm text-[#63A0F8]">
                       Leads by{' '}
                       <span className="font-mono text-white tabular-nums">
                         {(leader.totalPoints - chasers[0].totalPoints).toLocaleString()}
@@ -112,8 +112,9 @@ export function Leaderboard({ period, pageSize = 100 }: { period: Period; pageSi
               </div>
               {/* Rings, echoing the markets banner. */}
               <svg aria-hidden="true" viewBox="0 0 400 200" preserveAspectRatio="xMaxYMid slice" className="pointer-events-none absolute inset-0 h-full w-full">
-                <circle cx="330" cy="100" r="130" fill="none" stroke="#5A86CC" strokeOpacity="0.25" />
-                <circle cx="330" cy="100" r="80" fill="none" stroke="#5A86CC" strokeOpacity="0.15" />
+                <circle cx="330" cy="100" r="130" fill="none" stroke="#63A0F8" strokeOpacity="0.3" strokeDasharray="4 8" />
+                <circle cx="330" cy="100" r="80" fill="none" stroke="#63A0F8" strokeOpacity="0.2" />
+                <rect x="324" y="94" width="12" height="12" fill="#63A0F8" />
               </svg>
             </section>
 

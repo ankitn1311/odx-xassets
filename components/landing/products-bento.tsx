@@ -8,8 +8,9 @@ import { Words, Reveal } from './reveal';
 import { LaunchGate } from './launch-gate';
 import { Bars, DottedLine, IconGrid, MiniTable } from './charts';
 import { cn } from '@/lib/utils';
+import { Marker } from './blueprint';
 
-type Tile = { label: string; value: string; note?: string; chart: React.ReactNode };
+type Tile ={ label: string; value: string; note?: string; chart: React.ReactNode };
 type Product = {
   key: string;
   tag: string;
@@ -39,7 +40,7 @@ const PRODUCTS: Product[] = [
         label: 'Units minted vs in custody',
         value: '1 : 1',
         note: 'Custody keeps pace with every mint',
-        chart: <DottedLine series={growth} secondary={growth} color="#8C64B0" badge="100%" />,
+        chart: <DottedLine series={growth} secondary={growth} color="#2F6BFF" badge="100%" />,
       },
       {
         label: 'Assets',
@@ -52,7 +53,7 @@ const PRODUCTS: Product[] = [
         note: 'Quote shows instant, T+0 or T+1',
         chart: (
           <Bars
-            color="#5A86CC"
+            color="#63A0F8"
             badge="ETA"
             values={[
               { label: 'Instant', value: 100 },
@@ -100,7 +101,7 @@ const PRODUCTS: Product[] = [
         note: 'Instant up to the buffer, then a queue',
         chart: (
           <Bars
-            color="#5A86CC"
+            color="#63A0F8"
             values={[
               { label: 'Buffer', value: 100 },
               { label: 'Queue', value: 45 },
@@ -119,7 +120,7 @@ const PRODUCTS: Product[] = [
     cta: (
       <a
         href="#reserves"
-        className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--l-ink)] px-5 text-[15px] font-medium text-white transition-colors hover:bg-[var(--l-ink-2)]"
+        className="inline-flex h-10 items-center justify-center rounded-md bg-[var(--l-ink)] px-5 text-[15px] font-medium text-white transition-colors hover:bg-[var(--l-ink-2)]"
       >
         How reserves work
       </a>
@@ -129,7 +130,7 @@ const PRODUCTS: Product[] = [
         label: 'Minted vs in custody',
         value: 'Matched',
         note: 'Both series overlap when fully backed',
-        chart: <DottedLine series={growth} secondary={growth} color="#5A86CC" badge="1 : 1" />,
+        chart: <DottedLine series={growth} secondary={growth} color="#63A0F8" badge="1 : 1" />,
       },
       {
         label: 'Custodian',
@@ -150,7 +151,7 @@ const PRODUCTS: Product[] = [
         note: 'No wallet needed to read it',
         chart: (
           <Bars
-            color="#8C64B0"
+            color="#2F6BFF"
             values={[
               { label: 'Anyone', value: 100 },
               { label: 'Wallet', value: 100 },
@@ -193,14 +194,16 @@ export function ProductsBento() {
   return (
     <section id="products" className="scroll-mt-24">
       <div className="mx-auto max-w-[1600px] px-5 pt-10 text-center md:px-10">
-        <p className="text-sm text-[var(--l-muted)]">Our products</p>
+        <p className="flex items-center justify-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-[var(--l-muted)]">
+          <Marker /> Our products
+        </p>
         <Words
           text="A new standard"
           muted="for backed onchain assets."
-          className="mx-auto mt-4 max-w-[900px] text-[36px] font-medium leading-[1.05] tracking-[-0.03em] md:text-[56px]"
+          className="mx-auto mt-4 max-w-[900px] text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[56px]"
         />
         <Reveal delay={0.2}>
-          <p className="mx-auto mt-5 max-w-[560px] font-display text-lg text-[var(--l-ink-2)]">
+          <p className="mx-auto mt-5 max-w-[560px] text-lg text-[var(--l-ink-2)]">
             Wraps you can mint and redeem, a cash token that earns, and a reserves page that
             shows the backing behind both.
           </p>
@@ -217,7 +220,7 @@ export function ProductsBento() {
         >
           <div
             className={cn(
-              'grid w-full min-h-0 gap-3 rounded-[28px] bg-[var(--l-surface)] p-3 md:grid-cols-[1fr_1.35fr]',
+              'grid w-full min-h-0 gap-3 rounded-lg border border-[var(--l-line)] bg-[var(--l-surface)] p-3 md:grid-cols-[1fr_1.35fr]',
               pinned && 'h-full'
             )}
           >
@@ -236,13 +239,13 @@ export function ProductsBento() {
                     }}
                     aria-expanded={on}
                     className={cn(
-                      'flex flex-col overflow-hidden rounded-2xl bg-white p-6 text-left transition-[flex-grow] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
+                      'flex flex-col overflow-hidden rounded-md border border-[var(--l-line)] bg-white p-6 text-left transition-[flex-grow] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
                       on ? 'min-h-0 flex-1' : 'flex-none'
                     )}
                   >
                     <div className="flex items-center justify-between">
                       {on ? (
-                        <span className="flex size-12 items-center justify-center rounded-xl bg-[var(--l-ink)] text-white">
+                        <span className="flex size-12 items-center justify-center rounded-md bg-[var(--l-blue)] text-white">
                           {item.icons[0] ? (
                             <Image src={`/images/tokens/${item.icons[0]}.png`} alt="" width={32} height={32} className="size-8" />
                           ) : (
@@ -252,7 +255,7 @@ export function ProductsBento() {
                       ) : (
                         <span className="text-[26px] font-medium tracking-[-0.02em]">{item.name}</span>
                       )}
-                      <span className="rounded-full bg-[var(--l-surface)] px-3 py-1 text-xs font-medium text-[var(--l-muted)]">
+                      <span className="rounded-md bg-[var(--l-surface)] px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-[var(--l-muted)]">
                         {item.tag}
                       </span>
                     </div>
@@ -264,11 +267,11 @@ export function ProductsBento() {
                         className="mt-auto flex flex-col gap-4 pt-10"
                       >
                         <span className="text-[30px] font-medium tracking-[-0.02em]">{item.name}</span>
-                        <p className="max-w-[440px] font-display text-base leading-[1.5] text-[var(--l-ink-2)] md:text-[18px]">
+                        <p className="max-w-[440px] text-base leading-[1.5] text-[var(--l-ink-2)] md:text-[18px]">
                           {item.body}
                         </p>
                         {item.note && (
-                          <span className="w-fit rounded-full bg-[var(--l-surface)] px-3 py-1 text-xs text-[var(--l-muted)]">
+                          <span className="w-fit rounded-md bg-[var(--l-surface)] px-3 py-1 text-xs text-[var(--l-muted)]">
                             {item.note}
                           </span>
                         )}
@@ -311,9 +314,9 @@ export function ProductsBento() {
 
 function TileCard({ tile }: { tile: Tile }) {
   return (
-    <div className="flex min-h-0 flex-col rounded-2xl bg-white p-5">
+    <div className="flex min-h-0 flex-col rounded-md border border-[var(--l-line)] bg-white p-5">
       <p className="text-xs text-[var(--l-muted)]">{tile.label}</p>
-      <p className="mt-1 font-display text-[30px] leading-none tracking-[-0.01em]">{tile.value}</p>
+      <p className="mt-1 font-mono text-[28px] leading-none tracking-[-0.02em]">{tile.value}</p>
       {tile.note && <p className="mt-1.5 font-mono text-[11px] text-[var(--l-muted)]">{tile.note}</p>}
       <div className="mt-4 min-h-0 flex-1">{tile.chart}</div>
       <p className="mt-3 flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-[var(--l-muted-2)]">

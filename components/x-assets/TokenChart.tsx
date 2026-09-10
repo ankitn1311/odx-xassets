@@ -34,7 +34,7 @@ export const TokenChart = () => {
 
   return (
     <div className="flex w-full flex-col">
-      <Card className="flex h-full flex-col justify-between gap-6 border-0 bg-[#EEF2F9] p-6">
+      <Card className="flex h-full flex-col justify-between gap-6 border-0 bg-[#E6EEFF] p-6">
         {/* Top section: Token info and price */}
         <div className="flex items-center gap-2">
           {/* <button

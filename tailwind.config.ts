@@ -83,7 +83,8 @@ const config: Config = {
         sans: ['var(--font-geist-sans)'],
         mono: ['var(--font-geist-mono)'],
         landing: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'Georgia', 'serif'],
+        // One typeface family: descriptive copy uses Geist too, at a lighter weight.
+        display: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         ticker: {

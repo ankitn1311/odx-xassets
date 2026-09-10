@@ -119,7 +119,7 @@ export function TradesTable({ pageSize = 20, type = 'explorer' }: TradesTablePro
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="hidden items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs text-success sm:inline-flex">
+          <span className="hidden items-center gap-1.5 rounded bg-secondary px-2.5 py-1 text-xs text-success sm:inline-flex">
             <span className={cn('h-1.5 w-1.5 rounded-full bg-success', isFetching && 'animate-pulse')} />
             Live
           </span>

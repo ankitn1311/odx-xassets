@@ -256,7 +256,7 @@ export const TokenSwapCard = ({ mode = 'trade' }: { mode?: 'trade' | 'redeem' })
   return (
     <FormProvider {...form}>
       {/* Grey panel with white input blocks inside, like the reference trade card. */}
-      <Card className="flex h-full w-full flex-col border-0 bg-[#F3F3F3] py-4">
+      <Card className="flex h-full w-full flex-col border-0 bg-secondary py-4">
         <div className="flex h-full flex-col gap-4">
           <div className="flex items-center justify-between px-4">
             {mode === 'redeem' ? (
@@ -332,7 +332,7 @@ function QuoteTimer() {
   return (
     <div className="flex h-7 flex-col items-center text-xs text-muted-foreground">
       <span className="font-mono">{timeUntilNextQuote}s</span>
-      <div className="h-1 w-8 overflow-hidden rounded-full bg-[#E0E0E0]">
+      <div className="h-1 w-8 overflow-hidden rounded-full bg-border">
         <div
           className="h-1 bg-foreground transition-all duration-1000 ease-linear"
           style={{ width: `${(timeUntilNextQuote / 10) * 100}%` }}

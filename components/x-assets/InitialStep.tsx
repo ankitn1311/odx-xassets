@@ -247,7 +247,7 @@ export function InitialStep() {
         {/* Swap direction, sitting on the seam between the two blocks. Redeem is one-way. */}
         <div className="relative z-10 -my-3 flex justify-center">
           {redeemMode ? (
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E6E6E6] bg-card shadow-sm">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card shadow-sm">
               <ArrowDown className="h-4 w-4 text-muted-foreground" />
             </span>
           ) : (
@@ -255,7 +255,7 @@ export function InitialStep() {
               variant="outline"
               size="icon"
               type="button"
-              className="h-8 w-8 rounded-full border-[#E6E6E6] shadow-sm"
+              className="h-8 w-8 rounded-full border-border shadow-sm"
               onClick={handleTabSwitch}
               disabled={[TradeState.PENDING, TradeState.SUCCESS].includes(tradeState)}
               aria-label="Switch between buy and sell"
@@ -320,11 +320,11 @@ function RedeemRoute({ symbol, usdOut }: { symbol: string; usdOut: number }) {
         {usdOut === 0 ? (
           <span className="text-muted-foreground">Enter an amount</span>
         ) : instant ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
+          <span className="inline-flex items-center gap-1.5 rounded bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
             <span className="h-1.5 w-1.5 rounded-full bg-success" /> Instant, from buffer
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-warning" /> Queue · position {QUEUE_ESTIMATE.position} · {QUEUE_ESTIMATE.eta}
           </span>
         )}
@@ -353,7 +353,7 @@ function RedeemRoute({ symbol, usdOut }: { symbol: string; usdOut: number }) {
 
 export function ODXApiSource() {
   return (
-    <span className="flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+    <span className="flex items-center gap-1.5 rounded border border-border bg-card px-2.5 py-1 text-xs">
       <Image src="/images/logos/odx-light.svg" alt="ODX" width={14} height={14} className="h-3.5 w-3.5" />
       ODX API
     </span>

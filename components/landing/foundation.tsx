@@ -21,9 +21,9 @@ export function Foundation() {
           <Words
             text="ODX is building the rails for"
             muted="backed onchain assets."
-            className="text-[32px] font-medium leading-[1.1] tracking-[-0.02em] md:text-[44px]"
+            className="text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] md:text-[44px]"
           />
-          <p className="mt-6 max-w-[440px] font-display text-lg text-[var(--l-ink-2)]">
+          <p className="mt-6 max-w-[440px] text-lg text-[var(--l-ink-2)]">
             Every wrap is a receipt for an asset held in custody. The reserves page lists each one
             with units minted, units in custody, the custodian, and when the figures were last
             updated, and links to the attestation.
@@ -36,12 +36,12 @@ export function Foundation() {
               key={row.label}
               className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-b border-[var(--l-line)] py-8 first:pt-0 md:py-10"
             >
-              <span className="font-landing text-[clamp(72px,11vw,150px)] font-medium leading-none tracking-[-0.04em] tabular-nums">
+              <span className="font-landing text-[clamp(72px,11vw,150px)] font-semibold leading-none tracking-[-0.04em] text-[var(--l-ink)] tabular-nums">
                 {row.value.split('').map((ch, i) => (
                   <Odometer key={i} char={ch} go={inView} delay={r * 0.15 + i * 0.08} />
                 ))}
               </span>
-              <span className="max-w-[220px] font-display text-lg leading-snug text-[var(--l-muted)]">
+              <span className="max-w-[220px] text-lg leading-snug text-[var(--l-muted)]">
                 {row.label}
               </span>
             </div>

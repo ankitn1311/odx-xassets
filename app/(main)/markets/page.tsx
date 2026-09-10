@@ -58,7 +58,7 @@ export default function MarketsPage() {
               {rows.length}
             </span>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs text-success">
+          <span className="inline-flex items-center gap-1.5 rounded bg-secondary px-2.5 py-1 text-xs text-success">
             <span className="h-1.5 w-1.5 rounded-full bg-success" />
             Market open
             <span className="text-muted-foreground">(24/7)</span>

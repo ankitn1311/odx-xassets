@@ -26,7 +26,7 @@ export default function ActivityPage() {
           {EVENTS.map(e => (
             <li
               key={e.name}
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs ${e.live ? 'bg-secondary' : 'border border-dashed border-border text-muted-foreground'}`}
+              className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs ${e.live ? 'bg-secondary' : 'border border-dashed border-border text-muted-foreground'}`}
             >
               {e.name}
               {!e.live && <DemoAlert className="h-3 w-3" note="This event type arrives with the activity endpoint" />}

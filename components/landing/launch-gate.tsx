@@ -72,12 +72,12 @@ export function LaunchGate({
         type="button"
         onClick={onClick}
         className={cn(
-          'group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition-[background-color,color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--l-blue)] focus-visible:ring-offset-2',
-          size === 'sm' ? 'h-10 px-5 text-[15px]' : 'h-14 px-8 text-base',
+          'group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-[background-color,color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--l-blue)] focus-visible:ring-offset-2',
+          size === 'sm' ? 'h-10 px-4 text-[15px]' : 'h-13 px-7 text-base',
           variant === 'solid' &&
-            'bg-[var(--l-ink)] text-white hover:bg-[var(--l-ink-2)] hover:shadow-[0_12px_30px_-12px_rgba(0,0,0,.5)]',
+            'bg-[var(--l-blue)] text-white hover:bg-[var(--l-plum)] hover:shadow-[0_12px_30px_-12px_rgba(47,107,255,.6)]',
           variant === 'light' &&
-            'bg-white text-[var(--l-ink)] hover:bg-[var(--l-surface)] hover:shadow-[0_12px_30px_-12px_rgba(0,0,0,.4)]',
+            'bg-white text-[var(--l-ink)] hover:bg-[var(--l-blue-mist)]',
           variant === 'ghost' &&
             'border border-current bg-transparent text-current hover:bg-white/10',
           className
@@ -88,9 +88,9 @@ export function LaunchGate({
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="landing max-w-md rounded-2xl border-[var(--l-line)] bg-white p-8 text-[var(--l-ink)] sm:rounded-2xl">
+        <DialogContent className="landing max-w-md rounded-lg border-[var(--l-line)] bg-white p-8 text-[var(--l-ink)] sm:rounded-lg">
           <DialogHeader className="items-center text-center sm:text-center">
-            <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-[var(--l-blue-mist)]">
+            <div className="mb-3 flex size-12 items-center justify-center rounded-md bg-[var(--l-blue-mist)]">
               <Lock className="size-5 text-[var(--l-blue)]" />
             </div>
             <DialogTitle className="text-2xl font-medium tracking-tight">
@@ -136,7 +136,7 @@ export function LaunchGate({
 
             <button
               type="submit"
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--l-ink)] text-base font-medium text-white transition-colors hover:bg-[var(--l-ink-2)]"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[var(--l-blue)] text-base font-medium text-white transition-colors hover:bg-[var(--l-plum)]"
             >
               Enter app <ArrowRight className="size-4" />
             </button>

@@ -28,7 +28,7 @@ export default function StatusPage() {
           {checks.map(c => (
             <li key={c.key} className="flex items-center justify-between px-5 py-3 text-sm">
               <span>{c.label}</span>
-              <span className={cn('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium', c.ok ? 'bg-success/10 text-success' : 'bg-warning/15 text-warning-foreground')}>
+              <span className={cn('inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium', c.ok ? 'bg-success/10 text-success' : 'bg-warning/15 text-warning-foreground')}>
                 <span className={cn('h-1.5 w-1.5 rounded-full', c.ok ? 'bg-success' : 'bg-warning')} />
                 {c.ok ? 'Operational' : 'Degraded'}
               </span>

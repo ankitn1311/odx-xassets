@@ -57,7 +57,7 @@ export function Trader({ address, isYou }: { address: string; isYou?: boolean })
         <span className="flex items-center gap-2 font-mono text-[15px]">
           {shortenAddress(address)}
           {isYou && (
-            <span className="rounded-full bg-foreground px-1.5 py-0.5 font-sans text-[10px] font-medium uppercase tracking-wide text-background">
+            <span className="rounded bg-foreground px-1.5 py-0.5 font-sans text-[10px] font-medium uppercase tracking-wide text-background">
               You
             </span>
           )}

@@ -44,7 +44,7 @@ export function PendingQueue({ title = 'Pending', className }: { title?: string;
                   {` · ${timeAgo(Number(new Date(item.createdAt)))}`}
                 </span>
               </span>
-              <span className={cn('rounded-full px-2.5 py-1 text-xs font-medium', STATUS[item.status].className)}>
+              <span className={cn('rounded px-2.5 py-1 text-xs font-medium', STATUS[item.status].className)}>
                 {STATUS[item.status].label}
               </span>
               <Button variant="secondary" size="sm" disabled={item.status !== 'claimable'}>

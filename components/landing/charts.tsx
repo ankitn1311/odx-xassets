@@ -44,7 +44,7 @@ export function DottedLine({ series, color, badge, secondary }: LineProps) {
       y={y(v) - size / 2}
       width={size}
       height={size}
-      rx={size / 4}
+      rx={0}
       fill={fill}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -64,9 +64,9 @@ export function DottedLine({ series, color, badge, secondary }: LineProps) {
         <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="block" aria-hidden="true">
           {Array.from({ length: 7 }).map((_, i) => {
             const gy = top + (i / 6) * (h - top - bottom);
-            return <line key={i} x1="0" x2={w} y1={gy} y2={gy} stroke="#DEDEDE" strokeDasharray="2 4" />;
+            return <line key={i} x1="0" x2={w} y1={gy} y2={gy} stroke="#D9DEE7" strokeDasharray="2 4" />;
           })}
-          {secondary?.map((v, i) => dot(i, secondary.length, v, '#DEDEDE', 0.1 + i * 0.03, `s${i}`, 12))}
+          {secondary?.map((v, i) => dot(i, secondary.length, v, '#D9DEE7', 0.1 + i * 0.03, `s${i}`, 12))}
           {series.map((v, i) => dot(i, series.length, v, color, 0.2 + i * 0.04, `p${i}`))}
         </svg>
       )}
@@ -105,7 +105,7 @@ export function Bars({ values, color, badge }: BarsProps) {
                   y={base - bh}
                   width={bw}
                   height={bh}
-                  rx="8"
+                  rx="0"
                   fill={color}
                   fillOpacity={alpha}
                   initial={{ scaleY: 0 }}
@@ -119,7 +119,7 @@ export function Bars({ values, color, badge }: BarsProps) {
                   textAnchor="middle"
                   fontSize="11"
                   fontFamily="var(--font-geist-mono), ui-monospace, monospace"
-                  fill="#626262"
+                  fill="#5B6474"
                 >
                   {v.label}
                 </text>
@@ -163,7 +163,7 @@ export function IconGrid({ icons }: { icons: string[] }) {
 /** Mini reserves table, rows sliding in. */
 export function MiniTable({ rows }: { rows: [string, string, string][] }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-[var(--l-line)] text-[12px]">
+    <div className="overflow-hidden rounded-md border border-[var(--l-line)] text-[12px]">
       <div className="grid grid-cols-3 bg-[var(--l-surface)] px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-[var(--l-muted)]">
         <span>Asset</span>
         <span>Minted</span>

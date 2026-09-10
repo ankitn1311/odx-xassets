@@ -1,8 +1,8 @@
 'use client';
-import Image from 'next/image';
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Words } from './reveal';
+import { Marker } from './blueprint';
 import { cn } from '@/lib/utils';
 
 const CARDS = [
@@ -33,27 +33,25 @@ const CARDS = [
   },
 ];
 
-/** Dark section over a dimmed photo; one card is lit at a time, the rest wait in glass. */
+/** Dark blueprint section; one card is lit at a time, the rest wait as outlines. */
 export function Principles() {
   const [active, setActive] = useState(0);
   const step = (d: number) => setActive(a => (a + d + CARDS.length) % CARDS.length);
 
   return (
-    <section className="relative overflow-hidden bg-black text-white">
-      <Image
-        src="https://picsum.photos/id/1031/1920/1080"
-        alt=""
-        fill
-        sizes="100vw"
-        className="object-cover opacity-40 grayscale"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black" />
+    <section className="blueprint-grid-dark relative overflow-hidden bg-[var(--l-hero)] text-white">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--l-hero)]" />
+      {/* Corner markers, like registration marks on a drawing. */}
+      <span aria-hidden="true" className="absolute left-10 top-10 hidden h-3 w-3 bg-[#63A0F8] md:block" />
+      <span aria-hidden="true" className="absolute right-10 top-10 hidden h-3 w-3 border border-[#63A0F8] md:block" />
 
       <div className="relative mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-32">
-        <p className="text-sm text-white/70">Trust and transparency</p>
+        <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-white/60">
+          <Marker /> Trust and transparency
+        </p>
         <Words
           text="Institutional grade in all we do"
-          className="mt-3 max-w-[560px] text-[36px] font-medium leading-[1.05] tracking-[-0.03em] md:text-[56px]"
+          className="mt-3 max-w-[560px] text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[56px]"
         />
 
         <div className="mt-14 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none]">
@@ -66,15 +64,15 @@ export function Principles() {
                 onClick={() => setActive(i)}
                 aria-current={on}
                 className={cn(
-                  'flex h-[260px] shrink-0 flex-col rounded-2xl p-6 text-left transition-[width,background-color,color] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
+                  'flex h-[260px] shrink-0 flex-col rounded-md p-6 text-left transition-[width,background-color,color] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
                   on
                     ? 'w-[min(88vw,460px)] bg-white text-[var(--l-ink)]'
-                    : 'w-[min(60vw,230px)] border border-white/10 bg-white/[0.06] text-white backdrop-blur-sm'
+                    : 'w-[min(60vw,230px)] border border-white/15 bg-white/[0.04] text-white'
                 )}
               >
                 <span
                   className={cn(
-                    'flex size-8 items-center justify-center rounded-full border text-[11px]',
+                    'flex size-8 items-center justify-center rounded border font-mono text-[11px]',
                     on ? 'border-[var(--l-line)]' : 'border-white/25'
                   )}
                 >
@@ -84,7 +82,7 @@ export function Principles() {
                   <span className="block text-lg font-medium leading-snug">{c.title}</span>
                   {on && (
                     <>
-                      <span className="mt-2 block font-display text-base leading-[1.5] text-[var(--l-ink-2)]">
+                      <span className="mt-2 block text-base leading-[1.5] text-[var(--l-ink-2)]">
                         {c.body}
                       </span>
                       <span className="mt-4 block border-t border-[var(--l-line)] pt-3 text-xs font-medium text-[var(--l-muted)]">

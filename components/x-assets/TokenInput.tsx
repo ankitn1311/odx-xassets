@@ -141,7 +141,7 @@ export function TokenInput({
   }, [getQuote, setValue]);
 
   const chipClass =
-    'flex h-9 shrink-0 items-center gap-2 rounded-full bg-secondary px-3 text-sm font-medium';
+    'flex h-9 shrink-0 items-center gap-2 rounded-md bg-secondary px-3 text-sm font-medium';
 
   return (
     <div className="rounded-xl bg-card p-4">
@@ -218,7 +218,7 @@ export function TokenInput({
                 variant="secondary"
                 size="sm"
                 type="button"
-                className="h-6 rounded-full px-2 text-[11px]"
+                className="h-6 rounded px-2 text-[11px]"
                 onClick={() => handlePercentageClick(percentage)}
               >
                 {percentage === 100 ? 'Max' : `${percentage}%`}

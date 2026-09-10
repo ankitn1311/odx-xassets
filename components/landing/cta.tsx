@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { LaunchGate } from './launch-gate';
 import { Words, Reveal } from './reveal';
+import { Marker } from './blueprint';
 
 const BIG = ['xXRP', 'xBTC', 'xDOGE', 'xSOL', 'xETH', 'xADA', 'xSUI', 'xPEPE'];
 const ICON: Record<string, string> = {
@@ -11,13 +12,15 @@ const ICON: Record<string, string> = {
 export function Cta() {
   return (
     <>
-      <section className="bg-black py-24 text-white md:py-36">
+      <section className="blueprint-grid-dark bg-[var(--l-hero)] py-24 text-white md:py-36">
         <div className="mx-auto max-w-[1600px] px-5 text-center md:px-10">
-          <p className="text-sm text-white/60">Mint</p>
+          <p className="flex items-center justify-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-white/60">
+            <Marker /> Mint
+          </p>
           <Words
             text="Mint XRP on this chain."
             muted="Redeem anytime."
-            className="mx-auto mt-3 max-w-[720px] text-[36px] font-medium leading-[1.05] tracking-[-0.03em] md:text-[56px]"
+            className="mx-auto mt-3 max-w-[720px] text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[56px]"
           />
         </div>
 
@@ -34,7 +37,7 @@ export function Cta() {
                 {BIG.map(sym => (
                   <li key={sym} className="mx-10 flex items-center gap-5">
                     <Image src={`/images/tokens/${ICON[sym]}.png`} alt="" width={72} height={72} className="size-14 md:size-[72px]" />
-                    <span className="text-[56px] font-medium leading-none tracking-[-0.03em] md:text-[88px]">{sym}</span>
+                    <span className="text-[56px] font-semibold leading-none tracking-[-0.03em] md:text-[88px]">{sym}</span>
                   </li>
                 ))}
               </ul>
@@ -53,18 +56,17 @@ export function Cta() {
 
       <section className="mx-auto max-w-[1600px] px-5 py-16 md:px-10 md:py-24">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl">
-            <Image
-              src="https://picsum.photos/id/1078/1920/900"
-              alt=""
-              width={1920}
-              height={900}
-              sizes="100vw"
-              className="h-[420px] w-full object-cover md:h-[520px]"
-            />
-            <div className="absolute inset-0 bg-black/45" />
+          <div className="blueprint-grid-dark relative h-[420px] overflow-hidden rounded-lg bg-[var(--l-hero)] md:h-[520px]">
+            {/* Drawn frame: a large outlined square offset by a solid one, like the logo mark. */}
+            <svg aria-hidden="true" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
+              <rect x="120" y="60" width="400" height="400" fill="none" stroke="#63A0F8" strokeOpacity="0.5" strokeDasharray="6 10" />
+              <rect x="1080" y="60" width="400" height="400" fill="none" stroke="#63A0F8" strokeOpacity="0.5" />
+              <rect x="1460" y="40" width="40" height="40" fill="#63A0F8" />
+              <rect x="100" y="440" width="40" height="40" fill="#63A0F8" />
+              <line x1="0" y1="260" x2="1600" y2="260" stroke="#ffffff" strokeOpacity="0.12" strokeDasharray="2 6" />
+            </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
-              <h2 className="text-[32px] font-medium leading-[1.05] tracking-[-0.03em] md:text-[56px]">
+              <h2 className="text-[32px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[56px]">
                 The future of backed assets
               </h2>
               <p className="mt-3 max-w-[560px] text-[22px] leading-[1.15] tracking-[-0.02em] text-white/70 md:text-[36px]">
