@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useUserInfo } from '@/hooks/queries/use-user';
 
-import { Home, Database, Trophy, Activity } from 'lucide-react';
+import { Home, Database, Activity, Settings, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import ConnectWallet from '@/components/common/connect-wallet';
@@ -35,10 +35,21 @@ const AppHeaderLeft = () => (
 );
 
 const AppHeaderRight = () => {
+  const pathname = usePathname();
   return (
     <div className="ml-auto flex items-center gap-2">
       {isStaging && <StagingSettings />}
       <ConnectWallet />
+      <Link
+        href="/settings"
+        aria-label="Settings"
+        className={cn(
+          'hidden h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-muted md:flex',
+          pathname === '/settings' ? 'bg-muted text-foreground' : 'text-muted-foreground'
+        )}
+      >
+        <Settings className="h-4 w-4" />
+      </Link>
     </div>
   );
 };
@@ -47,9 +58,10 @@ export const MobileNavbar = () => {
   const pathname = usePathname();
   const navItems = [
     { label: 'Markets', route: '/markets', icon: Home },
+    { label: 'Portfolio', route: '/portfolio', icon: Wallet },
+    { label: 'Activity', route: '/activity', icon: Activity },
     { label: 'Reserves', route: '/reserves', icon: Database },
-    { label: 'Explorer', route: '/explorer', icon: Activity },
-    { label: 'Leaderboard', route: '/leaderboard', icon: Trophy },
+    { label: 'Settings', route: '/settings', icon: Settings },
   ];
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-border bg-background/95 backdrop-blur-md md:hidden">
@@ -77,6 +89,9 @@ export const MobileNavbar = () => {
 
 const navbarItems = [
   { label: 'xAssets', route: 'markets' },
+  { label: 'redeem', route: 'redeem' },
+  { label: 'portfolio', route: 'portfolio' },
+  { label: 'activity', route: 'activity' },
   { label: 'reserves', route: 'reserves' },
   { label: 'explorer', route: 'explorer' },
   { label: 'leaderboard', route: 'leaderboard' },

@@ -33,11 +33,11 @@ const ConnectWallet = () => {
                 </Button>
               </TooltipTrigger>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-80 rounded-2xl px-0">
+            <PopoverContent align="end" className="w-72 rounded-2xl px-0 pb-0 pt-4">
               <Portfolio />
             </PopoverContent>
           </Popover>
-          <TooltipContent>{onSupportedChain ? 'Portfolio' : 'Not connected to Sonic'}</TooltipContent>
+          <TooltipContent>{onSupportedChain ? 'Account' : 'Not connected to Sonic'}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );

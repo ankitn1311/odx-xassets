@@ -1,8 +1,7 @@
+import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Portfolio } from '@/components/portfolio';
 import { Delta } from '@/components/markets/delta';
 import { DemoAlert } from '@/components/common/demo-alert';
 import { usePortfolio } from '@/hooks/queries/use-portfolio';
@@ -61,19 +60,12 @@ export function AnalyticsCard() {
 
       <div className="hidden h-10 w-px bg-border md:block" />
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="inline-flex items-center gap-0.5 self-start text-sm text-foreground hover:underline md:self-auto"
-          >
-            View Portfolio <ChevronRight className="h-4 w-4" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent align="end" className="w-80 rounded-2xl px-0">
-          <Portfolio />
-        </PopoverContent>
-      </Popover>
+      <Link
+        href="/portfolio"
+        className="inline-flex items-center gap-0.5 self-start text-sm text-foreground hover:underline md:self-auto"
+      >
+        View Portfolio <ChevronRight className="h-4 w-4" />
+      </Link>
     </Card>
   );
 }

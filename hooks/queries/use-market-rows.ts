@@ -9,6 +9,8 @@ import {
 } from '@/hooks/mutations/use-trade-quote';
 import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
 import { CATEGORY, DEMO_LISTED_AT, DEMO_VOLUME_USD } from '@/app/(main)/markets/demo-data';
+import { useAppStore } from '@/stores/app-store';
+import { TEST_ASSETS } from '@/config/placeholders';
 
 export interface MarketRow {
   symbol: string; // contract symbol, e.g. x2XRP
@@ -33,7 +35,12 @@ export interface MarketRow {
  * changes share the same query keys as the per-cell hooks, so the cache is shared.
  */
 export function useMarketRows() {
-  const { allTokens } = useTokenSwapStore();
+  const { allTokens: everyToken } = useTokenSwapStore();
+  const { hideTestAssets } = useAppStore();
+  const allTokens = useMemo(
+    () => (hideTestAssets ? everyToken.filter(t => !TEST_ASSETS.has(t.TokenB.Name)) : everyToken),
+    [everyToken, hideTestAssets]
+  );
   const { data: profile } = useWalletProfile(); // zero address = protocol totals
   const symbols = allTokens.map(t => t.TokenB.Name);
 

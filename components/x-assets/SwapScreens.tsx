@@ -14,7 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useQuoteTimer } from './QuoteTimerContext';
 
 export function SwapScreens() {
-  const { tradeState, activeTab } = useTokenSwapStore();
+  const { tradeState, activeTab, redeemMode } = useTokenSwapStore();
   const { isQuoteLoading, timeUntilNextQuote } = useQuoteTimer();
   const queryClient = useQueryClient();
 
@@ -85,9 +85,9 @@ export function SwapScreens() {
       case TradeState.APPROVAL:
         return `Approve spending for ${inputToken?.Name}`;
       case TradeState.REVIEW:
-        return 'Confirm trade';
+        return redeemMode ? 'Confirm and burn' : 'Confirm trade';
       case TradeState.APPROVED:
-        return 'Review trade';
+        return redeemMode ? 'Review redeem' : 'Review trade';
       case TradeState.SUCCESS:
         return 'Done';
       case TradeState.FAILED:
@@ -95,6 +95,7 @@ export function SwapScreens() {
       case TradeState.PENDING:
         return 'Done';
       default:
+        if (redeemMode) return 'Burn';
         return activeTab === TabState.BUY ? 'Buy' : 'Sell';
     }
   };

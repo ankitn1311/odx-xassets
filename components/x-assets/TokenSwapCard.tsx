@@ -96,7 +96,7 @@ const swapFormSchema = z
 
 export type SwapFormValues = z.infer<typeof swapFormSchema>;
 
-export const TokenSwapCard = () => {
+export const TokenSwapCard = ({ mode = 'trade' }: { mode?: 'trade' | 'redeem' }) => {
   const {
     allTokens,
     tradeState,
@@ -105,7 +105,19 @@ export const TokenSwapCard = () => {
     resetTradeState,
     selectedXAsset,
     setSelectedXAsset,
+    setRedeemMode,
   } = useTokenSwapStore();
+
+  // Redeem is the sell side of the same flow, with the buy side hidden.
+  useEffect(() => {
+    if (mode !== 'redeem') return;
+    setRedeemMode(true);
+    setActiveTab(TabState.SELL);
+    return () => {
+      setRedeemMode(false);
+      setActiveTab(TabState.BUY);
+    };
+  }, [mode, setRedeemMode, setActiveTab]);
   const [firstToken] = allTokens;
   const { TokenA, TokenB } = firstToken;
   const searchParams = useSearchParams();
@@ -247,6 +259,9 @@ export const TokenSwapCard = () => {
       <Card className="flex h-full w-full flex-col border-0 bg-[#F3F3F3] py-4">
         <div className="flex h-full flex-col gap-4">
           <div className="flex items-center justify-between px-4">
+            {mode === 'redeem' ? (
+              <span className="text-base font-medium">Redeem</span>
+            ) : (
             <div className="flex rounded-lg bg-[#E6E6E6] p-1 text-sm">
               {[TabState.BUY, TabState.SELL].map(tab => (
                 <button
@@ -265,6 +280,7 @@ export const TokenSwapCard = () => {
                 </button>
               ))}
             </div>
+            )}
 
             <QuoteTimer />
           </div>

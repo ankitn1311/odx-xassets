@@ -4,7 +4,7 @@ import { REQUIRE_LAUNCH_PASSWORD } from '@/config/access';
 
 // App routes that need the access cookie when the gate is on. The landing page at "/"
 // is always public; "Launch App" on it sets the cookie after the password check.
-const GATED = ['/x-assets', '/reserves', '/markets'];
+const GATED = ['/x-assets', '/reserves', '/markets', '/redeem', '/portfolio', '/activity', '/settings', '/status'];
 
 export default async function middleware(request: NextRequest) {
   // Under maintenance TODO: uncomment next two lines to enable maintenance mode

@@ -49,16 +49,19 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, isLoading = '', ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+    // Slot needs exactly one element child, so asChild renders the child as-is.
+    if (asChild) {
+      return <Slot className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    }
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+      <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-inherit">
             <Loader className="size-4 animate-spin" />
           </div>
         )}
         <span className={isLoading ? 'invisible' : 'relative z-10'}>{props.children}</span>
-      </Comp>
+      </button>
     );
   }
 );

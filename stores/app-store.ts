@@ -9,6 +9,10 @@ export type AppState = {
   sessionExpiry?: number;
   isBannerVisible?: boolean;
   slippage: number;
+  /** Hide assets listed in TEST_ASSETS across the app. */
+  hideTestAssets: boolean;
+  /** Wallet addresses that have accepted the terms, lower-cased. */
+  acceptedTerms: string[];
   customBaseUrl?: string;
   customWebSocketUrl?: string;
   customPermit2Address?: string;
@@ -24,6 +28,9 @@ export type AppActions = {
   setSessionExpiry: (sessionExpiry: number) => void;
   setIsBannerVisible: (isBannerVisible: boolean) => void;
   setSlippage: (slippage: number) => void;
+  setHideTestAssets: (hide: boolean) => void;
+  acceptTerms: (address: string) => void;
+  hasAcceptedTerms: (address?: string) => boolean;
   setCustomBaseUrl: (url: string) => void;
   setCustomWebSocketUrl: (url: string) => void;
   clearCustomBaseUrl: () => void;
@@ -44,6 +51,8 @@ export const defaultInitState: AppState = {
   imported_addresses: [],
   isBannerVisible: false,
   slippage: 0.2,
+  hideTestAssets: false,
+  acceptedTerms: [],
   customBaseUrl: process.env.NEXT_PUBLIC_BASE_URL || '',
   customWebSocketUrl: process.env.NEXT_PUBLIC_WSS_BASE_URL || '',
   customPermit2Address: process.env.NEXT_PUBLIC_PERMIT2 || '',
@@ -53,8 +62,15 @@ export const defaultInitState: AppState = {
 
 export const useAppStore = create(
   persist<AppStore>(
-    set => ({
+    (set, get) => ({
       ...defaultInitState,
+      setHideTestAssets: (hideTestAssets: boolean) => set(() => ({ hideTestAssets })),
+      acceptTerms: (address: string) =>
+        set(state => ({
+          acceptedTerms: Array.from(new Set([...(state.acceptedTerms ?? []), address.toLowerCase()])),
+        })),
+      hasAcceptedTerms: (address?: string) =>
+        !!address && (get().acceptedTerms ?? []).includes(address.toLowerCase()),
       setPrivateKey: (privateKey: string) => set(() => ({ privateKey: privateKey })),
       setCode: (code: string | null) => set(() => ({ code: code })),
       setLoginEmail: (loginEmail: string) => set(() => ({ loginEmail: loginEmail })),

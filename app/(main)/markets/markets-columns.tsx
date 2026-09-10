@@ -64,20 +64,7 @@ export function useMarketsColumns(): ColumnDef<MarketRow>[] {
         </span>
       ),
     },
-    {
-      accessorKey: 'status',
-      header: () => (
-        <span className="inline-flex items-center gap-1">
-          Status <DemoAlert className="h-3 w-3" note="Status is a constant, not a live feed" />
-        </span>
-      ),
-      cell: () => (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs">
-          <span className="h-1.5 w-1.5 rounded-full bg-success" />
-          Open for trade
-        </span>
-      ),
-    },
+   
     {
       id: 'chart',
       header: '24h chart',
