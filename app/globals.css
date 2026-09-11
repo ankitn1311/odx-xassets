@@ -301,55 +301,46 @@ body {
 .landing-ground.is-expanded .hero-veil {
   opacity: 0;
 }
-/* Header: full-width and transparent over the hero, a floating black pill afterwards. */
+/* Header: transparent over the hero, a light blurred ground once scrolled. The nav box
+ * in the middle is an outline over the hero and fills solid ink afterwards. */
 .landing .site-bar {
   transition:
-    max-width var(--l-morph) var(--l-ease),
-    height var(--l-morph) var(--l-ease),
-    margin var(--l-morph) var(--l-ease),
-    padding var(--l-morph) var(--l-ease),
     background-color var(--l-morph) var(--l-ease),
-    border-radius var(--l-morph) var(--l-ease),
-    box-shadow var(--l-morph) var(--l-ease),
     color var(--l-morph) var(--l-ease);
 }
-
-/*
- * Mirror finish for the collapsed pill. Stays black: the page underneath only comes
- * through as a faint blurred glow, while a lit top edge and a soft sheen across the
- * upper half read as a reflection on polished glass.
- */
-.landing .site-bar--mirror {
-  position: relative;
-  isolation: isolate;
-  background-color: rgba(11, 15, 23, 0.92);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  backdrop-filter: blur(16px) saturate(150%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    0 24px 60px -24px rgba(11, 15, 23, 0.6);
+.landing .site-bar > div {
+  transition: height var(--l-morph) var(--l-ease);
 }
-.landing .site-bar--mirror::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.07) 0%,
-    rgba(255, 255, 255, 0.02) 45%,
-    rgba(255, 255, 255, 0) 55%
-  );
+.landing .site-bar--scrolled {
+  background-color: rgba(244, 246, 249, 0.82);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
 }
 @supports not (backdrop-filter: blur(1px)) {
-  .landing .site-bar--mirror {
-    background-color: #0b0f17;
+  .landing .site-bar--scrolled {
+    background-color: var(--l-white);
   }
 }
+.landing .nav-box {
+  border: 1px solid transparent;
+  transition:
+    background-color var(--l-morph) var(--l-ease),
+    border-color var(--l-morph) var(--l-ease),
+    box-shadow var(--l-morph) var(--l-ease);
+}
+.landing .nav-box--solid {
+  background-color: var(--l-ink);
+  border-color: var(--l-ink);
+  box-shadow: 0 12px 30px -16px rgba(11, 15, 23, 0.5);
+}
+/* Variant A (commented in landing-header.tsx): light drawn bar with a hairline rule.
+.landing .site-bar--drawn {
+  border-bottom: 1px solid var(--l-line);
+  background-color: rgba(244, 246, 249, 0.86);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+*/
 /* Odometer digits: a column of 0-9 that slides to the target digit. */
 .landing .odo {
   display: inline-block;
@@ -366,6 +357,8 @@ body {
   .landing .hero-media,
   .landing .hero-veil,
   .landing .site-bar,
+  .landing .site-bar > div,
+  .landing .nav-box,
   .landing .odo > span {
     transition: none;
   }
