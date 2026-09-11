@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { HeroSheet, MintDiagram } from './blueprint';
+import { HeroSheet } from './blueprint';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import { useLandingExpanded } from './landing-ground';
@@ -30,7 +30,8 @@ export function Hero() {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const mobile = vw < 768;
-      const square = mobile ? Math.min(vw * 0.8, 420) : Math.min(vh * 0.61, 518);
+      // Phones: a smaller square so the stacked headline above it clears the header.
+      const square = mobile ? Math.min(vw * 0.62, 360, vh * 0.42) : Math.min(vh * 0.61, 518);
       const margin = Math.max(24, vw * 0.05);
       const l = leftRef.current;
       const r = rightRef.current;
@@ -45,7 +46,7 @@ export function Hero() {
       setGeo({
         dxL: mobile ? 0 : dxL,
         dxR: mobile ? 0 : dxR,
-        dy: mobile ? -(square / 2 + 72) : 0,
+        dy: mobile ? -(square / 2 + 56) : 0,
         square,
         scale,
       });
@@ -66,20 +67,11 @@ export function Hero() {
     >
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="hero-media">
-          {/* Full-bleed: a quiet sheet, grid and the square motif only. The mint diagram
-              is drawn in once the media has collapsed into the square. */}
+          {/* Full-bleed at rest; the same image collapses into the rounded square on scroll. */}
           <HeroSheet />
-          <motion.div
-            className="absolute inset-0"
-            initial={false}
-            animate={{ opacity: expanded ? 1 : 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: expanded ? 0.5 : 0 }}
-          >
-            <MintDiagram />
-          </motion.div>
         </div>
 
-        <h1 className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center gap-[0.3em] whitespace-nowrap px-4 text-center text-[40px] font-semibold leading-none tracking-[-0.03em] sm:text-[60px] md:flex-row md:text-[72px] lg:text-[84px]">
+        <h1 className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center justify-center gap-[0.1em] whitespace-nowrap px-4 text-center text-[40px] font-semibold leading-none tracking-[-0.03em] sm:text-[60px] md:flex-row md:gap-[0.3em] md:text-[72px] lg:text-[84px]">
           <motion.span
             ref={leftRef}
             className="inline-block origin-left"

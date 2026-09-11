@@ -295,6 +295,12 @@ body {
   height: var(--hero-square, 480px);
   border-radius: 12px;
 }
+.landing .hero-veil {
+  transition: opacity var(--l-morph) var(--l-ease);
+}
+.landing-ground.is-expanded .hero-veil {
+  opacity: 0;
+}
 /* Header: full-width and transparent over the hero, a floating black pill afterwards. */
 .landing .site-bar {
   transition:
@@ -306,6 +312,43 @@ body {
     border-radius var(--l-morph) var(--l-ease),
     box-shadow var(--l-morph) var(--l-ease),
     color var(--l-morph) var(--l-ease);
+}
+
+/*
+ * Mirror finish for the collapsed pill. Stays black: the page underneath only comes
+ * through as a faint blurred glow, while a lit top edge and a soft sheen across the
+ * upper half read as a reflection on polished glass.
+ */
+.landing .site-bar--mirror {
+  position: relative;
+  isolation: isolate;
+  background-color: rgba(11, 15, 23, 0.92);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 24px 60px -24px rgba(11, 15, 23, 0.6);
+}
+.landing .site-bar--mirror::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 45%,
+    rgba(255, 255, 255, 0) 55%
+  );
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .landing .site-bar--mirror {
+    background-color: #0b0f17;
+  }
 }
 /* Odometer digits: a column of 0-9 that slides to the target digit. */
 .landing .odo {
@@ -321,6 +364,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .landing-ground,
   .landing .hero-media,
+  .landing .hero-veil,
   .landing .site-bar,
   .landing .odo > span {
     transition: none;

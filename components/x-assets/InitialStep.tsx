@@ -235,7 +235,7 @@ export function InitialStep() {
     <>
       <div className="flex flex-col px-4">
         <TokenInput
-          label={redeemMode ? 'Redeem' : isBuy ? 'Spend' : 'Sell'}
+          label={redeemMode ? 'Burn' : isBuy ? 'Spend' : 'Sell'}
           onAmountChange={handleAmountChange}
           showPercentageButtons={
             tradeState === TradeState.INITIAL ||
@@ -274,7 +274,13 @@ export function InitialStep() {
       </div>
 
       <div className="px-4">
-        {redeemMode && <RedeemRoute symbol={inputToken?.Name ?? ''} usdOut={Number(outputAmount) || 0} />}
+        {redeemMode && (
+          <RedeemRoute
+            symbol={inputToken?.Name ?? ''}
+            outSymbol={outputToken?.Name ?? 'USDC.e'}
+            usdOut={Number(outputAmount) || 0}
+          />
+        )}
 
         <div className="mt-3 flex flex-col gap-3 rounded-xl bg-card px-4 py-3 text-sm">
           <div className="flex items-center justify-between">
@@ -292,8 +298,8 @@ export function InitialStep() {
 
         <p className="mt-3 flex items-start gap-2 px-1 text-xs leading-relaxed text-muted-foreground">
           <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-          During the alpha, the {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount must be
-          between 5 and 10 USDC.
+          During the alpha, the {redeemMode ? 'redeem' : activeTab === TabState.BUY ? 'purchase' : 'sale'} amount
+          must be between 5 and 10 USDC.
         </p>
       </div>
     </>
@@ -304,24 +310,28 @@ export function InitialStep() {
  * Redeem routing and pricing. The route is picked from the amount against the instant
  * buffer; queue position, ETA, fee and haircut are placeholders until the API exists.
  */
-function RedeemRoute({ symbol, usdOut }: { symbol: string; usdOut: number }) {
+function RedeemRoute({ symbol, outSymbol, usdOut }: { symbol: string; outSymbol: string; usdOut: number }) {
   const buffer = REDEEM_BUFFER_USD[symbol] ?? 0;
-  const instant = usdOut > 0 && usdOut <= buffer;
+  const hasAmount = usdOut > 0;
+  const instant = hasAmount && usdOut <= buffer;
   const fee = (usdOut * REDEEM_FEE_BPS) / 10_000;
   const haircut = (usdOut * REDEEM_HAIRCUT_BPS) / 10_000;
   const receive = Math.max(0, usdOut - fee - haircut);
 
   return (
-    <div className="mt-3 flex flex-col gap-3 rounded-xl bg-card px-4 py-3 text-sm">
-      <div className="flex items-center justify-between">
+    <div className="mt-3 flex flex-col gap-2.5 rounded-xl bg-card px-4 py-3 text-sm">
+      {/* Route: what happens to this amount, and the threshold that decides it */}
+      <div className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-1 text-muted-foreground">
           Route <DemoAlert className="h-3 w-3" note="Buffer, queue position and ETA are illustrative" />
         </p>
-        {usdOut === 0 ? (
-          <span className="text-muted-foreground">Enter an amount</span>
+        {!hasAmount ? (
+          <span className="font-mono text-xs text-muted-foreground">
+            instant up to <span className="tabular-nums">{fmtUsd(buffer, 0)}</span>
+          </span>
         ) : instant ? (
           <span className="inline-flex items-center gap-1.5 rounded bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-            <span className="h-1.5 w-1.5 rounded-full bg-success" /> Instant, from buffer
+            <span className="h-1.5 w-1.5 rounded-full bg-success" /> Instant · from buffer
           </span>
         ) : (
           <span className="inline-flex items-center gap-1.5 rounded bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning-foreground">
@@ -329,23 +339,29 @@ function RedeemRoute({ symbol, usdOut }: { symbol: string; usdOut: number }) {
           </span>
         )}
       </div>
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">Instant buffer</p>
-        <p className="font-mono text-xs tabular-nums">{fmtUsd(buffer, 0)}</p>
-      </div>
-      <div className="flex items-center justify-between">
+      {hasAmount && (
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-muted-foreground">Instant buffer</p>
+          <p className="font-mono text-xs tabular-nums">{fmtUsd(buffer, 0)}</p>
+        </div>
+      )}
+
+      {/* Pricing on one line; the dollar cost only once there is an amount to price */}
+      <div className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-1 text-muted-foreground">
-          Fee <DemoAlert className="h-3 w-3" note="Fee and haircut are illustrative" />
+          Fee · haircut <DemoAlert className="h-3 w-3" note="Fee and haircut are illustrative" />
         </p>
-        <p className="font-mono text-xs tabular-nums">{REDEEM_FEE_BPS} bps · {fmtUsd(fee)}</p>
+        <p className="font-mono text-xs tabular-nums">
+          {REDEEM_FEE_BPS} bps · {REDEEM_HAIRCUT_BPS} bps
+          {hasAmount && <span className="text-muted-foreground"> · {fmtUsd(fee + haircut)}</span>}
+        </p>
       </div>
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">Haircut</p>
-        <p className="font-mono text-xs tabular-nums">{REDEEM_HAIRCUT_BPS} bps · {fmtUsd(haircut)}</p>
-      </div>
-      <div className="flex items-center justify-between border-t border-border pt-3">
+
+      <div className="flex items-center justify-between gap-3 border-t border-border pt-2.5">
         <p className="font-medium">You receive</p>
-        <p className="font-mono text-sm font-medium tabular-nums">{fmtUsd(receive)} USDC.e</p>
+        <p className="font-mono text-sm font-medium tabular-nums">
+          {fmtUsd(receive)} <span className="text-muted-foreground">{outSymbol}</span>
+        </p>
       </div>
     </div>
   );

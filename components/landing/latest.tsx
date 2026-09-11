@@ -60,7 +60,31 @@ export function Latest() {
         className="text-center text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[48px]"
       />
 
-      <div className="mt-12 flex h-[560px] gap-3 md:h-[440px]">
+      {/* Phones: the side columns are hidden, so a tab strip picks the note instead. */}
+      <div role="tablist" aria-label="Product notes" className="mt-8 flex gap-1 overflow-x-auto md:hidden">
+        {NOTES.map((n, i) => (
+          <button
+            key={n.title}
+            type="button"
+            role="tab"
+            aria-selected={i === active}
+            onClick={() => select(i)}
+            className={cn(
+              'flex shrink-0 items-center gap-2 border-b-2 px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors',
+              i === active
+                ? 'border-[var(--l-blue)] text-[var(--l-ink)]'
+                : 'border-transparent text-[var(--l-muted)] hover:text-[var(--l-ink)]'
+            )}
+          >
+            <span className={cn('tabular-nums', i === active ? 'text-[var(--l-blue)]' : 'text-[var(--l-muted-2)]')}>
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            {n.tag}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-4 flex gap-3 md:mt-12 md:h-[440px]">
         {NOTES.map((n, i) => {
           const isActive = i === active;
           return (
@@ -78,7 +102,7 @@ export function Latest() {
                 'group relative min-w-0 overflow-hidden rounded-lg text-left transition-[flex-basis,background-color] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
                 isActive
                   ? 'flex-1 basis-full bg-[var(--l-hero)] text-white'
-                  : 'flex-none basis-12 cursor-pointer border border-[var(--l-line)] bg-white hover:border-[var(--l-blue)] md:basis-16'
+                  : 'hidden flex-none basis-16 cursor-pointer border border-[var(--l-line)] bg-white hover:border-[var(--l-blue)] md:block'
               )}
             >
               {/* Collapsed: a vertical tab, numbered and named, so the column reads as something to open. */}
@@ -128,7 +152,7 @@ export function Latest() {
         })}
       </div>
 
-      <div className="mt-6 flex justify-center gap-2">
+      <div className="mt-6 hidden justify-center gap-2 md:flex">
         {NOTES.map((n, i) => (
           <button
             key={n.title}
