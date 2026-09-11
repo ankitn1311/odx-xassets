@@ -14,8 +14,9 @@ const RIGHT = 'backed onchain.';
  * Pinned full-screen hero. At rest the photo fills the viewport with the headline
  * centred over it. The first scroll collapses the photo into a rounded square, slides
  * the two halves of the headline to the page edges, turns them black and reveals the
- * subtitle. The section is taller than the viewport so the collapsed hero holds for a
- * while before it scrolls away with the page.
+ * subtitle. The section is only slightly taller than the viewport: the page parks at
+ * HOLD (120px, see landing-ground) while the morph plays, and the next wheel notch
+ * should start moving the page rather than scrolling through dead space.
  */
 export function Hero() {
   const expanded = useLandingExpanded();
@@ -60,7 +61,7 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative h-[190vh]"
+      className="relative h-[calc(100vh+160px)]"
       style={{ ['--hero-square' as string]: `${geo.square}px` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
