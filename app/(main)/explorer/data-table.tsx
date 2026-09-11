@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DataTable } from '../x-assets/data-table';
-import { exact, tradeColumns, type TradeRow } from './columns';
+import { tradeColumns, type TradeRow } from './columns';
 import { useTradesData } from '@/hooks/use-trades-data';
 import {
   tokenConvert,
@@ -209,7 +209,7 @@ export function TradesTable({ pageSize = 20, type = 'explorer' }: TradesTablePro
             <span className="flex flex-col items-end leading-tight">
               <span className="font-medium tabular-nums">{fmtUsd(r.usdAmount)}</span>
               <span className="text-xs text-muted-foreground">
-                {fmtUnits(r.quantity)} {r.symbol} · {exact(r.timestamp)}
+                {fmtUnits(r.quantity)} {r.symbol}
               </span>
             </span>
           </li>

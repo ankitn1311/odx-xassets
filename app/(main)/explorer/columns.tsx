@@ -22,15 +22,6 @@ export type TradeRow = {
   swapper: string;
 };
 
-export const exact = (ts: number) =>
-  new Date(ts).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
-
 const copy = async (text: string, what: string) => {
   try {
     await navigator.clipboard.writeText(text);
@@ -97,13 +88,6 @@ export const tradeColumns: ColumnDef<TradeRow>[] = [
     header: 'Price',
     cell: ({ row }) => (
       <span className="tabular-nums">{row.original.price > 0 ? fmtPrice(row.original.price) : '–'}</span>
-    ),
-  },
-  {
-    accessorKey: 'timestamp',
-    header: 'Time',
-    cell: ({ row }) => (
-      <span className="whitespace-nowrap tabular-nums">{exact(row.original.timestamp)}</span>
     ),
   },
   {

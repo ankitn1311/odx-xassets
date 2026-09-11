@@ -95,7 +95,7 @@ export function LandingHeader() {
             />
           </Link>
 
-          {/* The nav box: an outline over the hero, solid ink once scrolled. */}
+          {/* The nav box: invisible over the hero, solid ink once scrolled. */}
           <nav
             className={cn(
               'nav-box absolute left-1/2 hidden h-11 -translate-x-1/2 items-center rounded-lg p-1 md:flex',
