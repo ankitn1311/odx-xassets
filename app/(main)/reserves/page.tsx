@@ -1,151 +1,38 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useTokenSwapStore } from '@/stores/token-swap-store';
-import { useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import { ShieldCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { convertXUSDT } from '@/lib/utils';
-import { ReservesPageSkeleton } from '@/components/skeletons/reserves-page-skeleton';
 
-// Dynamic imports with Next.js - using content-aware skeletons
 const ReservesTable = dynamic(
   () => import('./reservers-table').then(mod => ({ default: mod.ReservesTable })),
   {
     loading: () => (
-      <Card className="p-4">
-        <div className="space-y-4">
-          <div className="grid grid-cols-5 gap-4">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-20" />
-          </div>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="grid grid-cols-5 gap-4 border-b py-3 last:border-b-0">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <div className="flex flex-col gap-1">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-3 w-12" />
-                </div>
-              </div>
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-          ))}
-        </div>
-      </Card>
+      <div className="space-y-3">
+        <Skeleton className="h-5 w-72" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
+      </div>
     ),
     ssr: false,
   }
 );
 
-const PoolCard = dynamic(
-  () => import('@/app/components/x-assets/PoolCard').then(mod => ({ default: mod.PoolCard })),
-  {
-    loading: () => <Skeleton className="h-32 w-full" />,
-    ssr: false,
-  }
-);
-
-const TokenSwapCard = dynamic(
-  () => import('@/components/x-assets/TokenSwapCard').then(mod => ({ default: mod.TokenSwapCard })),
-  {
-    loading: () => <Skeleton className="h-64 w-full" />,
-    ssr: false,
-  }
-);
-
-export default function XAssets() {
-  const { setNumericBalance, allTokens } = useTokenSwapStore();
-
-  useEffect(() => {
-    // Replace with actual balance fetching logic
-    setNumericBalance(0);
-  }, [setNumericBalance]);
-
-  // Transform token pairs into featured assets format
-  // const featuredAssets =
-  //   allTokensOverride?.map(tokenPair => ({
-  //     icon: `/images/tokens/${tokenPair.TokenA.Name}.png`,
-  //     name: tokenPair.TokenA.Name,
-  //     symbol: tokenPair.TokenA.Name,
-  //     price: 0, // These values would need to be fetched from price feed
-  //     priceChange: 0,
-  //     tokenPair: tokenPair,
-  //   })) || [];
-
-  // Transform token pairs into featured pools format
-  const featuredPools =
-    allTokens?.map(tokenPair => ({
-      token1Icon: `/images/tokens/${tokenPair.TokenA.Name}.png`,
-      token2Icon: `/images/tokens/${tokenPair.TokenB.Name}.png`,
-      token1Symbol: tokenPair.TokenA.Name,
-      token2Symbol: convertXUSDT(tokenPair.TokenB.Name),
-      apr: 0, // These values would need to be fetched from pool data
-      tvl: 0,
-      tokenPair: tokenPair,
-    })) || [];
-
+export default function ReservesPage() {
   return (
-    <div className="flex h-full w-full max-w-5xl flex-col items-stretch gap-2 p-2 md:py-12">
-      <Card className="p-4">
-        <section className="flex h-full flex-col justify-center">
-          <h2 className="text-lg font-semibold">Reserves</h2>
-          <p className="text-sm text-muted-foreground">
-            Each xAsset is backed 1:1 with its underlying asset, and is securely custodied by
-            Safeheron, ensuring full transparency and verifiable proof of reserves.
+    <div className="flex h-full w-full max-w-6xl flex-col items-stretch gap-4 px-4 py-4 md:py-8">
+      <header className="flex flex-col gap-4 px-1 pt-2 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-medium tracking-[-0.02em]">Proof of reserves</h1>
+          <p className="max-w-[640px] text-sm text-muted-foreground">
+            Every xAsset is a receipt for an asset held in custody. Units minted onchain are
+            shown for each one.
           </p>
-        </section>
-      </Card>
+        </div>
+        <span className="inline-flex h-9 items-center gap-1.5 self-start rounded-lg bg-secondary px-3 text-sm">
+          <ShieldCheck className="h-4 w-4 text-success" />
+          Custodied by Safeheron
+        </span>
+      </header>
       <ReservesTable />
     </div>
-  );
-
-  return (
-    <main className="ODX-X-Assets-Layout h-[calc(100vh-4rem)] w-full gap-1 overflow-y-auto bg-background px-2 pb-2 font-sans">
-      {/* <UpgradeOverlay /> */}
-      <Card className="Header">
-        <section className="flex h-full flex-col justify-center">
-          <h2 className="text-lg font-semibold">Trade any token from your onchain wallet</h2>
-          <p className="text-sm text-muted-foreground">
-            Connect your wallet and trade wrapped versions of any token, called xAssets, on any
-            supported chain.
-          </p>
-        </section>
-      </Card>
-
-      <Card className="Featured flex flex-col gap-4">
-        {/* <section className="flex flex-col gap-2">
-          <div>
-            <h2 className="text-lg font-semibold">Featured xAssets</h2>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {featuredAssets.map(asset => (
-              <AssetCard key={asset.symbol} {...asset} />
-            ))}
-          </div>
-        </section> */}
-
-        <section className="flex flex-col gap-2">
-          <div>
-            <h2 className="text-lg font-semibold">Featured Pools</h2>
-          </div>
-          <div className="flex gap-2">
-            {featuredPools.map(pool => (
-              <PoolCard key={`${pool.token1Symbol}-${convertXUSDT(pool.token2Symbol)}`} {...pool} />
-            ))}
-          </div>
-        </section>
-      </Card>
-      <ReservesTable />
-
-      <aside className="Trade">
-        <TokenSwapCard />
-      </aside>
-    </main>
   );
 }

@@ -1,6 +1,5 @@
 import { TokenInput } from './TokenInput';
 import { Button } from '../ui/button';
-import { Button as MovingButton } from '../ui/moving-border';
 import Image from 'next/image';
 import { TradeState, useTokenSwapStore, TabState } from '@/stores/token-swap-store';
 import { useCallback, useEffect, useRef, useMemo } from 'react';
@@ -11,11 +10,12 @@ import { toast } from 'sonner';
 import { Info } from 'lucide-react';
 import { TokenInfo } from '@/hooks/queries/use-all-tokens';
 import { SwapFormValues } from './TokenSwapCard';
-import { useTheme } from 'next-themes';
 import { SlippageSettings } from './SlippageSettings';
 import { useAppStore } from '@/stores/app-store';
-import { Separator } from '../ui/separator';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUpDown } from 'lucide-react';
+import { DemoAlert } from '@/components/common/demo-alert';
+import { fmtUsd } from '@/lib/format';
+import { QUEUE_ESTIMATE, REDEEM_BUFFER_USD, REDEEM_FEE_BPS, REDEEM_HAIRCUT_BPS } from '@/config/placeholders';
 import { useQuoteTimer } from './QuoteTimerContext';
 import { sortWeeklyRanks } from '@/utils/weekly-rank-36';
 // import { sortWeeklyRank36ByW36Rank } from '@/utils/weekly-rank-36';
@@ -24,11 +24,12 @@ const MAX_DECIMALS = 8;
 const POLLING_INTERVAL = 10000; // 10 seconds
 
 export function InitialStep() {
-  const { tradeState, activeTab, setActiveTab } = useTokenSwapStore();
+  const { tradeState, activeTab, setActiveTab, redeemMode } = useTokenSwapStore();
   const { setValue, watch } = useFormContext<SwapFormValues>();
 
   const inputToken = watch('inputToken');
   const outputToken = watch('outputToken');
+  const outputAmount = watch('outputAmount');
   const { slippage } = useAppStore();
   const isBuy = activeTab === TabState.BUY;
 
@@ -232,10 +233,9 @@ export function InitialStep() {
 
   return (
     <>
-      <Separator className="mb-3" />
-      <div className="px-4">
+      <div className="flex flex-col px-4">
         <TokenInput
-          label="You Pay"
+          label={redeemMode ? 'Redeem' : isBuy ? 'Spend' : 'Sell'}
           onAmountChange={handleAmountChange}
           showPercentageButtons={
             tradeState === TradeState.INITIAL ||
@@ -244,95 +244,118 @@ export function InitialStep() {
           }
         />
 
-        {/* <a onClick={() => getRank(getWeekNumber(new Date()) - 1)}>Get Rank</a> */}
-        {/* {WHOLE_NUMBER_TOKENS.includes(inputToken.Name) && (
-        <div className="my-4 flex flex-col gap-4 rounded-md border border-warning/20 bg-warning/10 p-3 text-sm text-warning-foreground">
-          <div className="flex items-end gap-2">
-            <Info className="h-5 w-5 flex-shrink-0" />
-            <p className="h-5">{inputToken.Name} amount must be a whole number.</p>
-          </div>
-        </div>
-      )} */}
-
-        <div className="mt-2 flex justify-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            type="button"
-            className="h-8 w-8 rounded-full p-0 transition-colors"
-            onClick={handleTabSwitch}
-            disabled={[TradeState.PENDING, TradeState.SUCCESS].includes(tradeState)}
-          >
-            <ArrowUpDown className="h-4 w-4" />
-          </Button>
+        {/* Swap direction, sitting on the seam between the two blocks. Redeem is one-way. */}
+        <div className="relative z-10 -my-3 flex justify-center">
+          {redeemMode ? (
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card shadow-sm">
+              <ArrowDown className="h-4 w-4 text-muted-foreground" />
+            </span>
+          ) : (
+            <Button
+              variant="outline"
+              size="icon"
+              type="button"
+              className="h-8 w-8 rounded-full border-border shadow-sm"
+              onClick={handleTabSwitch}
+              disabled={[TradeState.PENDING, TradeState.SUCCESS].includes(tradeState)}
+              aria-label="Switch between buy and sell"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
-        <div className="mt-2">
-          <TokenInput
-            label="You Get"
-            isOutput
-            onAmountChange={handleAmountChange}
-            // onOutputAmountChange={handleOutputAmountChange}
-            showPercentageButtons={false}
-          />
-        </div>
+        <TokenInput
+          label="Receive"
+          isOutput
+          onAmountChange={handleAmountChange}
+          showPercentageButtons={false}
+        />
       </div>
-      <Separator className="mt-3" />
-      <div className="px-4">
-        <div className="flex flex-col gap-3">
-          <div className="mt-2 flex items-center justify-between pt-4">
-            <p className="text-sm text-muted-foreground">Source</p>
-            <MovingButton className="border-border bg-card text-card-foreground">
-              <ODXApiSource />
-            </MovingButton>
-          </div>
 
-          <div className="flex items-center justify-between pb-4">
+      <div className="px-4">
+        {redeemMode && <RedeemRoute symbol={inputToken?.Name ?? ''} usdOut={Number(outputAmount) || 0} />}
+
+        <div className="mt-3 flex flex-col gap-3 rounded-xl bg-card px-4 py-3 text-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-muted-foreground">Source</p>
+            <ODXApiSource />
+          </div>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <p className="text-sm text-muted-foreground">Slippage</p>
+              <p className="text-muted-foreground">Slippage</p>
               <SlippageSettings />
             </div>
-            <p className="text-sm text-muted-foreground">{slippage}%</p>
+            <p className="font-mono text-xs">{slippage}%</p>
           </div>
         </div>
 
-        <div className="my-4 flex flex-col gap-4 rounded-md border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground">
-          <div className="flex items-start gap-2">
-            <Info className="h-5 w-5 flex-shrink-0" />
-            <p>
-              During our alpha test, {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount
-              should be between 5 and 10 USDC.
-            </p>
-          </div>
-        </div>
+        <p className="mt-3 flex items-start gap-2 px-1 text-xs leading-relaxed text-muted-foreground">
+          <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+          During the alpha, the {activeTab === TabState.BUY ? 'purchase' : 'sale'} amount must be
+          between 5 and 10 USDC.
+        </p>
       </div>
     </>
   );
 }
 
-export function ODXApiSource() {
-  const { theme, systemTheme } = useTheme();
-  const currentTheme = theme === 'system' ? systemTheme : theme;
+/**
+ * Redeem routing and pricing. The route is picked from the amount against the instant
+ * buffer; queue position, ETA, fee and haircut are placeholders until the API exists.
+ */
+function RedeemRoute({ symbol, usdOut }: { symbol: string; usdOut: number }) {
+  const buffer = REDEEM_BUFFER_USD[symbol] ?? 0;
+  const instant = usdOut > 0 && usdOut <= buffer;
+  const fee = (usdOut * REDEEM_FEE_BPS) / 10_000;
+  const haircut = (usdOut * REDEEM_HAIRCUT_BPS) / 10_000;
+  const receive = Math.max(0, usdOut - fee - haircut);
+
   return (
-    <div className="flex items-center gap-2">
-      {currentTheme === 'dark' ? (
-        <Image
-          src="/images/logos/odx-dark.svg"
-          alt="ODX"
-          width={16}
-          height={16}
-          className="h-4 w-4"
-        />
-      ) : (
-        <Image
-          src="/images/logos/odx-light.svg"
-          alt="ODX"
-          width={16}
-          height={16}
-          className="h-4 w-4"
-        />
-      )}
-      <p className="text-xs">ODX API</p>
+    <div className="mt-3 flex flex-col gap-3 rounded-xl bg-card px-4 py-3 text-sm">
+      <div className="flex items-center justify-between">
+        <p className="flex items-center gap-1 text-muted-foreground">
+          Route <DemoAlert className="h-3 w-3" note="Buffer, queue position and ETA are illustrative" />
+        </p>
+        {usdOut === 0 ? (
+          <span className="text-muted-foreground">Enter an amount</span>
+        ) : instant ? (
+          <span className="inline-flex items-center gap-1.5 rounded bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" /> Instant, from buffer
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-warning" /> Queue · position {QUEUE_ESTIMATE.position} · {QUEUE_ESTIMATE.eta}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground">Instant buffer</p>
+        <p className="font-mono text-xs tabular-nums">{fmtUsd(buffer, 0)}</p>
+      </div>
+      <div className="flex items-center justify-between">
+        <p className="flex items-center gap-1 text-muted-foreground">
+          Fee <DemoAlert className="h-3 w-3" note="Fee and haircut are illustrative" />
+        </p>
+        <p className="font-mono text-xs tabular-nums">{REDEEM_FEE_BPS} bps · {fmtUsd(fee)}</p>
+      </div>
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground">Haircut</p>
+        <p className="font-mono text-xs tabular-nums">{REDEEM_HAIRCUT_BPS} bps · {fmtUsd(haircut)}</p>
+      </div>
+      <div className="flex items-center justify-between border-t border-border pt-3">
+        <p className="font-medium">You receive</p>
+        <p className="font-mono text-sm font-medium tabular-nums">{fmtUsd(receive)} USDC.e</p>
+      </div>
     </div>
+  );
+}
+
+export function ODXApiSource() {
+  return (
+    <span className="flex items-center gap-1.5 rounded border border-border bg-card px-2.5 py-1 text-xs">
+      <Image src="/images/logos/odx-light.svg" alt="ODX" width={14} height={14} className="h-3.5 w-3.5" />
+      ODX API
+    </span>
   );
 }

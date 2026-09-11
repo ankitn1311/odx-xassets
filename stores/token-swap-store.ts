@@ -30,6 +30,8 @@ interface TokenSwapState {
   quoteLoading: boolean;
   activeTab: TabState;
   isBalanceUpdating: boolean;
+  /** The swap card is being used as the Redeem page: sell only, "Burn" button. */
+  redeemMode: boolean;
 }
 
 interface TokenSwapActions {
@@ -47,6 +49,7 @@ interface TokenSwapActions {
   setActiveTab: (tab: TabState) => void;
   setAllTokens: (tokens: TokenPair[]) => void;
   setIsBalanceUpdating: (updating: boolean) => void;
+  setRedeemMode: (on: boolean) => void;
 }
 
 export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
@@ -64,6 +67,7 @@ export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
     latestTradeHash: '',
     activeTab: TabState.BUY,
     isBalanceUpdating: false,
+    redeemMode: false,
     setNumericBalance: (balance: number) => set({ numericBalance: balance }),
     setInputToken: (token: TokenSwapState['inputToken']) => set({ inputToken: token }),
     setOutputToken: (token: TokenSwapState['outputToken']) => set({ outputToken: token }),
@@ -82,6 +86,7 @@ export const useTokenSwapStore = create<TokenSwapState & TokenSwapActions>(
     setActiveTab: (tab: TabState) => set({ activeTab: tab }),
     setAllTokens: (tokens: TokenPair[]) => set({ allTokens: tokens }),
     setIsBalanceUpdating: (updating: boolean) => set({ isBalanceUpdating: updating }),
+    setRedeemMode: (on: boolean) => set({ redeemMode: on }),
     //   {
     //     name: 'token-swap-store',
     //   }

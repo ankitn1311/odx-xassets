@@ -126,8 +126,8 @@ const TradesTable = dynamic(
 export default function XAssets() {
   return (
     <QuoteTimerProvider>
-      <div className="flex h-full w-full max-w-7xl flex-col items-stretch gap-4 p-2 md:py-12">
-        <div className="mx-auto grid w-full gap-4 md:grid-cols-[1fr_400px]">
+      <div className="flex h-full w-full max-w-6xl flex-col items-stretch gap-4 px-4 py-4 md:py-8">
+        <div className="mx-auto grid w-full gap-4 md:grid-cols-[1fr_420px]">
           <TokenChart />
           <TokenSwapCard />
         </div>

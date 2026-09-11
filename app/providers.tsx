@@ -3,7 +3,7 @@ import type * as React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { getQueryClient } from '@/app/get-query-client';
-import { RainbowKitProvider, darkTheme, getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, lightTheme, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { sonic, sonicTestnet } from 'viem/chains';
 import { WagmiProvider } from 'wagmi';
@@ -41,7 +41,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={config} reconnectOnMount>
-        <RainbowKitProvider theme={darkTheme()} key="ODX">
+        <RainbowKitProvider
+          theme={lightTheme({ accentColor: '#2F6BFF', borderRadius: 'small' })}
+          key="ODX"
+        >
           {/* <TradesProvider> */}
           <TokenProvider>
             {children}

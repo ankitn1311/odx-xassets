@@ -1,201 +1,147 @@
-import { shortenAddress, shortenAddressWithLength } from '@/utils/crypto';
-import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, TrendingUp, TrendingDown, Copy } from 'lucide-react';
-import { ExternalLink } from 'lucide-react';
-import { TradeData } from '@/providers/trades-provider';
-import { tokenConvertReverse, tokenConvertReverseV1 } from '@/hooks/mutations/use-trade-quote';
 import Image from 'next/image';
-import { removeTrailingZeros } from '@/lib/utils';
+import { ColumnDef } from '@tanstack/react-table';
+import { Copy, ExternalLink, TrendingDown, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { shortenAddress, shortenAddressWithLength } from '@/utils/crypto';
+import { fmtPrice, fmtUnits, fmtUsd, timeAgo } from '@/lib/format';
+import { cn } from '@/lib/utils';
 
-// Helper function to format timestamp
-const formatTimestamp = (timestamp: string | number) => {
-  const date = new Date(timestamp);
-  return date.toLocaleDateString('en-US', {
-    day: 'numeric',
+/** A trade row after normalisation in the table component. */
+export type TradeRow = {
+  id: string;
+  symbol: string; // x2XRP
+  name: string; // XRP
+  image: string;
+  side: 'buy' | 'sell';
+  quantity: number;
+  usdAmount: number;
+  price: number;
+  timestamp: number;
+  txHash: string;
+  orderId: string;
+  swapper: string;
+};
+
+const exact = (ts: number) =>
+  new Date(ts).toLocaleString('en-US', {
     month: 'short',
+    day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
+
+const copy = async (text: string, what: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success(`${what} copied`);
+  } catch {
+    toast.error(`Could not copy ${what.toLowerCase()}`);
+  }
 };
 
-const V2_LAUNCH_DATE = 1754831928367;
-
-export const tradeColumns: ColumnDef<TradeData>[] = [
+export const tradeColumns: ColumnDef<TradeRow>[] = [
   {
-    accessorKey: 'currency',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">Token</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
+    id: 'index',
+    header: '#',
+    meta: { className: 'w-12 text-muted-foreground' },
+    cell: ({ row }) => <span className="tabular-nums">{row.index + 1}</span>,
+  },
+  {
+    accessorKey: 'symbol',
+    header: 'Asset',
+    meta: { className: 'min-w-[180px]' },
+    cell: ({ row }) => (
+      <span className="flex items-center gap-3">
+        <Image src={row.original.image} alt="" width={40} height={40} className="h-10 w-10" />
+        <span className="flex flex-col leading-tight">
+          <span className="text-[15px] font-medium">{row.original.symbol}</span>
+          <span className="text-xs text-muted-foreground">{row.original.name}</span>
+        </span>
+      </span>
     ),
-    cell: ({ row }) => {
-      const currency = row.getValue('currency') as string;
-      const timestamp = row.getValue('timestamp') as string | number;
-      const isV1 = Number(new Date(timestamp)) < V2_LAUNCH_DATE;
-      const tokenName = isV1
-        ? tokenConvertReverseV1[currency as keyof typeof tokenConvertReverse]
-        : tokenConvertReverse[currency as keyof typeof tokenConvertReverse];
-      return (
-        <div className="flex items-center gap-2">
-          <Image src={`/images/tokens/${tokenName}.png`} alt={tokenName} width={24} height={24} />
-          <span className="text-md font-mono font-medium text-foreground">{tokenName}</span>
-        </div>
-      );
-    },
   },
   {
     accessorKey: 'side',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">Type</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
-    ),
+    header: 'Type',
+    meta: { className: 'w-28' },
     cell: ({ row }) => {
-      const side = row.getValue('side') as string;
-      const isBuy = side.toLowerCase() === 'buy';
+      const buy = row.original.side === 'buy';
       return (
         <span
-          className={`text-md flex items-center gap-1 font-medium ${isBuy ? 'text-success' : 'text-destructive'}`}
+          className={cn(
+            'inline-flex items-center gap-1.5 text-sm font-medium',
+            buy ? 'text-success' : 'text-destructive'
+          )}
         >
-          {isBuy ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-          {side.toUpperCase()}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: 'timestamp',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">Time</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
-    ),
-    cell: ({ row }) => {
-      const timestamp = row.getValue('timestamp') as string | number;
-      return <span className="text-md text-muted-foreground">{formatTimestamp(timestamp)}</span>;
-    },
-    sortingFn: (rowA, rowB) => {
-      const a = rowA.getValue('timestamp') as number;
-      const b = rowB.getValue('timestamp') as number;
-      return a - b;
-    },
-  },
-  {
-    accessorKey: 'quantity',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">Quantity</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
-    ),
-    cell: ({ row }) => {
-      const quantity = row.getValue('quantity') as string;
-      const timestamp = row.getValue('timestamp') as string | number;
-      const isV1 = Number(new Date(timestamp)) < V2_LAUNCH_DATE;
-      const tokenName = isV1
-        ? tokenConvertReverseV1[row.original.currency as keyof typeof tokenConvertReverse]
-        : tokenConvertReverse[row.original.currency as keyof typeof tokenConvertReverse];
-      return (
-        <span className="text-md font-mono text-muted-foreground">
-          {removeTrailingZeros(quantity, 6)} {tokenName}
+          {buy ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+          {buy ? 'Buy' : 'Sell'}
         </span>
       );
     },
   },
   {
     accessorKey: 'usdAmount',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        <p className="select-none text-sm font-semibold">USDC Amount</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
-    ),
-    cell: ({ row }) => {
-      const usdAmount = row.getValue('usdAmount') as string;
-      return (
-        <span className="text-md font-mono text-muted-foreground">
-          ${removeTrailingZeros(usdAmount, 6)}
+    header: 'Amount',
+    cell: ({ row }) => (
+      <span className="flex flex-col leading-tight">
+        <span className="text-[15px] font-medium tabular-nums">{fmtUsd(row.original.usdAmount)}</span>
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">
+          {fmtUnits(row.original.quantity)} {row.original.symbol}
         </span>
-      );
-    },
+      </span>
+    ),
+  },
+  {
+    accessorKey: 'price',
+    header: 'Price',
+    cell: ({ row }) => (
+      <span className="tabular-nums">{row.original.price > 0 ? fmtPrice(row.original.price) : '–'}</span>
+    ),
+  },
+  {
+    accessorKey: 'timestamp',
+    header: 'Time',
+    cell: ({ row }) => (
+      <span className="flex flex-col leading-tight">
+        <span>{timeAgo(row.original.timestamp)}</span>
+        <span className="text-xs text-muted-foreground">{exact(row.original.timestamp)}</span>
+      </span>
+    ),
   },
   {
     accessorKey: 'txHash',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+    header: 'Transaction',
+    cell: ({ row }) => (
+      <a
+        href={`https://sonicscan.org/tx/${row.original.txHash}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={e => e.stopPropagation()}
+        className="inline-flex items-center gap-1.5 font-mono text-xs text-foreground hover:underline"
       >
-        <p className="select-none text-sm font-semibold">Transaction</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
+        {shortenAddress(row.original.txHash)}
+        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+      </a>
     ),
-    cell: ({ row }) => {
-      const txHash = row.getValue('txHash') as string;
-      const explorerUrl = `https://sonicscan.org/tx/${txHash}`;
-      return (
-        <span className="flex items-center gap-2">
-          <span className="text-md font-mono text-muted-foreground">{shortenAddress(txHash)}</span>
-          <a href={explorerUrl} target="_blank" rel="noopener noreferrer">
-            <ExternalLink className="h-3 w-3 text-muted-foreground transition-colors hover:text-primary" />
-          </a>
-        </span>
-      );
-    },
   },
   {
     accessorKey: 'orderId',
-    header: ({ column }) => (
-      <div
-        className="group flex items-center justify-start gap-2 hover:cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+    header: 'Order',
+    meta: { className: 'w-28 text-right' },
+    cell: ({ row }) => (
+      <button
+        type="button"
+        onClick={e => {
+          e.stopPropagation();
+          copy(row.original.orderId, 'Order ID');
+        }}
+        title="Copy order ID"
+        className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground"
       >
-        <p className="select-none text-sm font-semibold">Order Id</p>
-        <ArrowUpDown className="invisible h-4 w-4 group-hover:visible" />
-      </div>
+        {shortenAddressWithLength(row.original.orderId, 3)}
+        <Copy className="h-3 w-3" />
+      </button>
     ),
-    cell: ({ row }) => {
-      const orderId = row.getValue('orderId') as string;
-      const handleCopy = async () => {
-        try {
-          await navigator.clipboard.writeText(orderId);
-          toast.success('Order ID copied to clipboard');
-        } catch (err) {
-          console.error('Failed to copy order ID:', err);
-        }
-      };
-      return (
-        <div
-          className="flex cursor-pointer items-center gap-2 transition-colors hover:text-primary"
-          onClick={handleCopy}
-          title="Click to copy order ID"
-        >
-          <span className="text-md font-mono text-muted-foreground">
-            {shortenAddressWithLength(orderId, 3)}
-          </span>
-          <Copy className="h-3 w-3 text-muted-foreground transition-colors hover:text-primary" />
-        </div>
-      );
-    },
   },
 ];

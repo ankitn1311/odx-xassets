@@ -1,243 +1,115 @@
-import { TokenPair } from '@/hooks/queries/use-all-tokens';
-import { Skeleton } from './ui/skeleton';
-import { useTokenBalance } from '@/hooks/queries/use-token-balance';
-import { Copy, Power, RefreshCw, AlertTriangle } from 'lucide-react';
+import React from 'react';
+import Link from 'next/link';
+import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { toast } from 'sonner';
-import { Separator } from './ui/separator';
+import { sonic } from 'viem/chains';
+import { AlertTriangle, Copy, ExternalLink, Power, Wallet, Activity, Settings } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSonicBalance } from '@/hooks/queries/use-sonic-balance';
 import { shortenAddress } from '@/utils/crypto';
-import Image from 'next/image';
-import { Button } from './ui/button';
-import { useQueryClient } from '@tanstack/react-query';
-import React from 'react';
-import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
-import { convertXUSDT, removeTrailingZeros } from '@/lib/utils';
-import { useTokenSwapStore } from '@/stores/token-swap-store';
-import { useWalletProfile } from '@/hooks/queries/use-wallet-profile';
-import { sonic } from 'viem/chains';
+import { cn } from '@/lib/utils';
 
-const CHAIN_ID = sonic.id; // Sonic mainnet
-const TESTNET_CHAIN_ID = 57054; // Sonic testnet
+const CHAIN_ID = sonic.id;
+const TESTNET_CHAIN_ID = 57054;
+const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
 
-// Skeleton component for portfolio items
-const PortfolioItemSkeleton = () => {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <Skeleton className="h-10 w-10 rounded-full" />
-        <div className="flex flex-col gap-1">
-          <Skeleton className="h-4 w-20" />
-        </div>
-      </div>
-      <div className="flex flex-col items-end">
-        <Skeleton className="h-5 w-16" />
-      </div>
-    </div>
-  );
-};
+const LINKS = [
+  { href: '/portfolio', label: 'Portfolio', icon: Wallet },
+  { href: '/activity', label: 'Activity', icon: Activity },
+  { href: '/settings', label: 'Settings', icon: Settings },
+];
 
+/** Compact account menu for the header wallet chip. Holdings live on /portfolio. */
 export const Portfolio = () => {
-  const { allTokens } = useTokenSwapStore();
-  const allTokensData = { data: allTokens, isLoading: false };
-  const { address } = useAccount();
-  const { data: walletProfile } = useWalletProfile(address);
+  const { address, chainId } = useAccount();
   const { data: sonicBalance } = useSonicBalance();
   const [, copyToClipboard] = useCopyToClipboard();
-  const queryClient = useQueryClient();
-  const { chainId } = useAccount();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const { disconnect, isPending: isDisconnecting } = useDisconnect();
 
-  const { disconnect: disconnectEVM, isPending: isDisconnecting } = useDisconnect();
-
-  const disconnectWalletHandler = () => {
-    disconnectEVM();
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['token-balance'] }),
-      queryClient.invalidateQueries({ queryKey: ['sonic-balance'] }),
-    ]);
-    setIsRefreshing(false);
-  };
-
-  const handleSwitchToSonic = () => {
-    try {
-      switchChain({ chainId: CHAIN_ID });
-    } catch (error) {
-      toast.error('Failed to switch to Sonic chain');
-    }
-  };
-
-  const isStaging = process.env.NEXT_PUBLIC_ENV === 'staging';
+  const onSonic = chainId === CHAIN_ID || (isStaging && chainId === TESTNET_CHAIN_ID);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 px-4 pb-4">
-        {/* Chain Status */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Connected Chain</p>
-          <div className="flex items-center gap-2">
-            {chainId === CHAIN_ID ? (
-              <div className="flex items-center gap-1 rounded-md bg-green-500/10 px-2 py-1 text-green-600">
-                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                <p className="text-xs font-medium">Sonic</p>
-              </div>
-            ) : isStaging && chainId === TESTNET_CHAIN_ID ? (
-              <div className="flex items-center gap-1 rounded-md bg-blue-500/10 px-2 py-1 text-blue-600">
-                <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                <p className="text-xs font-medium">Sonic Testnet</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                <Button
-                  variant="warning"
-                  size="sm"
-                  onClick={handleSwitchToSonic}
-                  disabled={isSwitching}
-                  className="h-6 px-2 text-xs"
-                >
-                  <div className="flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3" />
-                    {isSwitching ? 'Switching...' : 'Switch to Sonic'}
-                  </div>
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Address</p>
-          <div className="flex items-center gap-1">
-            <p className="text-sm">{shortenAddress(address || '')}</p>
-            <Copy
-              className="h-3 w-3 cursor-pointer text-muted-foreground hover:text-primary-foreground"
-              strokeWidth={1}
+    <div className="flex flex-col">
+      {/* Identity */}
+      <div className="flex items-center gap-3 px-4 pb-3">
+        <Avatar className="h-10 w-10 rounded-full bg-secondary">
+          <AvatarImage src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${address}`} alt="" />
+          <AvatarFallback>{address?.slice(2, 4)}</AvatarFallback>
+        </Avatar>
+        <div className="flex min-w-0 flex-1 flex-col leading-tight">
+          <span className="flex items-center gap-1.5 font-mono text-sm">
+            {shortenAddress(address || '')}
+            <button
+              type="button"
+              aria-label="Copy address"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => {
                 copyToClipboard(address || '');
-                toast.success(`Copied!`, {
-                  description: address,
-                });
+                toast.success('Address copied');
               }}
-            />
-          </div>
-        </div>
-        {walletProfile && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">Points</p>
-            <p className="text-xl font-medium">
-              <span className="text-accent">{walletProfile.totalPoints}</span>
-            </p>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Sonic Balance</p>
-          <p className="text-xl font-medium">
-            <span className="text-accent">{sonicBalance}</span> S
-          </p>
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+            <a
+              href={`https://sonicscan.org/address/${address}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View on Sonicscan"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </span>
+          <span className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>
+              <span className="font-mono tabular-nums">{sonicBalance ?? '0'}</span> S
+            </span>
+            <span aria-hidden="true">·</span>
+            {onSonic ? (
+              <span className="inline-flex items-center gap-1 text-success">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                {chainId === TESTNET_CHAIN_ID ? 'Sonic testnet' : 'Sonic'}
+              </span>
+            ) : (
+              <button
+                type="button"
+                disabled={isSwitching}
+                onClick={() => switchChain({ chainId: CHAIN_ID })}
+                className="inline-flex items-center gap-1 text-warning-foreground hover:underline"
+              >
+                <AlertTriangle className="h-3 w-3" />
+                {isSwitching ? 'Switching…' : 'Switch to Sonic'}
+              </button>
+            )}
+          </span>
         </div>
       </div>
 
-      <div className="px-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-base text-foreground">Tokens</p>
-            <p className="text-muted-foreground">All the tokens in your portofolio</p>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleRefresh}
-            isLoading={isRefreshing}
-            className="h-8 w-8"
+      {/* Links */}
+      <nav className="flex flex-col border-y border-border py-1">
+        {LINKS.map(l => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className={cn('flex items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-muted')}
           >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      <Separator />
-      <div className="flex flex-col gap-6 px-4">
-        {allTokensData.data?.map((tokenPair, index) => (
-          <PortofioItem key={index} data={tokenPair} />
+            <l.icon className="h-4 w-4 text-muted-foreground" />
+            {l.label}
+          </Link>
         ))}
-        {allTokensData.data?.[0] && <PortofioItem data={allTokensData.data[0]} type="USDX" />}
-      </div>
-      <Separator />
-      <div className="flex w-full justify-center px-4">
-        <Button
-          variant="ghost"
-          onClick={disconnectWalletHandler}
-          disabled={isDisconnecting}
-          className="w-full text-destructive hover:bg-destructive hover:text-destructive-foreground"
-        >
-          <div className="flex items-center gap-2">
-            <Power className="mr-2 h-4 w-4" />
-            <p className="text-sm">Disconnect Wallet</p>
-          </div>
-        </Button>
-      </div>
-    </div>
-  );
-};
+      </nav>
 
-export const PortofioItem = ({ data, type }: { data?: TokenPair; type?: 'USDX' }) => {
-  const [, copyToClipboard] = useCopyToClipboard();
-  const tokenBalanceData = useTokenBalance(data?.TokenB.Address || '', data?.TokenB.Decimals);
-  const usdxBalance = useTokenBalance(data?.TokenA.Address || '', data?.TokenA.Decimals);
-
-  if (!data) {
-    return <PortfolioItemSkeleton />;
-  }
-
-  const isUsdx = type === 'USDX';
-
-  if (isUsdx && usdxBalance.isLoading) {
-    return <PortfolioItemSkeleton />;
-  }
-
-  if (!isUsdx && tokenBalanceData.isLoading) {
-    return <PortfolioItemSkeleton />;
-  }
-
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <Image
-            src={isUsdx ? `/images/tokens/USDC.png` : `/images/tokens/${data.TokenB.Name}.png`}
-            alt={data.TokenB.Name}
-            width={40}
-            height={40}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1">
-            <div className="">{isUsdx ? convertXUSDT(data.TokenA.Name) : data.TokenB.Name}</div>
-            <Copy
-              className="h-3 w-3 cursor-pointer text-muted-foreground hover:text-primary-foreground"
-              strokeWidth={1}
-              onClick={() => {
-                copyToClipboard(isUsdx ? data.TokenA.Address : data.TokenB.Address);
-                toast.success(`Copied!`, {
-                  description: isUsdx ? data.TokenA.Address : data.TokenB.Address,
-                });
-              }}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col items-end">
-        <p className="text-base text-foreground">
-          {isUsdx
-            ? usdxBalance.data
-            : removeTrailingZeros(tokenBalanceData.data?.toString() || '0')}
-        </p>
-      </div>
+      <button
+        type="button"
+        onClick={() => disconnect()}
+        disabled={isDisconnecting}
+        className="flex items-center gap-3 px-4 py-3 text-sm text-destructive transition-colors hover:bg-destructive/5"
+      >
+        <Power className="h-4 w-4" />
+        Disconnect
+      </button>
     </div>
   );
 };

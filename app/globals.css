@@ -32,34 +32,36 @@ body {
     scrollbar-width: none;
   }
   :root {
-    --background: 0 0% 98%;
-    --foreground: 222 47% 11%;
+    /* "Blueprint" palette, shared with the landing page: cool graphite ground, ink text,
+       electric blue (from the logo's square) as the only accent, mono numerals, 8px corners. */
+    --background: 216 29% 97%; /* #F4F6F9 */
+    --foreground: 222 35% 7%; /* #0B0F17 */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 222 35% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 319 84% 67%;
-    --accent-foreground: 210 40% 98%;
+    --popover-foreground: 222 35% 7%;
+    --primary: 222 100% 59%; /* #2F6BFF */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 26% 93%; /* #E9EDF3 chips */
+    --secondary-foreground: 222 35% 7%;
+    --muted: 216 26% 93%;
+    --muted-foreground: 216 12% 40%; /* #5B6474 */
+    --accent: 214 91% 68%; /* #63A0F8, the logo square */
+    --accent-foreground: 222 35% 7%;
     --warning: 38 95% 64%;
     --warning-foreground: 38 95% 29%;
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
-    --chart-1: 221 83% 53%; /* Primary blue */
-    --chart-2: 319 84% 67%; /* Accent pink/magenta */
-    --chart-3: 142 76% 36%; /* Success green */
-    --chart-4: 38 95% 64%; /* Warning orange/yellow */
-    --chart-5: 0 72% 51%; /* Destructive red */
+    --success: 154 70% 38%; /* #1DA66A */
+    --success-foreground: 0 0% 100%;
+    --destructive: 3 65% 49%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 22% 88%; /* #D9DEE7 */
+    --input: 218 22% 88%;
+    --ring: 222 100% 59%;
+    --chart-1: 222 100% 59%; /* Blue */
+    --chart-2: 214 91% 68%; /* Light blue */
+    --chart-3: 154 70% 38%; /* Green */
+    --chart-4: 38 95% 64%; /* Warning */
+    --chart-5: 3 65% 49%; /* Red */
     --radius: 0.5rem;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
@@ -216,7 +218,116 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background font-medium text-foreground;
+    @apply bg-background font-normal text-foreground;
+  }
+}
+
+/* Landing page palette: the same Blueprint tokens as the app, as plain hex. */
+.landing {
+  --l-ink: #0b0f17;
+  --l-ink-2: #2a3140;
+  --l-muted: #5b6474;
+  --l-muted-2: #9aa3b2;
+  --l-line: #d9dee7;
+  --l-surface: #e9edf3;
+  --l-white: #f4f6f9;
+  --l-hero: #0b0f17;
+  --l-blue: #2f6bff;
+  --l-blue-soft: #c9d8ff;
+  --l-blue-mist: #e6eeff;
+  --l-sky: #63a0f8;
+  --l-green: #1da66a;
+  --l-green-soft: #d5e5cf;
+  --l-green-mist: #ebf0e7;
+  --l-plum: #1f55e0;
+  color-scheme: light;
+  color: var(--l-ink);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+/* Faint blueprint grid: 40px cells, a hair of ink on light grounds, a hair of white on dark. */
+.blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgba(11, 15, 23, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 15, 23, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.blueprint-grid-dark {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.landing ::selection {
+  background: var(--l-blue-soft);
+  color: var(--l-ink);
+}
+/* The page ground starts as the hero colour and fades to white as soon as the reader scrolls. */
+.landing {
+  --l-ease: cubic-bezier(0.45, 0, 0.25, 1);
+  --l-morph: 1.1s;
+}
+.landing-ground {
+  background-color: var(--l-hero);
+  transition: background-color var(--l-morph) var(--l-ease);
+}
+.landing-ground.is-expanded {
+  background-color: var(--l-white);
+}
+/* Hero media: full-bleed at rest, a rounded square once the page has been scrolled. */
+.landing .hero-media {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  border-radius: 0;
+  overflow: hidden;
+  transition:
+    width var(--l-morph) var(--l-ease),
+    height var(--l-morph) var(--l-ease),
+    border-radius var(--l-morph) var(--l-ease);
+}
+.landing-ground.is-expanded .hero-media {
+  width: var(--hero-square, 480px);
+  height: var(--hero-square, 480px);
+  border-radius: 12px;
+}
+/* Header: full-width and transparent over the hero, a floating black pill afterwards. */
+.landing .site-bar {
+  transition:
+    max-width var(--l-morph) var(--l-ease),
+    height var(--l-morph) var(--l-ease),
+    margin var(--l-morph) var(--l-ease),
+    padding var(--l-morph) var(--l-ease),
+    background-color var(--l-morph) var(--l-ease),
+    border-radius var(--l-morph) var(--l-ease),
+    box-shadow var(--l-morph) var(--l-ease),
+    color var(--l-morph) var(--l-ease);
+}
+/* Odometer digits: a column of 0-9 that slides to the target digit. */
+.landing .odo {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: top;
+}
+.landing .odo > span {
+  display: block;
+  transition: transform 1.4s var(--l-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-ground,
+  .landing .hero-media,
+  .landing .site-bar,
+  .landing .odo > span {
+    transition: none;
+  }
+  .landing .animate-ticker,
+  .landing .animate-ticker-slow {
+    animation: none;
   }
 }
 

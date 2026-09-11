@@ -82,8 +82,23 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-geist-sans)'],
         mono: ['var(--font-geist-mono)'],
+        landing: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+        // One typeface family: descriptive copy uses Geist too, at a lighter weight.
+        display: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
       },
       keyframes: {
+        ticker: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-33.3333%)' },
+        },
+        'line-reveal': {
+          '0%': { transform: 'translateY(100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'rise-in': {
+          '0%': { transform: 'translate3d(0, 56px, 0)', opacity: '0' },
+          '100%': { transform: 'translate3d(0, 0, 0)', opacity: '1' },
+        },
         moveHorizontal: {
           '0%': {
             transform: 'translateX(-50%) translateY(-10%)',
@@ -151,6 +166,10 @@ const config: Config = {
         },
       },
       animation: {
+        ticker: 'ticker 20s linear infinite',
+        'ticker-slow': 'ticker 30s linear infinite',
+        'line-reveal': 'line-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'rise-in': 'rise-in 0.4s ease-out both',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'caret-blink': 'caret-blink 1.25s ease-out infinite',
