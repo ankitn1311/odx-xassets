@@ -58,7 +58,7 @@ export function LandingFooter() {
 
       <div className="mt-8 border-t border-[var(--l-line)]">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4 px-5 py-5 text-sm text-[var(--l-muted)] md:px-10">
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
             <span className="text-[var(--l-ink)]">ODX © {new Date().getFullYear()}</span>
             <a href="#" className="hover:text-[var(--l-ink)]">Terms of Service</a>
             <a href="#" className="hover:text-[var(--l-ink)]">Privacy Policy</a>
