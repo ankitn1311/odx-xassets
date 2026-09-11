@@ -10,13 +10,15 @@ const TOKEN_SYMBOL_MAP: Record<string, string> = {
   x2PEPE: 'PEPE_USD',
   x2SUI: 'SUI_USD',
   x2ETH: 'ETH_USD',
-  // Add more mappings as needed
+  x2BTC: 'BTC_USD',
 };
 
+// Candle interval and how many candles make up each range. The feed returns ~25
+// candles per call, so each range is sized to fit in one request.
 const DURATION_MAP: Record<string, { interval: string; limit: number }> = {
-  '1D': { interval: '1D', limit: 24 }, // 24 hours of 1D intervals
-  '7D': { interval: '7D', limit: 7 }, // 7 days of 7D intervals
-  '1M': { interval: '1M', limit: 30 }, // 30 days of 1M intervals
+  '1D': { interval: '1h', limit: 24 },
+  '7D': { interval: '12h', limit: 14 },
+  '1M': { interval: '1D', limit: 25 },
 };
 
 export interface ChartPoint {
@@ -24,40 +26,20 @@ export interface ChartPoint {
   price: number;
 }
 
-function getMockChartData(limit: number, price: number = 1): ChartPoint[] {
-  const now = Date.now();
-  const interval = Math.floor((24 * 60 * 60 * 1000) / limit); // spread over 1 day
-  return Array.from({ length: limit }, (_, i) => ({
-    time: now - (limit - i) * interval,
-    price: Math.random() * 10,
-  }));
-}
+/** Candles for a token over a range. Returns an empty list when the feed has nothing. */
 async function fetchCryptoChartData(token: string, duration: string): Promise<ChartPoint[]> {
-  const symbol = TOKEN_SYMBOL_MAP[token] || 'XRP_USD';
+  const symbol = TOKEN_SYMBOL_MAP[token];
+  if (!symbol) return [];
   const { interval, limit } = DURATION_MAP[duration] || DURATION_MAP['1D'];
   const url = `${getCurrentBaseUrl()}/cdc/get-candlestick?instrument_name=${symbol}&timeframe=${interval}`;
-  try {
-    const res = await axios.get(url);
-    const json = res.data;
-    if (
-      !json.result ||
-      !json.result.data ||
-      !Array.isArray(json.result.data) ||
-      json.result.data.length === 0
-    ) {
-      // Return mock data if API returns no data
-      return getMockChartData(limit);
-    }
-    const sorted = json.result.data.sort((a: any, b: any) => a.t - b.t);
-    return sorted.slice(-limit).map((item: any) => ({
-      time: item.t,
-      price: Number(item.c),
-    }));
-  } catch (e) {
-    // Return mock data if API fails
-    console.log('error', e);
-    return getMockChartData(limit);
-  }
+  const res = await axios.get(url);
+  const data = res.data?.result?.data;
+  if (!Array.isArray(data) || data.length === 0) return [];
+  const sorted = [...data].sort((a: any, b: any) => a.t - b.t);
+  return sorted.slice(-limit).map((item: any) => ({
+    time: item.t,
+    price: Number(item.c),
+  }));
 }
 
 export function useCryptoChart(token: string, duration: string) {

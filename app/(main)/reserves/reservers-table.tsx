@@ -1,262 +1,123 @@
+import Image from 'next/image';
+import { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { DataTable } from './data-table';
-import { exploreColumn } from './columns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DataTable } from '../x-assets/data-table';
+import { reserveColumns, type ReserveRow } from './columns';
 import { useTokensSupply } from '@/hooks/queries/use-token-supply';
 import { useTokenSwapStore } from '@/stores/token-swap-store';
-import { tokenConvert } from '@/hooks/mutations/use-trade-quote';
-import { useIsMobile } from '@/hooks/use-mobile';
-import Image from 'next/image';
-import { removeTrailingZeros } from '@/lib/utils';
+import { tokenConvert, tokenConvertForUI } from '@/hooks/mutations/use-trade-quote';
+import { fmtCompactUsd, fmtUnits, timeAgo } from '@/lib/format';
 
-const xTokenToToken = tokenConvert;
+const CUSTODIAN = 'Safeheron';
+
+/** Builds one row per xAsset from on-chain supply, matched by symbol. */
+function useReserveRows() {
+  const { allTokens } = useTokenSwapStore();
+  const { data: supply, isLoading, dataUpdatedAt } = useTokensSupply();
+
+  const rows = useMemo<ReserveRow[]>(
+    () =>
+      allTokens.map(pair => {
+        const symbol = pair.TokenB.Name;
+        const s = supply?.find(x => x.symbol === symbol);
+        const minted = Number(s?.totalSupply ?? 0);
+        const mintedUsd = Number(s?.totalSupplyUSD ?? 0);
+        // Reserve mirrors supply at a 1:1 ratio until the custody feed exists.
+        return {
+          symbol,
+          name: tokenConvert[symbol as keyof typeof tokenConvert] ?? symbol,
+          image: `/images/tokens/${symbol}.png`,
+          minted,
+          mintedUsd,
+          inReserve: minted,
+          inReserveUsd: mintedUsd,
+          ratio: 1,
+          custodian: CUSTODIAN,
+          updatedAt: dataUpdatedAt || Date.now(),
+        };
+      }),
+    [allTokens, supply, dataUpdatedAt]
+  );
+
+  return { rows, isLoading, updatedAt: dataUpdatedAt };
+}
 
 export function ReservesTable() {
-  const { allTokens } = useTokenSwapStore();
-  const isMobile = useIsMobile();
+  const { rows, isLoading, updatedAt } = useReserveRows();
+  const totalMinted = rows.reduce((s, r) => s + r.mintedUsd, 0);
 
-  // Use the batch hook to get all token supply data in one query
-  const { data: allSupplyData, isLoading: isSupplyLoading } = useTokensSupply();
-
-  // Find tokens by their names
-  const solToken = allTokens.find(token => token.TokenB.Name === 'x2SOL');
-  const xrpToken = allTokens.find(token => token.TokenB.Name === 'x2XRP');
-  const adaToken = allTokens.find(token => token.TokenB.Name === 'x2ADA');
-  const suiToken = allTokens.find(token => token.TokenB.Name === 'x2SUI');
-  const ethToken = allTokens.find(token => token.TokenB.Name === 'x2ETH');
-
-  console.log('ALL SUPPLY DATA', allSupplyData);
-
-  // Get supply data for each token from the batch result
-  const xrpTokenSupplyData = allSupplyData?.[0]; // x2XRP is first in ALL_V2_TOKEN_PAIRS
-  const tokenSupplyData = allSupplyData?.[1]; // x2SOL is second
-  const adaTokenSupplyData = allSupplyData?.[2]; // x2ADA is third
-  const suiTokenSupplyData = allSupplyData?.[3]; // x2SUI is fourth
-  const ethTokenSupplyData = allSupplyData?.[4]; // x2ETH is fifth
-
-  const tableData = solToken
-    ? [
-        {
-          tokenName: xTokenToToken[solToken.TokenB.Name as keyof typeof xTokenToToken],
-          tokenSymbol: solToken.TokenB.Name,
-          totalSupply: tokenSupplyData?.totalSupply || '0',
-          totalSupplyUSD: tokenSupplyData?.totalSupplyUSD || '0',
-          unitsInReserve: tokenSupplyData?.totalSupply || '0',
-          unitsInReserveUSD: tokenSupplyData?.totalSupplyUSD || '0',
-          ratio: '100%',
-          price: 0,
-          priceChange: 0,
-          marketCap: 0,
-          image: `/images/tokens/${solToken.TokenB.Name}.png`,
-        },
-        {
-          tokenName: xTokenToToken[xrpToken?.TokenB.Name as keyof typeof xTokenToToken],
-          tokenSymbol: xrpToken?.TokenB.Name || '',
-          totalSupply: xrpTokenSupplyData?.totalSupply || '0',
-          totalSupplyUSD: xrpTokenSupplyData?.totalSupplyUSD || '0',
-          unitsInReserve: xrpTokenSupplyData?.totalSupply || '0',
-          unitsInReserveUSD: xrpTokenSupplyData?.totalSupplyUSD || '0',
-          ratio: '100%',
-          price: 0,
-          priceChange: 0,
-          marketCap: 0,
-          image: `/images/tokens/${xrpToken?.TokenB.Name}.png`,
-        },
-        {
-          tokenName: xTokenToToken[adaToken?.TokenB.Name as keyof typeof xTokenToToken],
-          tokenSymbol: adaToken?.TokenB.Name || '',
-          totalSupply: adaTokenSupplyData?.totalSupply || '0',
-          totalSupplyUSD: adaTokenSupplyData?.totalSupplyUSD || '0',
-          unitsInReserve: adaTokenSupplyData?.totalSupply || '0',
-          unitsInReserveUSD: adaTokenSupplyData?.totalSupplyUSD || '0',
-          ratio: '100%',
-          price: 0,
-          priceChange: 0,
-          marketCap: 0,
-          image: `/images/tokens/${adaToken?.TokenB.Name}.png`,
-        },
-        // {
-        //   tokenName: xTokenToToken[dogeToken?.TokenB.Name as keyof typeof xTokenToToken],
-        //   tokenSymbol: dogeToken?.TokenB.Name || '',
-        //   totalSupply: dogeTokenSupplyData?.totalSupply || '0',
-        //   totalSupplyUSD: dogeTokenSupplyData?.totalSupplyUSD || '0',
-        //   unitsInReserve: dogeTokenSupplyData?.totalSupply || '0',
-        //   unitsInReserveUSD: dogeTokenSupplyData?.totalSupplyUSD || '0',
-        //   ratio: '100%',
-        //   price: 0,
-        //   priceChange: 0,
-        //   marketCap: 0,
-        //   image: `/images/tokens/${dogeToken?.TokenB.Name}.png`,
-        // },
-        // {
-        //   tokenName: xTokenToToken[pepeToken?.TokenB.Name as keyof typeof xTokenToToken],
-        //   tokenSymbol: pepeToken?.TokenB.Name || '',
-        //   totalSupply: pepeTokenSupplyData?.totalSupply || '0',
-        //   totalSupplyUSD: pepeTokenSupplyData?.totalSupplyUSD || '0',
-        //   unitsInReserve: pepeTokenSupplyData?.totalSupply || '0',
-        //   unitsInReserveUSD: pepeTokenSupplyData?.totalSupplyUSD || '0',
-        //   ratio: '100%',
-        //   price: 0,
-        //   priceChange: 0,
-        //   marketCap: 0,
-        //   image: `/images/tokens/${pepeToken?.TokenB.Name}.png`,
-        // },
-        {
-          tokenName: xTokenToToken[suiToken?.TokenB.Name as keyof typeof xTokenToToken],
-          tokenSymbol: suiToken?.TokenB.Name || '',
-          totalSupply: suiTokenSupplyData?.totalSupply || '0',
-          totalSupplyUSD: suiTokenSupplyData?.totalSupplyUSD || '0',
-          unitsInReserve: suiTokenSupplyData?.totalSupply || '0',
-          unitsInReserveUSD: suiTokenSupplyData?.totalSupplyUSD || '0',
-          ratio: '100%',
-          price: 0,
-          priceChange: 0,
-          marketCap: 0,
-          image: `/images/tokens/${suiToken?.TokenB.Name}.png`,
-        },
-        // {
-        //   tokenName: xTokenToToken[ethToken?.TokenB.Name as keyof typeof xTokenToToken],
-        //   tokenSymbol: ethToken?.TokenB.Name || '',
-        //   totalSupply: ethTokenSupplyData?.totalSupply || '0',
-        //   totalSupplyUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
-        //   unitsInReserve: ethTokenSupplyData?.totalSupply || '0',
-        //   unitsInReserveUSD: ethTokenSupplyData?.totalSupplyUSD || '0',
-        //   ratio: '100%',
-        //   price: 0,
-        //   priceChange: 0,
-        //   marketCap: 0,
-        //   image: `/images/tokens/${ethToken?.TokenB.Name}.png`,
-        // },
-      ]
-    : [];
-
-  if (isSupplyLoading) {
-    if (isMobile) {
-      // Mobile skeleton: match new card layout
-      return (
-        <div className="flex flex-col gap-2 md:hidden">
-          {[...Array(3)].map((_, idx) => (
-            <Card key={idx} className="flex flex-col gap-2 p-4">
-              <div className="mb-2 flex items-center gap-3">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="flex flex-1 flex-col">
-                  <Skeleton className="mb-1 h-4 w-24" />
-                  <div className="flex items-start gap-2">
-                    <Skeleton className="h-3 w-12" />
-                    <Skeleton className="h-3 w-8" />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0">
-                <div className="flex flex-col">
-                  <Skeleton className="mb-1 h-3 w-20" />
-                  <Skeleton className="mb-1 h-5 w-20" />
-                  <Skeleton className="h-3 w-12" />
-                </div>
-                <div className="flex flex-col">
-                  <Skeleton className="mb-1 h-3 w-20" />
-                  <Skeleton className="mb-1 h-5 w-20" />
-                  <Skeleton className="h-3 w-12" />
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      );
-    }
-    // Desktop skeleton (unchanged)
-    return (
-      <Card>
-        <div className="flex flex-col gap-2 p-4 pb-0">
-          <Skeleton className="h-8 w-full" />
-        </div>
-        <div className="flex flex-col gap-2 p-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
-      </Card>
-    );
-  }
-
-  if (isMobile) {
-    // Mobile: Render compact cards with headings and grid details, ratio next to symbol
-    return (
-      <div className="flex flex-col gap-2 pb-[4.5rem] md:hidden">
-        {tableData.length ? (
-          tableData.map((row, idx) => (
-            <Card key={row.tokenSymbol || idx} className="flex flex-col gap-2 p-4">
-              <div className="mb-2 flex items-center gap-3">
-                <Image
-                  src={row.image}
-                  alt={row.tokenSymbol}
-                  className="h-10 w-10"
-                  width={40}
-                  height={40}
-                />
-                <div className="flex flex-col">
-                  <span className="text-base font-semibold">{row.tokenName}</span>
-                  <div className="flex items-start gap-2">
-                    <span className="text-xs text-muted-foreground">{row.tokenSymbol}</span>
-                    <span className="font-mono text-xs font-semibold text-primary">
-                      {row.ratio}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-0">
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground">Total Supply of xAsset</span>
-                  <span className="mt-1 font-mono text-lg font-semibold">
-                    {parseFloat(
-                      removeTrailingZeros(Number(row.totalSupply).toFixed(3))
-                    ).toLocaleString()}
-                    <span className="font-sans text-sm text-muted-foreground">
-                      {' '}
-                      {row.tokenSymbol}
-                    </span>
-                  </span>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    $
-                    {parseFloat(
-                      removeTrailingZeros(Number(row.totalSupplyUSD).toFixed(3))
-                    ).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground">Units in Reserve</span>
-                  <span className="mt-1 font-mono text-lg font-semibold">
-                    {parseFloat(
-                      removeTrailingZeros(Number(row.unitsInReserve).toFixed(3))
-                    ).toLocaleString()}
-                    <span className="font-sans text-sm text-muted-foreground">
-                      {' '}
-                      {tokenConvert[row.tokenSymbol as keyof typeof tokenConvert]}
-                    </span>
-                  </span>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    $
-                    {parseFloat(
-                      removeTrailingZeros(Number(row.unitsInReserveUSD).toFixed(3))
-                    ).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </Card>
-          ))
-        ) : (
-          <div className="text-center text-muted-foreground">No results.</div>
-        )}
-      </div>
-    );
-  }
-
-  // Desktop: Render DataTable as before
   return (
-    <Card className="hidden py-4 md:block">
-      <DataTable columns={exploreColumn} data={tableData} />
-    </Card>
+    <div className="flex flex-col gap-3">
+      {/* One-line summary */}
+      <p className="flex flex-wrap items-center gap-x-2 gap-y-1 px-1 text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">{rows.length} assets</span>
+        <span>·</span>
+        <span>
+          <span className="font-mono text-foreground">{fmtCompactUsd(totalMinted)}</span> minted
+        </span>
+        {updatedAt > 0 && (
+          <>
+            <span>·</span>
+            <span>Updated {timeAgo(updatedAt)}</span>
+          </>
+        )}
+      </p>
+
+      {/* Desktop table */}
+      <Card className="hidden md:block">
+        {isLoading && !rows.some(r => r.minted > 0) ? (
+          <div className="space-y-3 p-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        ) : (
+          <div className="py-2">
+            <DataTable columns={reserveColumns} data={rows} />
+          </div>
+        )}
+      </Card>
+
+      {/* Mobile cards */}
+      <div className="flex flex-col gap-3 pb-[4.5rem] md:hidden">
+        {rows.map(r => (
+          <Card key={r.symbol} className="flex flex-col gap-3 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Image src={r.image} alt="" width={36} height={36} className="h-9 w-9" />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[15px] font-medium">
+                    {tokenConvertForUI[r.name as keyof typeof tokenConvertForUI] ?? r.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{r.symbol}</span>
+                </div>
+              </div>
+              <span className="font-mono text-sm tabular-nums">{Math.round(r.ratio * 100)}%</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground">Total Supply of xAsset</span>
+                <span className="font-mono tabular-nums">
+                  {fmtUnits(r.minted)} <span className="font-sans text-xs text-muted-foreground">{r.symbol}</span>
+                </span>
+                <span className="text-xs text-muted-foreground">{fmtCompactUsd(r.mintedUsd)}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground">Units in Reserve</span>
+                <span className="font-mono tabular-nums">
+                  {fmtUnits(r.inReserve)} <span className="font-sans text-xs text-muted-foreground">{r.name}</span>
+                </span>
+                <span className="text-xs text-muted-foreground">{fmtCompactUsd(r.inReserveUsd)}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
+              <span>{r.custodian}</span>
+              <span>{timeAgo(r.updatedAt)}</span>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }

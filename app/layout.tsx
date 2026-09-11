@@ -7,7 +7,6 @@ import { getLocale, getMessages } from 'next-intl/server';
 import Providers from './providers';
 import NextTopLoader from 'nextjs-toploader';
 import { GlobalDialog } from '@/components/common/global-dialog';
-import { GridBackground } from '@/components/ui/grid-background';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -22,7 +21,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: 'ODX',
-  description: 'An Omnichain Trading Layer',
+  description: 'Real assets, backed onchain',
 };
 
 export default async function RootLayout({
@@ -39,29 +38,16 @@ export default async function RootLayout({
     <html lang={locale}>
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="icon" href="/images/favicon.png" type="image/png" sizes="32x32" />
-      <link
-        rel="apple-touch-icon"
-        href="/images/favicon.png"
-        type="image/<generated>"
-        sizes="<generated>"
-      />
+      <link rel="apple-touch-icon" href="/images/favicon.png" />
 
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans text-xs antialiased`}>
-        <NextTopLoader color="#d7a7d7" showSpinner={false} />
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans text-sm antialiased`}>
+        <NextTopLoader color="#2F6BFF" showSpinner={false} height={2} />
         <Providers>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          {/* The product is light-only, like the landing page. */}
+          <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light">
             <NextIntlClientProvider messages={messages}>
               <GlobalDialog />
-              <GridBackground>
-                {/* <div className="absolute inset-0 z-50 flex flex-col items-center justify-center px-4"> */}
-                {children}
-                {/* </div> */}
-              </GridBackground>
+              {children}
             </NextIntlClientProvider>
           </ThemeProvider>
         </Providers>

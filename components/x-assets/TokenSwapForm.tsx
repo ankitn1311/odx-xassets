@@ -12,8 +12,14 @@ import { SwapScreens } from './SwapScreens';
 import { SwapFormValues } from './TokenSwapCard';
 import { useAppStore } from '@/stores/app-store';
 import { sonic } from 'viem/chains';
+import { useRef, useState } from 'react';
+import { TermsDialog } from '@/components/common/terms-dialog';
 
 export function TokenSwapForm() {
+  // Terms gate: the first order from a wallet opens the terms; accepting resumes it.
+  const { hasAcceptedTerms, acceptTerms } = useAppStore();
+  const [termsOpen, setTermsOpen] = useState(false);
+  const pendingValues = useRef<SwapFormValues | null>(null);
   const { submitSignature } = useXAssetSignature();
   const {
     tradeState,
@@ -117,6 +123,14 @@ export function TokenSwapForm() {
     if (!isStaging && sonic.id !== chainId) return toast.error('Please switch to Sonic Mainnet');
     // if (isInsufficientBalance) return toast.error('Insufficient balance');
     if (!isValidAmount) return toast.error('Amount must be greater than 0');
+
+    // Terms are accepted once per wallet, before the first order goes anywhere.
+    const startingOrder = [TradeState.INITIAL, TradeState.APPROVED, TradeState.APPROVAL].includes(tradeState);
+    if (startingOrder && !hasAcceptedTerms(address)) {
+      pendingValues.current = values;
+      setTermsOpen(true);
+      return;
+    }
     // if (isBalanceUpdating) return toast.info('Please wait for the balance to update');
 
     try {
@@ -234,12 +248,21 @@ export function TokenSwapForm() {
     }
   };
 
+  const onAcceptTerms = () => {
+    if (address) acceptTerms(address);
+    setTermsOpen(false);
+    const values = pendingValues.current;
+    pendingValues.current = null;
+    if (values) onSubmit(values);
+  };
+
   return (
     <form
       onSubmit={form.handleSubmit(onSubmit, onError)}
       className="flex h-full flex-col justify-between"
     >
       <SwapScreens />
+      <TermsDialog open={termsOpen} onOpenChange={setTermsOpen} onAccept={onAcceptTerms} />
     </form>
   );
 }

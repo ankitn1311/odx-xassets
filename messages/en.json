@@ -37,6 +37,9 @@
     "xAssets": "xAssets",
     "reserves": "Reserves",
     "explorer": "Explorer",
-    "leaderboard": "Leaderboard"
+    "leaderboard": "Leaderboard",
+    "redeem": "Redeem",
+    "activity": "Activity",
+    "settings": "Settings"
   }
 }

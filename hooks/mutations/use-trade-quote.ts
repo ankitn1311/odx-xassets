@@ -108,7 +108,7 @@ const calculateQuote = async (params: QuoteParams) => {
   }
 };
 
-const getTokenPrice = async (tokenSymbol: string) => {
+export const getTokenPrice = async (tokenSymbol: string) => {
   const response = await axios.get(`${getCurrentBaseUrl()}/cdc/get-valuations`, {
     params: {
       instrument_name: `${tokenConvert[tokenSymbol as keyof typeof tokenConvert]}_USD`,
@@ -219,7 +219,7 @@ export const useTokenPriceChange = (tokenSymbol: string) => {
   });
 };
 
-const getTokenPriceChange = async (tokenSymbol: string) => {
+export const getTokenPriceChange = async (tokenSymbol: string) => {
   const response = await axios.get(`${getCurrentBaseUrl()}/cdc/get-tickers`, {
     params: {
       instrument_name: `${tokenConvert[tokenSymbol as keyof typeof tokenConvert]}_USD`,

@@ -1,41 +1,28 @@
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
+import { REQUIRE_LAUNCH_PASSWORD } from '@/config/access';
+
+// App routes that need the access cookie when the gate is on. The landing page at "/"
+// is always public; "Launch App" on it sets the cookie after the password check.
+const GATED = ['/x-assets', '/reserves', '/markets', '/redeem', '/portfolio', '/activity', '/settings', '/status'];
 
 export default async function middleware(request: NextRequest) {
-  // const token = request.cookies.get('auth_token') ? request.cookies.get('auth_token')?.value : '';
-  //   // Under maintenance TODO: comment next two line to disable maintenance mode
+  // Under maintenance TODO: uncomment next two lines to enable maintenance mode
   // if (request.nextUrl.pathname === '/maintenance') return NextResponse.next();
   // return NextResponse.redirect(new URL('/maintenance', request.url));
-  const token = request.cookies.get('invite_code') ? request.cookies.get('invite_code')?.value : '';
+  const { pathname } = request.nextUrl;
+  const token = request.cookies.get('invite_code')?.value ?? '';
 
-  if (
-    !token &&
-    ['/', '/invite', '/x-assets', '/reserves', '/markets'].includes(request.nextUrl.pathname)
-  ) {
-    if (request.nextUrl.pathname === '/invite') {
-      return NextResponse.next();
-    }
-    return NextResponse.redirect(new URL('/invite', request.url));
+  // The old invite page is replaced by the password dialog on the landing page.
+  if (pathname === '/invite') {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // if token is available and user tries to access protected routes
-  if (
-    token &&
-    ['/', '/invite', '/x-assets', '/reserves', '/markets'].includes(request.nextUrl.pathname)
-  ) {
-    try {
-      if (request.nextUrl.pathname === '/invite' || request.nextUrl.pathname === '/') {
-        return NextResponse.redirect(new URL('/markets', request.url));
-      }
-      return NextResponse.next();
-    } catch (error: any) {
-      console.log('error', error);
-      // const response = NextResponse.redirect(new URL("/", request.url));
-      // response.cookies.delete("auth_token");
-      // return response;
-    }
+  if (REQUIRE_LAUNCH_PASSWORD && !token && GATED.includes(pathname)) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
-  if (request.nextUrl.pathname === '/maintenance') {
+
+  if (pathname === '/maintenance') {
     return NextResponse.redirect(new URL('/markets', request.url));
   }
 }

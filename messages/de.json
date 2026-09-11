@@ -37,6 +37,9 @@
     "xAssets": "xAssets",
     "reserves": "Reserven",
     "explorer": "Explorer",
-    "leaderboard": "Rangliste"
+    "leaderboard": "Rangliste",
+    "redeem": "Einlösen",
+    "activity": "Aktivität",
+    "settings": "Einstellungen"
   }
 }

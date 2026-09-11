@@ -37,6 +37,9 @@
     "xAssets": "xAssets",
     "reserves": "Cadangan",
     "explorer": "Explorer",
-    "leaderboard": "Papan Peringkat"
+    "leaderboard": "Papan Peringkat",
+    "redeem": "Tebus",
+    "activity": "Aktivitas",
+    "settings": "Pengaturan"
   }
 }

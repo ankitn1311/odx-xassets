@@ -127,12 +127,16 @@ export const useTokensSupply = () => {
                 const totalSupplyInUSD = (tokenPrice * parseFloat(supply)).toFixed(2);
 
                 return {
+                  symbol: pair.TokenB.Name,
+                  price: tokenPrice,
                   totalSupply: supply,
                   totalSupplyUSD: totalSupplyInUSD,
                 };
               } catch (error) {
                 console.error('Error getting price for', pair.TokenB.Name, error);
                 return {
+                  symbol: pair.TokenB.Name,
+                  price: 0,
                   totalSupply: supply,
                   totalSupplyUSD: '0',
                 };
@@ -140,22 +144,29 @@ export const useTokensSupply = () => {
             }
 
             return {
+              symbol: pair.TokenB.Name,
+              price: 0,
               totalSupply: supply,
               totalSupplyUSD: '0',
             };
           } catch (error) {
             console.error('Error getting supply for', pair.TokenB.Name, error);
             return {
+              symbol: pair.TokenB.Name,
+              price: 0,
               totalSupply: '0',
               totalSupplyUSD: '0',
             };
           }
-        })
+        }) ?? []
       );
 
-      // Extract successful results, fallback to default for failed ones
-      return results.map(result =>
-        result.status === 'fulfilled' ? result.value : { totalSupply: '0', totalSupplyUSD: '0' }
+      // Extract successful results, fallback to default for failed ones. Each entry
+      // carries its symbol so consumers match by name rather than by position.
+      return results.map((result, i) =>
+        result.status === 'fulfilled'
+          ? result.value
+          : { symbol: allTokens?.[i]?.TokenB.Name ?? '', price: 0, totalSupply: '0', totalSupplyUSD: '0' }
       );
     },
     // enabled: !!wallet?.account.address,

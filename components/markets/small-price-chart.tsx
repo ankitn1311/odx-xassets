@@ -8,34 +8,19 @@ interface SmallPriceChartProps {
   className?: string;
 }
 
-// Generate a flat line placeholder chart for small charts
-function getSmallChartData(length = 24, price = 1) {
-  const now = Date.now();
-  const interval = 60 * 60 * 1000; // 1 hour
-  return Array.from({ length }, (_, i) => ({
-    time: now - (length - i) * interval,
-    price: price + (Math.random() - 0.5) * 0.1, // Small random variation
-  }));
-}
-
+/** 24h sparkline from hourly candles; green if the day closed up, red if down. */
 export function SmallPriceChart({ tokenName, className = '' }: SmallPriceChartProps) {
   const { data, isLoading, error } = useCryptoChart(tokenName, '1D');
 
   if (isLoading) {
-    return <Skeleton className="h-8 w-16" />;
+    return <Skeleton className={`h-8 w-16 ${className}`} />;
   }
 
-  if (error) {
-    return <span className="text-muted-foreground">-</span>;
+  if (error || !data || data.length < 2) {
+    return <span className="text-muted-foreground">–</span>;
   }
 
-  // Use actual data or fallback to mock data
-  const chartData = data && data.length > 0 ? data : getSmallChartData(24, 1);
-
-  // Determine if price is going up or down for color
-  const firstPrice = chartData[0]?.price || 1;
-  const lastPrice = chartData[chartData.length - 1]?.price || 1;
-  const isPositive = lastPrice >= firstPrice;
+  const isPositive = data[data.length - 1].price >= data[0].price;
   const chartColor = isPositive ? 'hsl(var(--success))' : 'hsl(var(--destructive))';
 
   return (
@@ -46,10 +31,7 @@ export function SmallPriceChart({ tokenName, className = '' }: SmallPriceChartPr
         }}
         className="h-full w-full"
       >
-        <RechartsPrimitive.AreaChart
-          data={chartData}
-          margin={{ top: 2, right: 2, left: 2, bottom: 2 }}
-        >
+        <RechartsPrimitive.AreaChart data={data} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
           <defs>
             <linearGradient id={`colorGradient-${tokenName}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={chartColor} stopOpacity={0.3} />
@@ -57,7 +39,7 @@ export function SmallPriceChart({ tokenName, className = '' }: SmallPriceChartPr
             </linearGradient>
           </defs>
           <RechartsPrimitive.XAxis dataKey="time" hide={true} axisLine={false} tickLine={false} />
-          <RechartsPrimitive.YAxis hide={true} axisLine={false} tickLine={false} />
+          <RechartsPrimitive.YAxis hide={true} axisLine={false} tickLine={false} domain={['dataMin', 'dataMax']} />
           <RechartsPrimitive.Area
             type="linear"
             dataKey="price"
@@ -65,6 +47,7 @@ export function SmallPriceChart({ tokenName, className = '' }: SmallPriceChartPr
             fill={`url(#colorGradient-${tokenName})`}
             strokeWidth={1}
             dot={false}
+            isAnimationActive={false}
           />
         </RechartsPrimitive.AreaChart>
       </ChartContainer>
