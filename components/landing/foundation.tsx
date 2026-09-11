@@ -5,7 +5,7 @@ import { Words } from './reveal';
 
 const ROWS = [
   { value: '1:1', label: 'Backing per wrap' },
-  { value: '2', label: 'Chains: Sonic and Whitechain' },
+  { value: '1k+', label: 'Assets available to wrap' },
   { value: '24/7', label: 'Mint and redeem' },
 ];
 

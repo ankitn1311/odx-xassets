@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { HeroSheet, MintDiagram } from './blueprint';
+import { HeroSheet } from './blueprint';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import { useLandingExpanded } from './landing-ground';
@@ -14,8 +14,9 @@ const RIGHT = 'backed onchain.';
  * Pinned full-screen hero. At rest the photo fills the viewport with the headline
  * centred over it. The first scroll collapses the photo into a rounded square, slides
  * the two halves of the headline to the page edges, turns them black and reveals the
- * subtitle. The section is taller than the viewport so the collapsed hero holds for a
- * while before it scrolls away with the page.
+ * subtitle. The section is only slightly taller than the viewport: the page parks at
+ * HOLD (120px, see landing-ground) while the morph plays, and the next wheel notch
+ * should start moving the page rather than scrolling through dead space.
  */
 export function Hero() {
   const expanded = useLandingExpanded();
@@ -29,7 +30,8 @@ export function Hero() {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const mobile = vw < 768;
-      const square = mobile ? Math.min(vw * 0.8, 420) : Math.min(vh * 0.61, 518);
+      // Phones: a smaller square so the stacked headline above it clears the header.
+      const square = mobile ? Math.min(vw * 0.62, 360, vh * 0.42) : Math.min(vh * 0.61, 518);
       const margin = Math.max(24, vw * 0.05);
       const l = leftRef.current;
       const r = rightRef.current;
@@ -44,7 +46,7 @@ export function Hero() {
       setGeo({
         dxL: mobile ? 0 : dxL,
         dxR: mobile ? 0 : dxR,
-        dy: mobile ? -(square / 2 + 72) : 0,
+        dy: mobile ? -(square / 2 + 56) : 0,
         square,
         scale,
       });
@@ -60,25 +62,16 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative h-[190vh]"
+      className="relative h-[calc(100vh+160px)]"
       style={{ ['--hero-square' as string]: `${geo.square}px` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="hero-media">
-          {/* Full-bleed: a quiet sheet, grid and the square motif only. The mint diagram
-              is drawn in once the media has collapsed into the square. */}
+          {/* Full-bleed at rest; the same image collapses into the rounded square on scroll. */}
           <HeroSheet />
-          <motion.div
-            className="absolute inset-0"
-            initial={false}
-            animate={{ opacity: expanded ? 1 : 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: expanded ? 0.5 : 0 }}
-          >
-            <MintDiagram />
-          </motion.div>
         </div>
 
-        <h1 className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center gap-[0.3em] whitespace-nowrap px-4 text-center text-[40px] font-semibold leading-none tracking-[-0.03em] sm:text-[60px] md:flex-row md:text-[72px] lg:text-[84px]">
+        <h1 className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center justify-center gap-[0.1em] whitespace-nowrap px-4 text-center text-[40px] font-semibold leading-none tracking-[-0.03em] sm:text-[60px] md:flex-row md:gap-[0.3em] md:text-[72px] lg:text-[84px]">
           <motion.span
             ref={leftRef}
             className="inline-block origin-left"

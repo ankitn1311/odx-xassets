@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { ReservesField } from './reserves-field';
 
 /** The logo's blue square, used as a marker before eyebrows and titles. */
 export function Marker({ className }: { className?: string }) {
@@ -64,25 +65,16 @@ export function MintDiagram({ className }: { className?: string }) {
 }
 
 /**
- * The hero at rest: near-black sheet, faint grid, and the logo's square motif drawn
- * large and quiet behind the headline. Nothing to read, nothing competing with the text.
+ * The hero: a dark sheet with the reserves ledger drawn on it. At rest a dark gradient
+ * sits over the top and bottom so the header and the ticker stay legible; it fades
+ * out when the hero collapses so the square shows the skyline edge to edge.
  */
 export function HeroSheet() {
   return (
-    <div className="blueprint-grid-dark absolute inset-0 bg-[#0B0F17]">
-      <svg
-        viewBox="0 0 1600 900"
-        preserveAspectRatio="xMidYMid slice"
-        className="absolute inset-0 h-full w-full"
-        aria-hidden="true"
-      >
-        {/* One large outlined square, centred, with the solid corner mark from the logo. */}
-        <rect x="560" y="210" width="480" height="480" fill="none" stroke="#63A0F8" strokeOpacity="0.28" strokeWidth="1.5" />
-        <rect x="1024" y="194" width="32" height="32" fill="#63A0F8" fillOpacity="0.9" />
-        {/* Registration marks in the corners of the sheet. */}
-        <path d="M60 100V60h40M1540 100V60h-40M60 800v40h40M1540 800v40h-40" fill="none" stroke="#ffffff" strokeOpacity="0.35" />
-      </svg>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F17]/70" />
+    <div className="absolute inset-0 bg-[#0B0F17]">
+      <ReservesField className="absolute inset-0 h-full w-full" />
+      {/* Legibility veil for the header and ticker; fades out once the hero collapses. */}
+      <div className="hero-veil pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0B0F17]/55 via-transparent via-30% to-[#0B0F17]/80" />
     </div>
   );
 }

@@ -39,7 +39,7 @@ export function Beliefs() {
           </h2>
         </div>
 
-        <Globe className="mx-auto aspect-square w-full max-w-[440px]" />
+        <Globe className="mx-auto aspect-square w-full max-w-[260px] md:max-w-[440px]" />
 
         <div className="md:text-right">
           <AnimatePresence mode="wait">

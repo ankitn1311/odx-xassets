@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent, useTransform } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import { DemoAlert } from '@/components/common/demo-alert';
 import { Words, Reveal } from './reveal';
@@ -182,11 +182,19 @@ export function ProductsBento() {
     return () => mq.removeEventListener('change', set);
   }, []);
 
+  // Switch a little ahead of the even thirds so the next product appears before
+  // the reader has scrolled a full segment.
+  const segments = PRODUCTS.length + 0.6;
   useMotionValueEvent(scrollYProgress, 'change', v => {
     if (!pinned) return;
-    // Switch a little ahead of the even thirds so the next product appears before
-    // the reader has scrolled a full segment.
-    setActive(Math.min(PRODUCTS.length - 1, Math.floor(v * (PRODUCTS.length + 0.6))));
+    setActive(Math.min(PRODUCTS.length - 1, Math.floor(v * segments)));
+  });
+  // How far through the current product's segment the reader is: drives the blue
+  // progress line on the open card.
+  const segmentProgress = useTransform(scrollYProgress, v => {
+    const x = v * segments;
+    const i = Math.min(PRODUCTS.length - 1, Math.floor(x));
+    return Math.min(1, Math.max(0, x - i));
   });
 
   const p = PRODUCTS[active];
@@ -239,19 +247,27 @@ export function ProductsBento() {
                     }}
                     aria-expanded={on}
                     className={cn(
-                      'flex flex-col overflow-hidden rounded-md border border-[var(--l-line)] bg-white p-6 text-left transition-[flex-grow] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
+                      'relative flex flex-col overflow-hidden rounded-md border border-[var(--l-line)] bg-white p-6 text-left transition-[flex-grow] duration-700 [transition-timing-function:cubic-bezier(.45,0,.25,1)]',
                       on ? 'min-h-0 flex-1' : 'flex-none'
                     )}
                   >
+                    {on && pinned && (
+                      <motion.span
+                        aria-hidden
+                        className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--l-blue)]"
+                        style={{ scaleX: segmentProgress }}
+                      />
+                    )}
                     <div className="flex items-center justify-between">
                       {on ? (
-                        <span className="flex size-12 items-center justify-center rounded-md bg-[var(--l-blue)] text-white">
-                          {item.icons[0] ? (
-                            <Image src={`/images/tokens/${item.icons[0]}.png`} alt="" width={32} height={32} className="size-8" />
-                          ) : (
-                            <ShieldCheck className="size-6" />
-                          )}
-                        </span>
+                        item.icons[0] ? (
+                          // The token art carries its own ring and ODX badge, so it stands alone.
+                          <Image src={`/images/tokens/${item.icons[0]}.png`} alt="" width={96} height={96} className="size-12" />
+                        ) : (
+                          <span className="flex size-12 items-center justify-center rounded-md border border-[var(--l-line)] bg-[var(--l-surface)] text-[var(--l-ink)]">
+                            <ShieldCheck className="size-6" strokeWidth={1.5} />
+                          </span>
+                        )
                       ) : (
                         <span className="text-[26px] font-medium tracking-[-0.02em]">{item.name}</span>
                       )}
@@ -297,12 +313,12 @@ export function ProductsBento() {
               })}
             </div>
 
-            {/* Stat tiles, re-drawn for each product */}
-            <div key={p.key} className="grid min-h-0 gap-3 md:grid-rows-[minmax(0,0.9fr)_minmax(0,1fr)]">
-              <TileCard tile={p.tiles[0]} />
-              <div className="grid min-h-0 gap-3 sm:grid-cols-2">
-                <TileCard tile={p.tiles[1]} />
-                <TileCard tile={p.tiles[2]} />
+            {/* One focal chart, then a strip of the two derived facts under it */}
+            <div key={p.key} className="grid min-h-0 gap-3 md:grid-rows-[minmax(0,1.7fr)_minmax(0,1fr)]">
+              <FocalCard tile={p.tiles[0]} />
+              <div className="grid min-h-0 overflow-hidden rounded-md border border-[var(--l-line)] bg-white sm:grid-cols-2 sm:divide-x sm:divide-[var(--l-line)]">
+                <FactCell tile={p.tiles[1]} />
+                <FactCell tile={p.tiles[2]} />
               </div>
             </div>
           </div>
@@ -312,16 +328,48 @@ export function ProductsBento() {
   );
 }
 
-function TileCard({ tile }: { tile: Tile }) {
+/** The one chart that matters for this product, drawn large on a faint blueprint grid. */
+function FocalCard({ tile }: { tile: Tile }) {
   return (
-    <div className="flex min-h-0 flex-col rounded-md border border-[var(--l-line)] bg-white p-5">
-      <p className="text-xs text-[var(--l-muted)]">{tile.label}</p>
-      <p className="mt-1 font-mono text-[28px] leading-none tracking-[-0.02em]">{tile.value}</p>
-      {tile.note && <p className="mt-1.5 font-mono text-[11px] text-[var(--l-muted)]">{tile.note}</p>}
-      <div className="mt-4 min-h-0 flex-1">{tile.chart}</div>
-      <p className="mt-3 flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-[var(--l-muted-2)]">
-        Illustrative <DemoAlert className="h-3 w-3" />
-      </p>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.15 }}
+      className="relative flex min-h-0 flex-col overflow-hidden rounded-md border border-[var(--l-line)] bg-white p-6 [background-image:linear-gradient(to_right,rgba(11,15,23,.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(11,15,23,.045)_1px,transparent_1px)] [background-size:40px_40px]"
+    >
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--l-muted)]">
+            <Marker className="h-1.5 w-1.5" /> {tile.label}
+          </p>
+          <p className="mt-2 font-mono text-[44px] leading-none tracking-[-0.03em] md:text-[56px]">{tile.value}</p>
+          {tile.note && <p className="mt-2 text-sm text-[var(--l-ink-2)]">{tile.note}</p>}
+        </div>
+        <p className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-[var(--l-muted-2)]">
+          Illustrative <DemoAlert className="h-3 w-3" />
+        </p>
+      </div>
+      <div className="mt-6 min-h-0 flex-1">{tile.chart}</div>
+    </motion.div>
+  );
+}
+
+/** A derived fact: label, mono value, and a small chart set on one line. */
+function FactCell({ tile }: { tile: Tile }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.35 }}
+      className="flex min-h-0 min-w-0 items-center gap-6 px-6 py-5"
+    >
+      <div className="min-w-0 shrink-0">
+        <p className="text-xs text-[var(--l-muted)]">{tile.label}</p>
+        <p className="mt-1 font-mono text-[26px] leading-none tracking-[-0.02em]">{tile.value}</p>
+        {tile.note && <p className="mt-1.5 max-w-[210px] font-mono text-[11px] leading-snug text-[var(--l-muted)]">{tile.note}</p>}
+      </div>
+      {/* The small charts carry min-heights for the old tiles; in the strip they get the row's height instead. */}
+      <div className="h-full min-h-0 min-w-0 flex-1 overflow-hidden [&>div]:min-h-0">{tile.chart}</div>
+    </motion.div>
   );
 }
