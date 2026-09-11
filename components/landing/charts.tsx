@@ -22,39 +22,139 @@ function useSize<T extends HTMLElement>() {
   return [ref, size] as const;
 }
 
-type LineProps = { series: number[]; color: string; badge?: string; secondary?: number[] };
+type StepProps = { series: number[]; color: string; badge?: string };
 
-/** Dotted line chart drawn as staggered squares over a dashed grid, with a value badge. */
-export function DottedLine({ series, color, badge, secondary }: LineProps) {
+/**
+ * Stepped line for a price that accrues: each step holds, then moves up. The line is
+ * drawn in from the left, with a faint fill beneath it and the value badge at the end.
+ */
+export function StepLine({ series, color, badge }: StepProps) {
   const [ref, { w, h }] = useSize<HTMLDivElement>();
   const top = 30;
   const bottom = 8;
-  const all = [...series, ...(secondary ?? [])];
-  const min = Math.min(...all);
-  const max = Math.max(...all);
+  const n = series.length;
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const span = h - top - bottom;
   const y = (v: number) =>
-    max === min ? top + (h - top - bottom) / 2 : h - bottom - ((v - min) / (max - min)) * (h - top - bottom);
-  const x = (i: number, n: number) => 4 + (i / Math.max(1, n - 1)) * (w - 8);
-  // The secondary series is drawn first and larger, so where the two overlap it shows
-  // as a halo around the primary dot: "matched" reads at a glance.
-  const dot = (i: number, n: number, v: number, fill: string, delay: number, key: string, size = 6) => (
-    <motion.rect
-      key={key}
-      x={x(i, n) - size / 2}
-      y={y(v) - size / 2}
-      width={size}
-      height={size}
-      rx={0}
-      fill={fill}
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, ease: EASE, delay }}
-      style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
-    />
-  );
+    max === min ? top + span / 2 : h - bottom - ((v - min) / (max - min)) * span;
+  const x = (i: number) => 4 + (i / Math.max(1, n - 1)) * (w - 8);
+  // Horizontal run to the next x, then the vertical rise: a staircase.
+  const steps = series.map((v, i) => {
+    const px = x(i);
+    const nx = i < n - 1 ? x(i + 1) : px;
+    return `${i === 0 ? 'M' : 'L'} ${px} ${y(v)} L ${nx} ${y(v)}`;
+  });
+  const line = steps.join(' ');
+  const area = `${line} L ${x(n - 1)} ${h - bottom} L ${x(0)} ${h - bottom} Z`;
 
   return (
     <div ref={ref} className="relative h-full min-h-[140px] w-full">
+      {badge && (
+        <span
+          className="absolute right-0 top-0 rounded border px-1.5 py-0.5 font-mono text-[11px]"
+          style={{ borderColor: color, color }}
+        >
+          {badge}
+        </span>
+      )}
+      {w > 0 && (
+        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="block" aria-hidden="true">
+          {Array.from({ length: 7 }).map((_, i) => {
+            const gy = top + (i / 6) * span;
+            return (
+              <line key={i} x1="0" x2={w} y1={gy} y2={gy} stroke="#D9DEE7" strokeDasharray="2 4" />
+            );
+          })}
+          <motion.path
+            d={area}
+            fill={color}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.08 }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
+          />
+          <motion.path
+            d={line}
+            fill="none"
+            stroke={color}
+            strokeWidth={2}
+            strokeLinejoin="miter"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 1.1, ease: EASE, delay: 0.15 }}
+          />
+          <motion.rect
+            x={x(n - 1) - 4}
+            y={y(series[n - 1]) - 4}
+            width={8}
+            height={8}
+            fill={color}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, ease: EASE, delay: 1.2 }}
+            style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+          />
+        </svg>
+      )}
+    </div>
+  );
+}
+
+type PairedProps = { series: number[]; color: string; badge?: string; labels?: [string, string] };
+
+/**
+ * Paired bars, the same mark as the hero ledger: for every step a solid bar (minted)
+ * stands next to an outlined bar (in custody) of exactly the same height, so "backed
+ * 1:1" reads as a shape rather than a claim. Bars rise from a zero baseline.
+ */
+export function PairedBars({
+  series,
+  color,
+  badge,
+  labels = ['Minted', 'In custody'],
+}: PairedProps) {
+  const [ref, { w, h }] = useSize<HTMLDivElement>();
+  const top = 30;
+  const bottom = 8;
+  const n = series.length;
+  const max = Math.max(...series, 1);
+  const floor = h - bottom;
+  const span = h - top - bottom;
+  const slot = (w - 8) / n;
+  const bw = Math.max(3, Math.floor((slot - 6) / 2));
+  const bar = (i: number, v: number, outlined: boolean) => {
+    const bh = Math.max(2, (v / max) * span);
+    const x = 4 + i * slot + (outlined ? bw + 2 : 0);
+    return (
+      <motion.rect
+        key={`${outlined ? 'c' : 'm'}${i}`}
+        x={x + (outlined ? 0.5 : 0)}
+        y={floor - bh + (outlined ? 0.5 : 0)}
+        width={outlined ? bw - 1 : bw}
+        height={outlined ? Math.max(1, bh - 1) : bh}
+        fill={outlined ? 'none' : color}
+        stroke={outlined ? color : 'none'}
+        strokeWidth={outlined ? 1 : 0}
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.5, ease: EASE, delay: 0.15 + i * 0.03 }}
+        style={{ transformBox: 'fill-box', transformOrigin: 'bottom' }}
+      />
+    );
+  };
+
+  return (
+    <div ref={ref} className="relative h-full min-h-[140px] w-full">
+      <div className="absolute left-0 top-0 flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--l-muted)]">
+        <span className="flex items-center gap-1.5">
+          <span aria-hidden className="inline-block size-2" style={{ background: color }} />
+          {labels[0]}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span aria-hidden className="inline-block size-2 border" style={{ borderColor: color }} />
+          {labels[1]}
+        </span>
+      </div>
       {badge && (
         <span className="absolute right-0 top-0 rounded border border-[var(--l-plum)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--l-plum)]">
           {badge}
@@ -63,11 +163,14 @@ export function DottedLine({ series, color, badge, secondary }: LineProps) {
       {w > 0 && (
         <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="block" aria-hidden="true">
           {Array.from({ length: 7 }).map((_, i) => {
-            const gy = top + (i / 6) * (h - top - bottom);
-            return <line key={i} x1="0" x2={w} y1={gy} y2={gy} stroke="#D9DEE7" strokeDasharray="2 4" />;
+            const gy = top + (i / 6) * span;
+            return (
+              <line key={i} x1="0" x2={w} y1={gy} y2={gy} stroke="#D9DEE7" strokeDasharray="2 4" />
+            );
           })}
-          {secondary?.map((v, i) => dot(i, secondary.length, v, '#D9DEE7', 0.1 + i * 0.03, `s${i}`, 12))}
-          {series.map((v, i) => dot(i, series.length, v, color, 0.2 + i * 0.04, `p${i}`))}
+          <line x1="0" x2={w} y1={floor} y2={floor} stroke="#D9DEE7" />
+          {series.map((v, i) => bar(i, v, false))}
+          {series.map((v, i) => bar(i, v, true))}
         </svg>
       )}
     </div>

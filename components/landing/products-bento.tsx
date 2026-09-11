@@ -6,11 +6,11 @@ import { ShieldCheck } from 'lucide-react';
 import { DemoAlert } from '@/components/common/demo-alert';
 import { Words, Reveal } from './reveal';
 import { LaunchGate } from './launch-gate';
-import { Bars, DottedLine, IconGrid, MiniTable } from './charts';
+import { Bars, IconGrid, MiniTable, PairedBars, StepLine } from './charts';
 import { cn } from '@/lib/utils';
 import { Marker } from './blueprint';
 
-type Tile ={ label: string; value: string; note?: string; chart: React.ReactNode };
+type Tile = { label: string; value: string; note?: string; chart: React.ReactNode };
 type Product = {
   key: string;
   tag: string;
@@ -23,7 +23,10 @@ type Product = {
 };
 
 // Illustrative shapes only: minting grows in steps and custody keeps pace with it.
-const growth = Array.from({ length: 22 }, (_, i) => 100 + Math.pow(i, 1.6) * 4 + (i % 3 === 0 ? 6 : 0));
+const growth = Array.from(
+  { length: 22 },
+  (_, i) => 100 + Math.pow(i, 1.6) * 4 + (i % 3 === 0 ? 6 : 0)
+);
 const nav = Array.from({ length: 22 }, (_, i) => 1 + i * 0.0006 + (i % 4 === 0 ? 0.0002 : 0));
 
 const PRODUCTS: Product[] = [
@@ -40,12 +43,16 @@ const PRODUCTS: Product[] = [
         label: 'Units minted vs in custody',
         value: '1 : 1',
         note: 'Custody keeps pace with every mint',
-        chart: <DottedLine series={growth} secondary={growth} color="#2F6BFF" badge="100%" />,
+        chart: <PairedBars series={growth} color="#2F6BFF" badge="100%" />,
       },
       {
         label: 'Assets',
         value: '8',
-        chart: <IconGrid icons={['x2XRP', 'x2BTC', 'x2DOGE', 'x2SOL', 'x2ETH', 'x2ADA', 'x2SUI', 'x2PEPE']} />,
+        chart: (
+          <IconGrid
+            icons={['x2XRP', 'x2BTC', 'x2DOGE', 'x2SOL', 'x2ETH', 'x2ADA', 'x2SUI', 'x2PEPE']}
+          />
+        ),
       },
       {
         label: 'Settlement',
@@ -78,7 +85,7 @@ const PRODUCTS: Product[] = [
         label: 'NAV',
         value: '$1.012',
         note: 'Priced at net asset value',
-        chart: <DottedLine series={nav} color="#1DA66A" badge="$1.012" />,
+        chart: <StepLine series={nav} color="#1DA66A" badge="$1.012" />,
       },
       {
         label: 'Allocation',
@@ -130,7 +137,7 @@ const PRODUCTS: Product[] = [
         label: 'Minted vs in custody',
         value: 'Matched',
         note: 'Both series overlap when fully backed',
-        chart: <DottedLine series={growth} secondary={growth} color="#63A0F8" badge="1 : 1" />,
+        chart: <PairedBars series={growth} color="#63A0F8" badge="1 : 1" />,
       },
       {
         label: 'Custodian',
@@ -212,8 +219,8 @@ export function ProductsBento() {
         />
         <Reveal delay={0.2}>
           <p className="mx-auto mt-5 max-w-[560px] text-lg text-[var(--l-ink-2)]">
-            Wraps you can mint and redeem, a cash token that earns, and a reserves page that
-            shows the backing behind both.
+            Wraps you can mint and redeem, a cash token that earns, and a reserves page that shows
+            the backing behind both.
           </p>
         </Reveal>
       </div>
@@ -228,7 +235,7 @@ export function ProductsBento() {
         >
           <div
             className={cn(
-              'grid w-full min-h-0 gap-3 rounded-lg border border-[var(--l-line)] bg-[var(--l-surface)] p-3 md:grid-cols-[1fr_1.35fr]',
+              'grid min-h-0 w-full gap-3 rounded-lg border border-[var(--l-line)] bg-[var(--l-surface)] p-3 md:grid-cols-[1fr_1.35fr]',
               pinned && 'h-full'
             )}
           >
@@ -262,14 +269,22 @@ export function ProductsBento() {
                       {on ? (
                         item.icons[0] ? (
                           // The token art carries its own ring and ODX badge, so it stands alone.
-                          <Image src={`/images/tokens/${item.icons[0]}.png`} alt="" width={96} height={96} className="size-12" />
+                          <Image
+                            src={`/images/tokens/${item.icons[0]}.png`}
+                            alt=""
+                            width={96}
+                            height={96}
+                            className="size-12"
+                          />
                         ) : (
                           <span className="flex size-12 items-center justify-center rounded-md border border-[var(--l-line)] bg-[var(--l-surface)] text-[var(--l-ink)]">
                             <ShieldCheck className="size-6" strokeWidth={1.5} />
                           </span>
                         )
                       ) : (
-                        <span className="text-[26px] font-medium tracking-[-0.02em]">{item.name}</span>
+                        <span className="text-[26px] font-medium tracking-[-0.02em]">
+                          {item.name}
+                        </span>
                       )}
                       <span className="rounded-md bg-[var(--l-surface)] px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-[var(--l-muted)]">
                         {item.tag}
@@ -282,7 +297,9 @@ export function ProductsBento() {
                         transition={{ duration: 0.5, delay: 0.25 }}
                         className="mt-auto flex flex-col gap-4 pt-10"
                       >
-                        <span className="text-[30px] font-medium tracking-[-0.02em]">{item.name}</span>
+                        <span className="text-[30px] font-medium tracking-[-0.02em]">
+                          {item.name}
+                        </span>
                         <p className="max-w-[440px] text-base leading-[1.5] text-[var(--l-ink-2)] md:text-[18px]">
                           {item.body}
                         </p>
@@ -314,7 +331,10 @@ export function ProductsBento() {
             </div>
 
             {/* One focal chart, then a strip of the two derived facts under it */}
-            <div key={p.key} className="grid min-h-0 gap-3 md:grid-rows-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div
+              key={p.key}
+              className="grid min-h-0 gap-3 md:grid-rows-[minmax(0,1.7fr)_minmax(0,1fr)]"
+            >
               <FocalCard tile={p.tiles[0]} />
               <div className="grid min-h-0 overflow-hidden rounded-md border border-[var(--l-line)] bg-white sm:grid-cols-2 sm:divide-x sm:divide-[var(--l-line)]">
                 <FactCell tile={p.tiles[1]} />
@@ -342,7 +362,9 @@ function FocalCard({ tile }: { tile: Tile }) {
           <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--l-muted)]">
             <Marker className="h-1.5 w-1.5" /> {tile.label}
           </p>
-          <p className="mt-2 font-mono text-[44px] leading-none tracking-[-0.03em] md:text-[56px]">{tile.value}</p>
+          <p className="mt-2 font-mono text-[44px] leading-none tracking-[-0.03em] md:text-[56px]">
+            {tile.value}
+          </p>
           {tile.note && <p className="mt-2 text-sm text-[var(--l-ink-2)]">{tile.note}</p>}
         </div>
         <p className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-[var(--l-muted-2)]">
@@ -366,10 +388,16 @@ function FactCell({ tile }: { tile: Tile }) {
       <div className="min-w-0 shrink-0">
         <p className="text-xs text-[var(--l-muted)]">{tile.label}</p>
         <p className="mt-1 font-mono text-[26px] leading-none tracking-[-0.02em]">{tile.value}</p>
-        {tile.note && <p className="mt-1.5 max-w-[210px] font-mono text-[11px] leading-snug text-[var(--l-muted)]">{tile.note}</p>}
+        {tile.note && (
+          <p className="mt-1.5 max-w-[210px] font-mono text-[11px] leading-snug text-[var(--l-muted)]">
+            {tile.note}
+          </p>
+        )}
       </div>
       {/* The small charts carry min-heights for the old tiles; in the strip they get the row's height instead. */}
-      <div className="h-full min-h-0 min-w-0 flex-1 overflow-hidden [&>div]:min-h-0">{tile.chart}</div>
+      <div className="h-full min-h-0 min-w-0 flex-1 overflow-hidden [&>div]:min-h-0">
+        {tile.chart}
+      </div>
     </motion.div>
   );
 }

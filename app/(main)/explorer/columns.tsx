@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, TrendingDown, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { shortenAddress, shortenAddressWithLength } from '@/utils/crypto';
-import { fmtPrice, fmtUnits, fmtUsd, timeAgo } from '@/lib/format';
+import { fmtPrice, fmtUnits, fmtUsd } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 /** A trade row after normalisation in the table component. */
@@ -21,15 +21,6 @@ export type TradeRow = {
   orderId: string;
   swapper: string;
 };
-
-const exact = (ts: number) =>
-  new Date(ts).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
 
 const copy = async (text: string, what: string) => {
   try {
@@ -97,16 +88,6 @@ export const tradeColumns: ColumnDef<TradeRow>[] = [
     header: 'Price',
     cell: ({ row }) => (
       <span className="tabular-nums">{row.original.price > 0 ? fmtPrice(row.original.price) : '–'}</span>
-    ),
-  },
-  {
-    accessorKey: 'timestamp',
-    header: 'Time',
-    cell: ({ row }) => (
-      <span className="flex flex-col leading-tight">
-        <span>{timeAgo(row.original.timestamp)}</span>
-        <span className="text-xs text-muted-foreground">{exact(row.original.timestamp)}</span>
-      </span>
     ),
   },
   {
